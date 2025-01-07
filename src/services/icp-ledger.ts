@@ -117,10 +117,24 @@ export class ICPLedgerService {
     }
 
     try {
-      // Convert hex account ID to Uint8Array
-      const accountBytes = new Uint8Array(
-        accountId.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16)) || []
-      );
+      let accountBytes: Uint8Array;
+      
+      try {
+        // Try to convert from hex string
+        if (accountId.startsWith('0x')) {
+          accountId = accountId.slice(2);
+        }
+        accountBytes = new Uint8Array(
+          accountId.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16))
+        );
+      } catch (e) {
+        // If hex conversion fails, try creating from principal
+        const accId = AccountIdentifier.fromPrincipal({
+          principal: Principal.fromText(accountId),
+          subAccount: undefined
+        });
+        accountBytes = accId.toUint8Array();
+      }
 
       const result = await this.actor.account_balance({
         account: accountBytes

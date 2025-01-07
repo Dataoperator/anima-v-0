@@ -6,27 +6,8 @@ import { QuantumState } from '../quantum/types';
 import { quantumStateService } from './quantum-state.service';
 import { ErrorContext } from '@/types/error';
 import { AccountIdentifier } from '@dfinity/nns';
-
-export interface WalletState {
-  balance: number;
-  animaBalance: number;
-  swapRate: number;
-  isInitialized: boolean;
-  lastUpdate: number;
-  depositAddress: string;
-}
-
-export interface SwapParams {
-  amount: number;
-  direction: 'icpToAnima' | 'animaToIcp';
-  expectedOutput: number;
-}
-
-export interface TransactionResult {
-  success: boolean;
-  error?: string;
-  txId?: string;
-}
+import { WalletState, SwapParams, TransactionResult } from '@/types/wallet';
+import { animaActorService } from './anima-actor.service';
 
 class WalletService {
   private errorTracker: ErrorTracker;
@@ -54,15 +35,21 @@ class WalletService {
 
   async generateDepositAddress(principal: Principal): Promise<string> {
     try {
-      // Generate a unique deposit address for the user based on their II principal
       const accountIdentifier = AccountIdentifier.fromPrincipal({
         principal,
-        // We can add subaccounts later for multiple addresses
         subAccount: undefined
       });
 
-      this.state.depositAddress = accountIdentifier.toHex();
-      return this.state.depositAddress;
+      const rawAddress = accountIdentifier.toUint8Array();
+      const hexAddress = Buffer.from(rawAddress).toString('hex');
+      
+      this.state = {
+        ...this.state,
+        depositAddress: hexAddress,
+        rawAddress
+      };
+      
+      return hexAddress;
     } catch (error) {
       await this.trackError(
         error instanceof Error ? error : new Error('Deposit address generation failed'),
@@ -103,7 +90,7 @@ class WalletService {
 
       this.state = {
         ...this.state,
-        balance: Number(icpBalance) / 1e8, // Convert from e8s to ICP
+        balance: Number(icpBalance) / 1e8,
         animaBalance,
         lastUpdate: Date.now()
       };
@@ -150,7 +137,7 @@ class WalletService {
   async swapTokens(params: SwapParams): Promise<TransactionResult> {
     try {
       const currentRate = await this.getSwapRate(params.direction);
-      const slippageTolerance = 0.01; // 1%
+      const slippageTolerance = 0.01;
       const expectedRate = params.expectedOutput / params.amount;
 
       if (Math.abs(currentRate - expectedRate) / expectedRate > slippageTolerance) {
@@ -158,7 +145,6 @@ class WalletService {
       }
 
       if (params.direction === 'icpToAnima') {
-        // Convert ICP to ANIMA
         const amountE8s = BigInt(Math.floor(params.amount * 1e8));
         await icpLedgerService.transfer({
           to: Principal.fromText(process.env.ANIMA_CANISTER_ID || ''),
@@ -166,7 +152,6 @@ class WalletService {
           memo: BigInt(Date.now())
         });
       } else {
-        // Convert ANIMA to ICP
         const actor = await this.getActor(Principal.fromText(process.env.ANIMA_CANISTER_ID || ''));
         await actor.transfer({
           to: this.state.depositAddress,
@@ -227,8 +212,15 @@ class WalletService {
   }
 
   private async getActor(principal: Principal): Promise<ActorSubclass<any>> {
-    // Implementation of actor creation
-    return {} as ActorSubclass<any>;
+    try {
+      const actor = animaActorService.createActor(identity);
+      if (!actor) {
+        throw new Error('Failed to create actor');
+      }
+      return actor;
+    } catch (error) {
+      throw new Error(`Actor creation failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 }
 
