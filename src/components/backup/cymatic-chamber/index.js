@@ -1,0 +1,1 @@
+export { CymaticChamber } from './CymaticChamber';

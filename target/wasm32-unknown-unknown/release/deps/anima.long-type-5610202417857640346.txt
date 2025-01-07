@@ -1,0 +1,1 @@
+std::result::Result<quantum::types::QuantumState, error::Error>

@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --quantum-primary: #3b82f6;
+  --quantum-secondary: #8b5cf6;
+  --quantum-accent: #10b981;
+  --quantum-glow: #22c55e;
+}
+
+@layer base {
+  body {
+    @apply bg-black text-white min-h-screen;
+  }
+}
+
+@layer components {
+  .quantum-field {
+    @apply relative w-full h-full min-h-[400px];
+    background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1), transparent);
+  }
+
+  .neural-interface {
+    @apply relative flex items-center justify-center;
+    background: linear-gradient(to bottom right, rgba(139, 92, 246, 0.1), rgba(16, 185, 129, 0.1));
+  }
+}
+
+@layer utilities {
+  .quantum-glow {
+    text-shadow: 0 0 8px var(--quantum-glow);
+  }
+
+  .quantum-border {
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+  }
+}

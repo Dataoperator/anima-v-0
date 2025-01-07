@@ -1,0 +1,1266 @@
+.
+├── Cargo.lock
+├── Cargo.toml
+├── README.md
+├── canister_ids.json
+├── deploy-full.sh
+├── deploy-mainnet.sh
+├── dfx.json
+├── dist
+│   ├── assets
+│   │   ├── index-3805997f.js
+│   │   └── index-e21b381b.css
+│   └── index.html
+├── index.html
+├── make-scripts-executable.sh
+├── package-lock.json
+├── package.json
+├── postcss.config.cjs
+├── src
+│   ├── __tests__
+│   │   ├── components
+│   │   │   ├── LandingPage.test.tsx
+│   │   │   └── LandingPage.test.tsx:Zone.Identifier
+│   │   ├── integration
+│   │   │   ├── monitoring.test.ts
+│   │   │   ├── monitoring.test.ts:Zone.Identifier
+│   │   │   ├── paymentFlow.test.ts
+│   │   │   ├── paymentFlow.test.ts:Zone.Identifier
+│   │   │   ├── paymentFlow.test.tsx
+│   │   │   ├── paymentFlow.test.tsx:Zone.Identifier
+│   │   │   ├── systemFlow.test.ts
+│   │   │   └── systemFlow.test.ts:Zone.Identifier
+│   │   ├── mocks
+│   │   │   ├── MockIdentity.ts
+│   │   │   ├── MockIdentity.ts:Zone.Identifier
+│   │   │   ├── auth.ts
+│   │   │   ├── auth.ts:Zone.Identifier
+│   │   │   ├── mockActor.ts
+│   │   │   ├── mockActor.ts:Zone.Identifier
+│   │   │   ├── mockAuthContext.ts
+│   │   │   └── mockAuthContext.ts:Zone.Identifier
+│   │   ├── payment
+│   │   │   ├── PaymentContext.test.tsx
+│   │   │   ├── PaymentContext.test.tsx:Zone.Identifier
+│   │   │   ├── payment.service.test.ts
+│   │   │   └── payment.service.test.ts:Zone.Identifier
+│   │   ├── services
+│   │   │   ├── LedgerService.test.ts
+│   │   │   ├── LedgerService.test.ts:Zone.Identifier
+│   │   │   ├── openai.test.ts
+│   │   │   └── openai.test.ts:Zone.Identifier
+│   │   ├── setup.ts
+│   │   ├── setup.ts:Zone.Identifier
+│   │   ├── setupTests.ts
+│   │   └── setupTests.ts:Zone.Identifier
+│   ├── actions
+│   │   ├── handlers.rs
+│   │   ├── handlers.rs:Zone.Identifier
+│   │   ├── mod.rs
+│   │   ├── mod.rs:Zone.Identifier
+│   │   ├── traits.rs
+│   │   ├── traits.rs:Zone.Identifier
+│   │   ├── user.rs
+│   │   └── user.rs:Zone.Identifier
+│   ├── admin
+│   │   ├── admin.rs
+│   │   ├── admin.rs:Zone.Identifier
+│   │   ├── metrics.rs
+│   │   ├── metrics.rs:Zone.Identifier
+│   │   ├── mod.rs
+│   │   └── mod.rs:Zone.Identifier
+│   ├── ai
+│   │   ├── config.rs
+│   │   ├── config.rs:Zone.Identifier
+│   │   ├── emotional_state.rs
+│   │   ├── emotional_state.rs:Zone.Identifier
+│   │   ├── mod.rs
+│   │   ├── openai_client.rs
+│   │   ├── prompt_templates.rs
+│   │   ├── prompt_templates.rs:Zone.Identifier
+│   │   ├── types.rs
+│   │   └── types.rs:Zone.Identifier
+│   ├── analytics
+│   │   ├── AlertsMonitor.ts
+│   │   ├── AlertsMonitor.ts:Zone.Identifier
+│   │   ├── CanisterMonitor.ts
+│   │   ├── CanisterMonitor.ts:Zone.Identifier
+│   │   ├── CyclesMonitor.ts
+│   │   ├── CyclesMonitor.ts:Zone.Identifier
+│   │   ├── NetworkMonitor.ts
+│   │   ├── NetworkMonitor.ts:Zone.Identifier
+│   │   ├── SecurityMonitor.ts
+│   │   ├── SecurityMonitor.ts:Zone.Identifier
+│   │   ├── SystemHealthMonitor.ts
+│   │   ├── SystemHealthMonitor.ts:Zone.Identifier
+│   │   ├── TransactionMonitor.ts
+│   │   ├── TransactionMonitor.ts:Zone.Identifier
+│   │   ├── UserAnalyticsMonitor.ts
+│   │   ├── UserAnalyticsMonitor.ts:Zone.Identifier
+│   │   ├── consciousness_metrics.rs
+│   │   ├── mod.rs
+│   │   ├── mod.rs:Zone.Identifier
+│   │   └── quantum_metrics.rs
+│   ├── anima
+│   │   ├── anima.did
+│   │   ├── anima.did:Zone.Identifier
+│   │   ├── autonomous.rs
+│   │   ├── autonomous.rs:Zone.Identifier
+│   │   ├── error.rs
+│   │   ├── error.rs:Zone.Identifier
+│   │   ├── lib.rs
+│   │   ├── lib.rs:Zone.Identifier
+│   │   ├── llm.rs
+│   │   ├── llm.rs:Zone.Identifier
+│   │   ├── main.rs
+│   │   ├── main.rs:Zone.Identifier
+│   │   ├── memory.rs
+│   │   ├── memory.rs:Zone.Identifier
+│   │   ├── mod.rs
+│   │   ├── mod.rs:Zone.Identifier
+│   │   ├── openai.rs
+│   │   ├── openai.rs:Zone.Identifier
+│   │   ├── personality.rs
+│   │   ├── personality.rs:Zone.Identifier
+│   │   ├── types.rs
+│   │   └── types.rs:Zone.Identifier
+│   ├── anima_assets
+│   │   └── src
+│   │       ├── auth.js
+│   │       ├── auth.js:Zone.Identifier
+│   │       ├── index.html
+│   │       ├── index.html:Zone.Identifier
+│   │       ├── index.jsx
+│   │       ├── index.jsx:Zone.Identifier
+│   │       ├── styles.css
+│   │       └── styles.css:Zone.Identifier
+│   ├── auth
+│   │   ├── AdminAuth.ts
+│   │   ├── AdminAuth.ts:Zone.Identifier
+│   │   ├── AuthProvider.jsx
+│   │   ├── AuthProvider.jsx:Zone.Identifier
+│   │   ├── ii-setup.ts
+│   │   └── ii-setup.ts:Zone.Identifier
+│   ├── autonomous
+│   │   ├── AnimaCore.rs
+│   │   ├── AnimaCore.rs:Zone.Identifier
+│   │   ├── MediaActions.ts
+│   │   ├── MediaActions.ts:Zone.Identifier
+│   │   ├── behavior_engine.rs
+│   │   ├── evolution.rs
+│   │   ├── evolution.rs:Zone.Identifier
+│   │   ├── network.rs
+│   │   └── network.rs:Zone.Identifier
+│   ├── awareness
+│   │   ├── consciousness.rs
+│   │   ├── consciousness.rs:Zone.Identifier
+│   │   ├── environment.rs
+│   │   ├── environment.rs:Zone.Identifier
+│   │   ├── mod.rs
+│   │   ├── mod.rs:Zone.Identifier
+│   │   ├── patterns.rs
+│   │   ├── patterns.rs:Zone.Identifier
+│   │   ├── prediction.rs
+│   │   ├── prediction.rs:Zone.Identifier
+│   │   ├── quantum.rs
+│   │   ├── quantum.rs:Zone.Identifier
+│   │   ├── temporal.rs
+│   │   └── temporal.rs:Zone.Identifier
+│   ├── components
+│   │   ├── App.tsx
+│   │   ├── App.tsx:Zone.Identifier
+│   │   ├── Icons.jsx
+│   │   ├── Icons.jsx:Zone.Identifier
+│   │   ├── ImmersiveAnimaUI.jsx
+│   │   ├── ImmersiveAnimaUI.jsx:Zone.Identifier
+│   │   ├── RecentlyConnected.jsx
+│   │   ├── RecentlyConnected.jsx:Zone.Identifier
+│   │   ├── RecentlyConnected.tsx
+│   │   ├── RecentlyConnected.tsx:Zone.Identifier
+│   │   ├── admin
+│   │   │   ├── AITestPanel.tsx
+│   │   │   ├── AITestPanel.tsx:Zone.Identifier
+│   │   │   ├── AdminErrorBoundary.jsx
+│   │   │   ├── AdminErrorBoundary.jsx:Zone.Identifier
+│   │   │   ├── AdminGuard.tsx
+│   │   │   ├── AdminGuard.tsx:Zone.Identifier
+│   │   │   ├── AdminManagement.tsx
+│   │   │   ├── AdminManagement.tsx:Zone.Identifier
+│   │   │   ├── AdminMetrics.tsx
+│   │   │   ├── AdminMetrics.tsx:Zone.Identifier
+│   │   │   ├── AlertsMonitor.tsx
+│   │   │   ├── AlertsMonitor.tsx:Zone.Identifier
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Dashboard.jsx:Zone.Identifier
+│   │   │   ├── ErrorDashboard.tsx
+│   │   │   └── ErrorDashboard.tsx:Zone.Identifier
+│   │   ├── anima
+│   │   │   ├── AnimaDashboard.jsx
+│   │   │   ├── AnimaDashboard.jsx:Zone.Identifier
+│   │   │   ├── AnimaPage.jsx
+│   │   │   ├── AnimaPage.jsx:Zone.Identifier
+│   │   │   ├── AnimaPreview.jsx
+│   │   │   ├── AnimaPreview.jsx:Zone.Identifier
+│   │   │   ├── InitializationFlow.jsx
+│   │   │   ├── InitializationFlow.jsx:Zone.Identifier
+│   │   │   ├── MintAnima.jsx
+│   │   │   ├── MintAnima.jsx:Zone.Identifier
+│   │   │   ├── NeuralMantra.jsx
+│   │   │   ├── NeuralMantra.jsx:Zone.Identifier
+│   │   │   ├── QuantumInterface.jsx
+│   │   │   └── QuantumInterface.jsx:Zone.Identifier
+│   │   ├── auth
+│   │   │   ├── AdminRoute.tsx
+│   │   │   ├── AdminRoute.tsx:Zone.Identifier
+│   │   │   ├── AuthGuard.jsx
+│   │   │   ├── AuthGuard.jsx:Zone.Identifier
+│   │   │   ├── AuthRedirect.jsx
+│   │   │   ├── AuthRedirect.jsx:Zone.Identifier
+│   │   │   ├── AuthRedirect.tsx
+│   │   │   ├── AuthRedirect.tsx:Zone.Identifier
+│   │   │   ├── InitializationCheck.jsx
+│   │   │   ├── InitializationCheck.jsx:Zone.Identifier
+│   │   │   ├── InitializationManager.tsx
+│   │   │   ├── InitializationManager.tsx:Zone.Identifier
+│   │   │   ├── IntroView.jsx
+│   │   │   ├── IntroView.jsx:Zone.Identifier
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── LoginPage.jsx:Zone.Identifier
+│   │   │   ├── LoginScreen.jsx
+│   │   │   ├── LoginScreen.jsx:Zone.Identifier
+│   │   │   ├── index.js
+│   │   │   ├── index.js:Zone.Identifier
+│   │   │   ├── withAuth.jsx
+│   │   │   └── withAuth.jsx:Zone.Identifier
+│   │   ├── backup_20241229
+│   │   │   ├── PersonalityTraits.jsx.old
+│   │   │   └── PersonalityTraits.jsx.old:Zone.Identifier
+│   │   ├── chat
+│   │   │   ├── AnimaChat.jsx
+│   │   │   ├── AnimaChat.jsx:Zone.Identifier
+│   │   │   ├── AnimaImmersive.tsx
+│   │   │   ├── AnimaImmersive.tsx:Zone.Identifier
+│   │   │   ├── Chat.jsx.bak.old
+│   │   │   ├── Chat.jsx.bak.old:Zone.Identifier
+│   │   │   ├── EnhancedChat.tsx
+│   │   │   ├── EnhancedChat.tsx:Zone.Identifier
+│   │   │   ├── ImmersiveAnimaUI.jsx
+│   │   │   ├── ImmersiveAnimaUI.jsx:Zone.Identifier
+│   │   │   ├── ImmersiveChatInterface.tsx
+│   │   │   ├── ImmersiveChatInterface.tsx:Zone.Identifier
+│   │   │   ├── RecentlyConnected.jsx
+│   │   │   └── RecentlyConnected.jsx:Zone.Identifier
+│   │   ├── dashboard
+│   │   │   ├── NexusDashboard.jsx
+│   │   │   └── NexusDashboard.jsx:Zone.Identifier
+│   │   ├── error-boundary
+│   │   │   ├── ErrorBoundary.jsx
+│   │   │   ├── ErrorBoundary.jsx:Zone.Identifier
+│   │   │   ├── ErrorBoundary.tsx
+│   │   │   ├── ErrorBoundary.tsx:Zone.Identifier
+│   │   │   ├── QuantumErrorBoundary.tsx
+│   │   │   └── QuantumErrorBoundary.tsx:Zone.Identifier
+│   │   ├── essence
+│   │   │   ├── QuantumCore.jsx
+│   │   │   ├── QuantumCore.jsx:Zone.Identifier
+│   │   │   ├── TraitResonance.tsx
+│   │   │   └── TraitResonance.tsx:Zone.Identifier
+│   │   ├── eternal-codex
+│   │   │   ├── AchievementsGallery.tsx
+│   │   │   └── AchievementsGallery.tsx:Zone.Identifier
+│   │   ├── genesis
+│   │   │   ├── DesignationGenerator.jsx
+│   │   │   ├── DesignationGenerator.jsx:Zone.Identifier
+│   │   │   ├── Genesis.jsx
+│   │   │   ├── Genesis.jsx:Zone.Identifier
+│   │   │   ├── Genesis.tsx
+│   │   │   ├── Genesis.tsx:Zone.Identifier
+│   │   │   ├── InitialDesignation.jsx
+│   │   │   ├── InitialDesignation.jsx:Zone.Identifier
+│   │   │   ├── index.js
+│   │   │   └── index.js:Zone.Identifier
+│   │   ├── growth
+│   │   │   ├── FrictionlessGrowthPacks.tsx
+│   │   │   ├── FrictionlessGrowthPacks.tsx:Zone.Identifier
+│   │   │   ├── GrowthPackSelector.jsx
+│   │   │   ├── GrowthPackSelector.jsx:Zone.Identifier
+│   │   │   ├── GrowthSystem.jsx
+│   │   │   └── GrowthSystem.jsx:Zone.Identifier
+│   │   ├── guards
+│   │   │   ├── AnimaGuard.tsx
+│   │   │   ├── AnimaGuard.tsx:Zone.Identifier
+│   │   │   ├── AuthGuard.jsx
+│   │   │   ├── AuthGuard.jsx:Zone.Identifier
+│   │   │   ├── ErrorBoundary.jsx
+│   │   │   └── ErrorBoundary.jsx:Zone.Identifier
+│   │   ├── immersive-chat
+│   │   │   ├── ImmersiveChat.tsx
+│   │   │   └── ImmersiveInterface.tsx
+│   │   ├── interface
+│   │   │   ├── CoreInterface.jsx
+│   │   │   └── CoreInterface.jsx:Zone.Identifier
+│   │   ├── layout
+│   │   │   ├── AppLayout.jsx
+│   │   │   ├── AppLayout.jsx:Zone.Identifier
+│   │   │   ├── ErrorBoundary.jsx
+│   │   │   ├── ErrorBoundary.jsx:Zone.Identifier
+│   │   │   ├── LandingPage.jsx
+│   │   │   ├── LandingPage.jsx:Zone.Identifier
+│   │   │   ├── Loading.jsx
+│   │   │   ├── Loading.jsx:Zone.Identifier
+│   │   │   ├── MatrixLayout.tsx
+│   │   │   ├── MatrixLayout.tsx:Zone.Identifier
+│   │   │   ├── ProtectedLayout.jsx
+│   │   │   ├── ProtectedLayout.jsx:Zone.Identifier
+│   │   │   ├── RootLayout.jsx
+│   │   │   ├── RootLayout.jsx:Zone.Identifier
+│   │   │   ├── RootLayout.tsx
+│   │   │   ├── RootLayout.tsx:Zone.Identifier
+│   │   │   ├── TopNav.jsx
+│   │   │   ├── TopNav.jsx:Zone.Identifier
+│   │   │   ├── cleanup.sh
+│   │   │   └── cleanup.sh:Zone.Identifier
+│   │   ├── market
+│   │   │   ├── MarketplacePage.jsx
+│   │   │   └── MarketplacePage.jsx:Zone.Identifier
+│   │   ├── media
+│   │   │   ├── AnimaMediaInterface.tsx
+│   │   │   ├── AnimaMediaInterface.tsx:Zone.Identifier
+│   │   │   ├── MediaSources.ts
+│   │   │   ├── MediaSources.ts:Zone.Identifier
+│   │   │   ├── SimpleMediaFrame.jsx
+│   │   │   ├── SimpleMediaFrame.jsx:Zone.Identifier
+│   │   │   ├── SimpleMediaFrame.tsx
+│   │   │   ├── SimpleMediaFrame.tsx:Zone.Identifier
+│   │   │   ├── VideoControls.tsx
+│   │   │   └── VideoControls.tsx:Zone.Identifier
+│   │   ├── neural-link
+│   │   │   ├── AnimaNeuralLink.tsx
+│   │   │   └── AnimaNeuralLink.tsx:Zone.Identifier
+│   │   ├── nexus
+│   │   │   ├── Nexus.jsx
+│   │   │   ├── Nexus.jsx:Zone.Identifier
+│   │   │   ├── NexusView.jsx
+│   │   │   └── NexusView.jsx:Zone.Identifier
+│   │   ├── pages
+│   │   │   ├── AnimaPage.tsx
+│   │   │   ├── AnimaPage.tsx:Zone.Identifier
+│   │   │   ├── GenesisPage.jsx
+│   │   │   ├── GenesisPage.jsx:Zone.Identifier
+│   │   │   ├── GenesisPage.tsx
+│   │   │   ├── GenesisPage.tsx:Zone.Identifier
+│   │   │   ├── LandingPage.tsx
+│   │   │   ├── LandingPage.tsx:Zone.Identifier
+│   │   │   ├── NeuralLinkPage.tsx
+│   │   │   └── NeuralLinkPage.tsx:Zone.Identifier
+│   │   ├── payment
+│   │   │   ├── BalanceMonitor.tsx
+│   │   │   ├── BalanceMonitor.tsx:Zone.Identifier
+│   │   │   ├── ICPPaymentPanel.tsx
+│   │   │   ├── ICPPaymentPanel.tsx:Zone.Identifier
+│   │   │   ├── PaymentDebugPanel.tsx
+│   │   │   ├── PaymentDebugPanel.tsx:Zone.Identifier
+│   │   │   ├── PaymentMonitor.tsx
+│   │   │   ├── PaymentMonitor.tsx:Zone.Identifier
+│   │   │   ├── PaymentPanel.tsx
+│   │   │   ├── PaymentPanel.tsx:Zone.Identifier
+│   │   │   ├── TransactionHistory.tsx
+│   │   │   └── TransactionHistory.tsx:Zone.Identifier
+│   │   ├── payments
+│   │   │   ├── PaymentComponent.tsx
+│   │   │   ├── PaymentComponent.tsx:Zone.Identifier
+│   │   │   ├── PaymentErrorBoundary.tsx
+│   │   │   ├── PaymentErrorBoundary.tsx:Zone.Identifier
+│   │   │   ├── PaymentFlow.tsx
+│   │   │   ├── PaymentFlow.tsx:Zone.Identifier
+│   │   │   ├── PaymentHistory.tsx
+│   │   │   ├── PaymentHistory.tsx:Zone.Identifier
+│   │   │   ├── PaymentInstructions.tsx
+│   │   │   ├── PaymentInstructions.tsx:Zone.Identifier
+│   │   │   ├── PaymentModal.tsx
+│   │   │   ├── PaymentModal.tsx:Zone.Identifier
+│   │   │   ├── PaymentPanel.jsx
+│   │   │   ├── PaymentPanel.jsx:Zone.Identifier
+│   │   │   ├── PaymentReceipt.tsx
+│   │   │   └── PaymentReceipt.tsx:Zone.Identifier
+│   │   ├── personality
+│   │   │   ├── ConnectionStatus.tsx
+│   │   │   ├── ConnectionStatus.tsx:Zone.Identifier
+│   │   │   ├── ConsciousnessMetrics.tsx
+│   │   │   ├── ConsciousnessMetrics.tsx:Zone.Identifier
+│   │   │   ├── DimensionalMap.tsx
+│   │   │   ├── DimensionalMap.tsx:Zone.Identifier
+│   │   │   ├── EmotionalState.tsx
+│   │   │   ├── EmotionalState.tsx:Zone.Identifier
+│   │   │   ├── PersonalityEvolution.jsx
+│   │   │   ├── PersonalityEvolution.jsx:Zone.Identifier
+│   │   │   ├── PersonalityStats.jsx
+│   │   │   ├── PersonalityStats.jsx:Zone.Identifier
+│   │   │   ├── PersonalityTraits.jsx
+│   │   │   ├── PersonalityTraits.jsx:Zone.Identifier
+│   │   │   ├── PersonalityVisualization.tsx
+│   │   │   ├── PersonalityVisualization.tsx:Zone.Identifier
+│   │   │   ├── QuantumTraits.tsx
+│   │   │   ├── QuantumTraits.tsx:Zone.Identifier
+│   │   │   ├── WaveformGenerator.tsx
+│   │   │   └── WaveformGenerator.tsx:Zone.Identifier
+│   │   ├── quantum
+│   │   │   ├── DataStream.jsx
+│   │   │   ├── DataStream.jsx:Zone.Identifier
+│   │   │   ├── DimensionalView.jsx
+│   │   │   ├── DimensionalView.jsx:Zone.Identifier
+│   │   │   ├── EmotionVisualizer.tsx
+│   │   │   ├── EmotionVisualizer.tsx:Zone.Identifier
+│   │   │   ├── QuantumAnimations.jsx
+│   │   │   ├── QuantumAnimations.jsx:Zone.Identifier
+│   │   │   ├── QuantumErrorBoundary.tsx
+│   │   │   ├── QuantumErrorBoundary.tsx:Zone.Identifier
+│   │   │   ├── QuantumField.jsx
+│   │   │   ├── QuantumField.jsx:Zone.Identifier
+│   │   │   ├── QuantumPaymentField.tsx
+│   │   │   ├── QuantumPaymentField.tsx:Zone.Identifier
+│   │   │   ├── QuantumStateVisualizer.jsx
+│   │   │   ├── QuantumStateVisualizer.jsx:Zone.Identifier
+│   │   │   ├── index.js
+│   │   │   └── index.js:Zone.Identifier
+│   │   ├── quantum-vault
+│   │   │   ├── DataStream.jsx
+│   │   │   ├── DataStream.jsx:Zone.Identifier
+│   │   │   ├── DataStream.tsx
+│   │   │   ├── QuantumInteractions.jsx
+│   │   │   ├── QuantumInteractions.jsx:Zone.Identifier
+│   │   │   ├── QuantumInteractions.tsx
+│   │   │   ├── QuantumStateVisualizer.jsx
+│   │   │   ├── QuantumStateVisualizer.tsx
+│   │   │   ├── QuantumVault.jsx
+│   │   │   ├── QuantumVault.jsx:Zone.Identifier
+│   │   │   ├── QuantumVault.tsx
+│   │   │   ├── index.ts
+│   │   │   └── quantum-recovery.ts
+│   │   ├── settings
+│   │   │   ├── OpenAIConfig.jsx
+│   │   │   ├── OpenAIConfig.jsx:Zone.Identifier
+│   │   │   ├── Settings.jsx
+│   │   │   ├── Settings.jsx:Zone.Identifier
+│   │   │   ├── SettingsPage.jsx
+│   │   │   └── SettingsPage.jsx:Zone.Identifier
+│   │   ├── sound
+│   │   │   ├── SoundManager.jsx
+│   │   │   └── SoundManager.jsx:Zone.Identifier
+│   │   ├── transactions
+│   │   │   ├── TransactionReceipt.tsx
+│   │   │   └── TransactionReceipt.tsx:Zone.Identifier
+│   │   ├── ui
+│   │   │   ├── CircuitLines.jsx
+│   │   │   ├── CircuitLines.jsx:Zone.Identifier
+│   │   │   ├── CyberHUD.tsx
+│   │   │   ├── CyberHUD.tsx:Zone.Identifier
+│   │   │   ├── CyberSignature.jsx
+│   │   │   ├── CyberSignature.jsx:Zone.Identifier
+│   │   │   ├── EnhancedButton.jsx
+│   │   │   ├── EnhancedButton.jsx:Zone.Identifier
+│   │   │   ├── ErrorBoundary.tsx
+│   │   │   ├── ErrorBoundary.tsx:Zone.Identifier
+│   │   │   ├── FloatingCard.jsx
+│   │   │   ├── FloatingCard.jsx:Zone.Identifier
+│   │   │   ├── GlowOrb.jsx
+│   │   │   ├── GlowOrb.jsx:Zone.Identifier
+│   │   │   ├── HexGrid.jsx
+│   │   │   ├── HexGrid.jsx:Zone.Identifier
+│   │   │   ├── LaughingMan.jsx
+│   │   │   ├── LaughingMan.jsx:Zone.Identifier
+│   │   │   ├── LaughingMan.tsx
+│   │   │   ├── LaughingMan.tsx:Zone.Identifier
+│   │   │   ├── MatrixRain.tsx
+│   │   │   ├── MatrixRain.tsx:Zone.Identifier
+│   │   │   ├── NeuralGrid.jsx
+│   │   │   ├── NeuralGrid.jsx:Zone.Identifier
+│   │   │   ├── NeuralInterface.tsx
+│   │   │   ├── NeuralInterface.tsx:Zone.Identifier
+│   │   │   ├── NeuralQuote.jsx
+│   │   │   ├── NeuralQuote.jsx:Zone.Identifier
+│   │   │   ├── PulsatingLogo.jsx
+│   │   │   ├── PulsatingLogo.jsx:Zone.Identifier
+│   │   │   ├── QuantumField.jsx
+│   │   │   ├── QuantumField.jsx:Zone.Identifier
+│   │   │   ├── QuantumField.tsx
+│   │   │   ├── QuantumField.tsx:Zone.Identifier
+│   │   │   ├── Wallet.tsx
+│   │   │   ├── Wallet.tsx:Zone.Identifier
+│   │   │   ├── alert-dialog.tsx
+│   │   │   ├── alert-dialog.tsx:Zone.Identifier
+│   │   │   ├── alert.jsx
+│   │   │   ├── alert.jsx:Zone.Identifier
+│   │   │   ├── alert.tsx
+│   │   │   ├── alert.tsx:Zone.Identifier
+│   │   │   ├── button.tsx
+│   │   │   ├── button.tsx:Zone.Identifier
+│   │   │   ├── card.jsx
+│   │   │   ├── card.jsx:Zone.Identifier
+│   │   │   ├── card.tsx
+│   │   │   ├── card.tsx:Zone.Identifier
+│   │   │   ├── dialog.tsx
+│   │   │   ├── dialog.tsx:Zone.Identifier
+│   │   │   ├── input.tsx
+│   │   │   ├── input.tsx:Zone.Identifier
+│   │   │   ├── loader.tsx
+│   │   │   ├── loader.tsx:Zone.Identifier
+│   │   │   ├── slider.jsx
+│   │   │   ├── slider.jsx:Zone.Identifier
+│   │   │   ├── switch.jsx
+│   │   │   ├── switch.jsx:Zone.Identifier
+│   │   │   ├── tabs.jsx
+│   │   │   ├── tabs.jsx:Zone.Identifier
+│   │   │   └── use-toast.ts
+│   │   └── wavelength
+│   │       ├── CorePatterns.tsx
+│   │       └── CorePatterns.tsx:Zone.Identifier
+│   ├── config
+│   │   ├── agent.js
+│   │   ├── agent.js:Zone.Identifier
+│   │   ├── canisterEnv.js
+│   │   ├── canisterEnv.js:Zone.Identifier
+│   │   ├── env.ts
+│   │   ├── env.ts:Zone.Identifier
+│   │   ├── host.js
+│   │   ├── host.js:Zone.Identifier
+│   │   ├── ic.config.ts
+│   │   ├── identity.config.ts
+│   │   ├── identity.config.ts:Zone.Identifier
+│   │   ├── ii-config.ts
+│   │   ├── ii-config.ts:Zone.Identifier
+│   │   ├── index.js
+│   │   ├── index.js:Zone.Identifier
+│   │   ├── ledger.ts
+│   │   └── ledger.ts:Zone.Identifier
+│   ├── consciousness
+│   │   ├── ConsciousnessTracker.ts
+│   │   └── mod.rs
+│   ├── constants
+│   │   ├── systemMessages.js
+│   │   └── systemMessages.js:Zone.Identifier
+│   ├── contexts
+│   │   ├── AnimaContext.tsx
+│   │   ├── PaymentContext.tsx
+│   │   ├── PaymentContext.tsx:Zone.Identifier
+│   │   ├── QuantumContext.tsx
+│   │   ├── anima-context.tsx
+│   │   ├── anima-context.tsx:Zone.Identifier
+│   │   ├── auth-context.tsx
+│   │   ├── auth-context.tsx:Zone.Identifier
+│   │   ├── backup_20241229
+│   │   │   ├── auth-context.tsx
+│   │   │   └── auth-context.tsx:Zone.Identifier
+│   │   ├── index.js
+│   │   ├── index.js:Zone.Identifier
+│   │   ├── index.ts
+│   │   ├── index.ts:Zone.Identifier
+│   │   ├── quantum-context.tsx
+│   │   └── quantum-context.tsx:Zone.Identifier
+│   ├── declarations
+│   │   ├── anima
+│   │   │   ├── anima.did
+│   │   │   ├── anima.did.d.ts
+│   │   │   ├── anima.did.js
+│   │   │   ├── index.d.ts
+│   │   │   └── index.js
+│   │   ├── index.js
+│   │   ├── index.js:Zone.Identifier
+│   │   ├── ledger.did.ts
+│   │   ├── ledger.did.ts:Zone.Identifier
+│   │   └── types
+│   │       ├── actor.d.ts
+│   │       ├── actor.d.ts:Zone.Identifier
+│   │       ├── actor.ts
+│   │       ├── actor.ts:Zone.Identifier
+│   │       ├── metrics.ts
+│   │       ├── metrics.ts:Zone.Identifier
+│   │       ├── types.ts
+│   │       └── types.ts:Zone.Identifier
+│   ├── docs
+│   │   ├── FLOW.md
+│   │   └── FLOW.md:Zone.Identifier
+│   ├── emotional
+│   │   └── state_tracker.rs
+│   ├── enhanced
+│   │   ├── ai
+│   │   │   ├── ContextManager.ts
+│   │   │   ├── ContextManager.ts:Zone.Identifier
+│   │   │   ├── OpenAIIntegration.ts
+│   │   │   └── OpenAIIntegration.ts:Zone.Identifier
+│   │   ├── error
+│   │   │   ├── ErrorTracker.ts
+│   │   │   └── ErrorTracker.ts:Zone.Identifier
+│   │   ├── immersive
+│   │   │   ├── ImmersiveChat.tsx
+│   │   │   └── ImmersiveChat.tsx:Zone.Identifier
+│   │   ├── payments
+│   │   │   ├── ICPLedger.ts
+│   │   │   └── ICPLedger.ts:Zone.Identifier
+│   │   └── quantum
+│   │       ├── QuantumVault.tsx
+│   │       ├── QuantumVault.tsx:Zone.Identifier
+│   │       ├── StateManager.ts
+│   │       └── StateManager.ts:Zone.Identifier
+│   ├── error
+│   │   ├── mod.rs
+│   │   └── quantum_error.rs
+│   ├── growth
+│   │   ├── mod.rs
+│   │   ├── mod.rs:Zone.Identifier
+│   │   ├── quantum_evolution.rs
+│   │   └── trait_evolution.rs
+│   ├── hooks
+│   │   ├── index.js
+│   │   ├── index.js:Zone.Identifier
+│   │   ├── index.ts
+│   │   ├── index.ts:Zone.Identifier
+│   │   ├── useActor.ts
+│   │   ├── useAdminMetrics.js
+│   │   ├── useAdminMetrics.js:Zone.Identifier
+│   │   ├── useAdminMetrics.ts
+│   │   ├── useAdminMetrics.ts:Zone.Identifier
+│   │   ├── useAnima.js
+│   │   ├── useAnima.js:Zone.Identifier
+│   │   ├── useAnima.ts
+│   │   ├── useAnima.ts:Zone.Identifier
+│   │   ├── useAnimaChat.js
+│   │   ├── useAnimaChat.js:Zone.Identifier
+│   │   ├── useAnimaChat.ts
+│   │   ├── useAnimaChat.ts:Zone.Identifier
+│   │   ├── useAnimaState.ts
+│   │   ├── useAnimaState.ts:Zone.Identifier
+│   │   ├── useAuth.js.bak.old
+│   │   ├── useAuth.js.bak.old:Zone.Identifier
+│   │   ├── useAuth.ts
+│   │   ├── useAuth.ts:Zone.Identifier
+│   │   ├── useEmergentPersonality.ts
+│   │   ├── useEmergentPersonality.ts:Zone.Identifier
+│   │   ├── useErrorLogging.ts
+│   │   ├── useErrorLogging.ts:Zone.Identifier
+│   │   ├── useGenesisSound.js
+│   │   ├── useGenesisSound.js:Zone.Identifier
+│   │   ├── useGenesisSound.ts
+│   │   ├── useGenesisSound.ts:Zone.Identifier
+│   │   ├── useHapticFeedback.js
+│   │   ├── useHapticFeedback.js:Zone.Identifier
+│   │   ├── useICPLedger.ts
+│   │   ├── useICPLedger.ts:Zone.Identifier
+│   │   ├── useLedger.js
+│   │   ├── useLedger.js:Zone.Identifier
+│   │   ├── useLedger.ts
+│   │   ├── useLedger.ts:Zone.Identifier
+│   │   ├── useLedgerInit.ts
+│   │   ├── useLedgerInit.ts:Zone.Identifier
+│   │   ├── usePayment.js
+│   │   ├── usePayment.js:Zone.Identifier
+│   │   ├── usePayment.ts
+│   │   ├── usePayment.ts:Zone.Identifier
+│   │   ├── usePaymentInit.ts
+│   │   ├── usePaymentInit.ts:Zone.Identifier
+│   │   ├── usePaymentRecovery.ts
+│   │   ├── usePaymentRecovery.ts:Zone.Identifier
+│   │   ├── useQuantum.ts
+│   │   ├── useQuantum.ts:Zone.Identifier
+│   │   ├── useQuantumDataStream.js
+│   │   ├── useQuantumDataStream.js:Zone.Identifier
+│   │   ├── useQuantumMemory.ts
+│   │   ├── useQuantumMemory.ts:Zone.Identifier
+│   │   ├── useQuantumState.js
+│   │   ├── useQuantumState.js:Zone.Identifier
+│   │   ├── useQuantumState.ts
+│   │   ├── useRealtimePersonality.ts
+│   │   ├── useRealtimePersonality.ts:Zone.Identifier
+│   │   ├── useSession.js
+│   │   └── useSession.js:Zone.Identifier
+│   ├── icrc
+│   │   ├── ledger.rs
+│   │   ├── ledger.rs:Zone.Identifier
+│   │   ├── mod.rs
+│   │   └── mod.rs:Zone.Identifier
+│   ├── ii-config.ts
+│   ├── index.css
+│   ├── initialization
+│   │   └── EnhancedSystemInitializer.ts
+│   ├── integrations
+│   │   ├── DataStreams.ts
+│   │   ├── DataStreams.ts:Zone.Identifier
+│   │   ├── canister_bridge.rs
+│   │   ├── canister_bridge.rs:Zone.Identifier
+│   │   ├── community.rs
+│   │   ├── community.rs:Zone.Identifier
+│   │   ├── environment.rs
+│   │   ├── environment.rs:Zone.Identifier
+│   │   ├── events.rs
+│   │   ├── events.rs:Zone.Identifier
+│   │   ├── mod.rs
+│   │   ├── mod.rs:Zone.Identifier
+│   │   ├── quantum_ai_bridge.ts
+│   │   ├── quantum_payment_bridge.ts
+│   │   ├── sync.rs
+│   │   ├── sync.rs:Zone.Identifier
+│   │   ├── traits.rs
+│   │   ├── traits.rs:Zone.Identifier
+│   │   ├── types.ts
+│   │   └── types.ts:Zone.Identifier
+│   ├── lib
+│   │   ├── anima-utils.ts
+│   │   ├── anima-utils.ts:Zone.Identifier
+│   │   ├── utils.ts
+│   │   └── utils.ts:Zone.Identifier
+│   ├── lib.did
+│   ├── lib.rs
+│   ├── main.tsx
+│   ├── media
+│   │   └── mod.rs
+│   ├── memory
+│   │   ├── formation.rs
+│   │   ├── formation.rs:Zone.Identifier
+│   │   ├── mod.rs
+│   │   ├── mod.rs:4:26
+│   │   ├── mod.rs:4:26:Zone.Identifier
+│   │   ├── mod.rs:8:9
+│   │   ├── mod.rs:8:9:Zone.Identifier
+│   │   ├── mod.rs:Zone.Identifier
+│   │   └── quantum
+│   │       └── mod.rs
+│   ├── neural
+│   │   ├── interaction_patterns.rs
+│   │   └── quantum_bridge.rs
+│   ├── nft
+│   │   ├── collection.rs
+│   │   ├── collection.rs:Zone.Identifier
+│   │   ├── marketplace.rs
+│   │   ├── marketplace.rs:Zone.Identifier
+│   │   ├── minting.rs
+│   │   ├── minting.rs:Zone.Identifier
+│   │   ├── mod.rs
+│   │   ├── mod.rs:Zone.Identifier
+│   │   ├── royalties.rs
+│   │   ├── royalties.rs:Zone.Identifier
+│   │   ├── standards.rs
+│   │   ├── standards.rs:Zone.Identifier
+│   │   ├── types.rs
+│   │   └── types.rs:Zone.Identifier
+│   ├── payments
+│   │   ├── icrc.rs
+│   │   ├── ledger.rs
+│   │   ├── mod.rs
+│   │   ├── processor.rs
+│   │   ├── processor.rs:Zone.Identifier
+│   │   ├── quantum_verification.rs
+│   │   ├── types.rs
+│   │   ├── validator.rs
+│   │   ├── validator.rs:Zone.Identifier
+│   │   └── verification.rs
+│   ├── personality
+│   │   ├── consciousness.rs
+│   │   ├── consciousness.rs:Zone.Identifier
+│   │   ├── dimensions.rs
+│   │   ├── dimensions.rs:Zone.Identifier
+│   │   ├── emotions.rs
+│   │   ├── emotions.rs:Zone.Identifier
+│   │   ├── evolution
+│   │   │   └── mod.rs
+│   │   ├── goals.rs
+│   │   ├── goals.rs:Zone.Identifier
+│   │   ├── mod.rs
+│   │   ├── mod.rs:Zone.Identifier
+│   │   ├── naming.rs
+│   │   ├── naming.rs:Zone.Identifier
+│   │   ├── quantum.rs
+│   │   └── quantum.rs:Zone.Identifier
+│   ├── providers
+│   │   └── AppProviders.tsx
+│   ├── quantum
+│   │   ├── dimensional_resonance.rs
+│   │   └── mod.rs
+│   ├── rarity
+│   │   ├── dragon_traits.rs
+│   │   ├── dragon_traits.rs:Zone.Identifier
+│   │   ├── faction_traits.rs
+│   │   ├── faction_traits.rs:Zone.Identifier
+│   │   ├── ghost_traits.rs
+│   │   ├── ghost_traits.rs:Zone.Identifier
+│   │   ├── mod.rs
+│   │   ├── mod.rs:Zone.Identifier
+│   │   ├── mythic_legacies.rs
+│   │   ├── mythic_legacies.rs:Zone.Identifier
+│   │   ├── power_combinations.rs
+│   │   ├── power_combinations.rs:Zone.Identifier
+│   │   ├── rare_traits.rs
+│   │   └── rare_traits.rs:Zone.Identifier
+│   ├── resonance
+│   │   └── quantum_harmonics.rs
+│   ├── router.jsx
+│   ├── services
+│   │   ├── BuildManager.ts
+│   │   ├── BuildManager.ts:Zone.Identifier
+│   │   ├── FileService.ts
+│   │   ├── FileService.ts:Zone.Identifier
+│   │   ├── MetricsService.ts
+│   │   ├── MetricsService.ts:Zone.Identifier
+│   │   ├── RealtimeService.ts
+│   │   ├── RealtimeService.ts:Zone.Identifier
+│   │   ├── analytics
+│   │   │   ├── payment-analytics.ts
+│   │   │   └── payment-analytics.ts:Zone.Identifier
+│   │   ├── anima.ts
+│   │   ├── anima.ts:Zone.Identifier
+│   │   ├── error-tracker.ts
+│   │   ├── error-tracker.ts:Zone.Identifier
+│   │   ├── icp
+│   │   │   ├── actor.ts
+│   │   │   ├── actor.ts:Zone.Identifier
+│   │   │   ├── ledger.did.ts
+│   │   │   ├── ledger.did.ts:Zone.Identifier
+│   │   │   ├── payment.service.ts
+│   │   │   └── payment.service.ts:Zone.Identifier
+│   │   ├── metrics.ts
+│   │   ├── metrics.ts:Zone.Identifier
+│   │   ├── openai.ts
+│   │   ├── openai.ts:Zone.Identifier
+│   │   ├── realtime.ts
+│   │   ├── realtime.ts:Zone.Identifier
+│   │   ├── transaction-logger.js
+│   │   ├── transaction-logger.js:Zone.Identifier
+│   │   ├── transaction-logger.ts
+│   │   ├── transaction-logger.ts:Zone.Identifier
+│   │   ├── types.ts
+│   │   ├── types.ts:Zone.Identifier
+│   │   ├── websocket.ts
+│   │   └── websocket.ts:Zone.Identifier
+│   ├── state
+│   │   ├── mod.rs
+│   │   └── quantum_state_manager.rs
+│   ├── tests
+│   │   └── quantum_integration.test.ts
+│   ├── traits
+│   │   ├── mythic_system.rs
+│   │   └── rarity_engine.rs
+│   ├── types
+│   │   ├── admin.ts
+│   │   ├── admin.ts:Zone.Identifier
+│   │   ├── alerts.ts
+│   │   ├── alerts.ts:Zone.Identifier
+│   │   ├── anima.ts
+│   │   ├── anima.ts:Zone.Identifier
+│   │   ├── auth.ts
+│   │   ├── auth.ts:Zone.Identifier
+│   │   ├── common.rs
+│   │   ├── common.rs:3:13
+│   │   ├── common.rs:3:13:Zone.Identifier
+│   │   ├── common.rs:Zone.Identifier
+│   │   ├── interaction.rs
+│   │   ├── interaction.rs:Zone.Identifier
+│   │   ├── ledger.ts
+│   │   ├── ledger.ts:Zone.Identifier
+│   │   ├── media.ts
+│   │   ├── media.ts:Zone.Identifier
+│   │   ├── metrics.ts
+│   │   ├── metrics.ts:Zone.Identifier
+│   │   ├── mod.rs
+│   │   ├── mod.rs:11:9
+│   │   ├── mod.rs:11:9:Zone.Identifier
+│   │   ├── mod.rs:12:23
+│   │   ├── mod.rs:12:23:Zone.Identifier
+│   │   ├── mod.rs:Zone.Identifier
+│   │   ├── nft.rs
+│   │   ├── nft.rs:Zone.Identifier
+│   │   ├── payment.ts
+│   │   ├── payment.ts:Zone.Identifier
+│   │   ├── personality.rs
+│   │   ├── personality.rs:Zone.Identifier
+│   │   ├── personality.ts
+│   │   ├── personality.ts:Zone.Identifier
+│   │   ├── quantum.rs
+│   │   ├── quantum.ts
+│   │   ├── quantum.ts:Zone.Identifier
+│   │   ├── rarity.rs
+│   │   ├── rarity.rs:Zone.Identifier
+│   │   ├── realtime.ts
+│   │   ├── realtime.ts:Zone.Identifier
+│   │   ├── security.rs
+│   │   ├── security.rs:Zone.Identifier
+│   │   ├── sound.ts
+│   │   ├── sound.ts:Zone.Identifier
+│   │   ├── storage.rs
+│   │   └── storage.rs:Zone.Identifier
+│   └── utils
+│       ├── RateLimiter.ts
+│       ├── RateLimiter.ts:Zone.Identifier
+│       ├── account.ts
+│       ├── account.ts:Zone.Identifier
+│       ├── actorVerification.js
+│       ├── actorVerification.js:Zone.Identifier
+│       ├── agent.js
+│       ├── agent.js:Zone.Identifier
+│       ├── agent.ts
+│       ├── agent.ts:Zone.Identifier
+│       ├── alerts.ts
+│       ├── alerts.ts:Zone.Identifier
+│       ├── analysis
+│       │   ├── quantum-cognitive.ts
+│       │   └── quantum-cognitive.ts:Zone.Identifier
+│       ├── auth
+│       │   ├── authClient.js
+│       │   ├── authClient.js:Zone.Identifier
+│       │   ├── createActor.js
+│       │   ├── createActor.js:Zone.Identifier
+│       │   ├── createActor.ts
+│       │   ├── createActor.ts:Zone.Identifier
+│       │   ├── index.js
+│       │   ├── index.js:Zone.Identifier
+│       │   ├── index.ts
+│       │   ├── index.ts:Zone.Identifier
+│       │   ├── types.ts
+│       │   └── types.ts:Zone.Identifier
+│       ├── auth.js
+│       ├── auth.js:Zone.Identifier
+│       ├── auth.ts
+│       ├── auth.ts:Zone.Identifier
+│       ├── cleanup-auth.sh
+│       ├── cleanup-auth.sh:Zone.Identifier
+│       ├── cleanup.sh
+│       ├── cleanup.sh:Zone.Identifier
+│       ├── date.ts
+│       ├── date.ts:Zone.Identifier
+│       ├── deviceDetection.js
+│       ├── deviceDetection.js:Zone.Identifier
+│       ├── error-recovery.ts
+│       ├── error-recovery.ts:Zone.Identifier
+│       ├── errorReporting.js
+│       ├── errorReporting.js:Zone.Identifier
+│       ├── fetch-interceptor.js
+│       ├── fetch-interceptor.js:Zone.Identifier
+│       ├── format.ts
+│       ├── format.ts:Zone.Identifier
+│       ├── haptics.js
+│       ├── haptics.js:Zone.Identifier
+│       ├── hash.ts
+│       ├── hash.ts:Zone.Identifier
+│       ├── ic.ts
+│       ├── ic.ts:Zone.Identifier
+│       ├── identity.ts
+│       ├── identity.ts:Zone.Identifier
+│       ├── index.js
+│       ├── index.js:Zone.Identifier
+│       ├── init.js
+│       ├── init.js:Zone.Identifier
+│       ├── logging.js
+│       ├── logging.js:Zone.Identifier
+│       ├── payment.ts
+│       ├── payment.ts:Zone.Identifier
+│       ├── requestManager.js
+│       ├── requestManager.js:Zone.Identifier
+│       ├── sound.js
+│       ├── sound.js:Zone.Identifier
+│       ├── soundGenerator.js
+│       └── soundGenerator.js:Zone.Identifier
+├── tailwind.config.js
+├── target
+│   ├── CACHEDIR.TAG
+│   ├── release
+│   │   └── deps
+│   │       ├── aho_corasick-b4263a45ebeba45c.d
+│   │       ├── anyhow-d0228f1fe31aa547.d
+│   │       ├── arrayvec-400514c174db08b8.d
+│   │       ├── ascii_canvas-b8bec588873d72c5.d
+│   │       ├── autocfg-4df9c147d9bb0cab.d
+│   │       ├── beef-c570cb3ddf2d7038.d
+│   │       ├── binread-6009d2728362395b.d
+│   │       ├── binread_derive-5218cac94a934814.d
+│   │       ├── bit_set-d3efe7cdc7b71a33.d
+│   │       ├── bit_vec-4d67111f2a3dbd76.d
+│   │       ├── block_buffer-d6a93a16e7d46d9c.d
+│   │       ├── byteorder-7b1aa5ab1c0eba84.d
+│   │       ├── candid-034d96386a38606b.d
+│   │       ├── candid_derive-a0d890f9fb6c87be.d
+│   │       ├── cc-1d13abf678b929f5.d
+│   │       ├── cfg_if-623f4c06a0aa0ca8.d
+│   │       ├── codespan_reporting-abf687441687359b.d
+│   │       ├── cpufeatures-1c7ed7fd7f286e79.d
+│   │       ├── crc32fast-3a422cb64309e4d0.d
+│   │       ├── crunchy-46f259a49830ab14.d
+│   │       ├── crypto_common-4c3e3c4580af6f77.d
+│   │       ├── data_encoding-9b04676ccb877d65.d
+│   │       ├── debug_unreachable-d9a7234ba606b02a.d
+│   │       ├── digest-7cbbd139b738eb35.d
+│   │       ├── dirs_next-ab5117f82f60303d.d
+│   │       ├── dirs_sys_next-104cb253baa1cd5c.d
+│   │       ├── either-292fb864944e32b2.d
+│   │       ├── ena-46b5d49a2d35cb06.d
+│   │       ├── equivalent-7cd5a0c2043d5ca1.d
+│   │       ├── fixedbitset-67dd95416c21b93a.d
+│   │       ├── fnv-f913f525ca2433d2.d
+│   │       ├── futures_macro-1f7fa7ba57ad97eb.d
+│   │       ├── generic_array-30facbc03785a3fc.d
+│   │       ├── hashbrown-7c85d1356a6aec70.d
+│   │       ├── hex-0e282666e133265b.d
+│   │       ├── ic_cdk_macros-0fba5bfd1c976572.d
+│   │       ├── indexmap-1c266b8ed1d56ff7.d
+│   │       ├── itertools-e691eec581666cee.d
+│   │       ├── lalrpop-4571014820db1749.d
+│   │       ├── lalrpop_util-3b9fdadbdad3f6d1.d
+│   │       ├── lazy_static-345b31aa986ebf09.d
+│   │       ├── leb128-3cd72d43c0e8fa3a.d
+│   │       ├── libaho_corasick-b4263a45ebeba45c.rlib
+│   │       ├── libaho_corasick-b4263a45ebeba45c.rmeta
+│   │       ├── libanyhow-d0228f1fe31aa547.rlib
+│   │       ├── libanyhow-d0228f1fe31aa547.rmeta
+│   │       ├── libarrayvec-400514c174db08b8.rlib
+│   │       ├── libarrayvec-400514c174db08b8.rmeta
+│   │       ├── libascii_canvas-b8bec588873d72c5.rlib
+│   │       ├── libascii_canvas-b8bec588873d72c5.rmeta
+│   │       ├── libautocfg-4df9c147d9bb0cab.rlib
+│   │       ├── libautocfg-4df9c147d9bb0cab.rmeta
+│   │       ├── libbeef-c570cb3ddf2d7038.rlib
+│   │       ├── libbeef-c570cb3ddf2d7038.rmeta
+│   │       ├── libbinread-6009d2728362395b.rlib
+│   │       ├── libbinread-6009d2728362395b.rmeta
+│   │       ├── libbinread_derive-5218cac94a934814.so
+│   │       ├── libbit_set-d3efe7cdc7b71a33.rlib
+│   │       ├── libbit_set-d3efe7cdc7b71a33.rmeta
+│   │       ├── libbit_vec-4d67111f2a3dbd76.rlib
+│   │       ├── libbit_vec-4d67111f2a3dbd76.rmeta
+│   │       ├── libblock_buffer-d6a93a16e7d46d9c.rlib
+│   │       ├── libblock_buffer-d6a93a16e7d46d9c.rmeta
+│   │       ├── libbyteorder-7b1aa5ab1c0eba84.rlib
+│   │       ├── libbyteorder-7b1aa5ab1c0eba84.rmeta
+│   │       ├── libc-e9e8b7fca28ceef9.d
+│   │       ├── libcandid-034d96386a38606b.rlib
+│   │       ├── libcandid-034d96386a38606b.rmeta
+│   │       ├── libcandid_derive-a0d890f9fb6c87be.so
+│   │       ├── libcc-1d13abf678b929f5.rlib
+│   │       ├── libcc-1d13abf678b929f5.rmeta
+│   │       ├── libcfg_if-623f4c06a0aa0ca8.rlib
+│   │       ├── libcfg_if-623f4c06a0aa0ca8.rmeta
+│   │       ├── libcodespan_reporting-abf687441687359b.rlib
+│   │       ├── libcodespan_reporting-abf687441687359b.rmeta
+│   │       ├── libcpufeatures-1c7ed7fd7f286e79.rlib
+│   │       ├── libcpufeatures-1c7ed7fd7f286e79.rmeta
+│   │       ├── libcrc32fast-3a422cb64309e4d0.rlib
+│   │       ├── libcrc32fast-3a422cb64309e4d0.rmeta
+│   │       ├── libcrunchy-46f259a49830ab14.rlib
+│   │       ├── libcrunchy-46f259a49830ab14.rmeta
+│   │       ├── libcrypto_common-4c3e3c4580af6f77.rlib
+│   │       ├── libcrypto_common-4c3e3c4580af6f77.rmeta
+│   │       ├── libdata_encoding-9b04676ccb877d65.rlib
+│   │       ├── libdata_encoding-9b04676ccb877d65.rmeta
+│   │       ├── libdebug_unreachable-d9a7234ba606b02a.rlib
+│   │       ├── libdebug_unreachable-d9a7234ba606b02a.rmeta
+│   │       ├── libdigest-7cbbd139b738eb35.rlib
+│   │       ├── libdigest-7cbbd139b738eb35.rmeta
+│   │       ├── libdirs_next-ab5117f82f60303d.rlib
+│   │       ├── libdirs_next-ab5117f82f60303d.rmeta
+│   │       ├── libdirs_sys_next-104cb253baa1cd5c.rlib
+│   │       ├── libdirs_sys_next-104cb253baa1cd5c.rmeta
+│   │       ├── libeither-292fb864944e32b2.rlib
+│   │       ├── libeither-292fb864944e32b2.rmeta
+│   │       ├── libena-46b5d49a2d35cb06.rlib
+│   │       ├── libena-46b5d49a2d35cb06.rmeta
+│   │       ├── libequivalent-7cd5a0c2043d5ca1.rlib
+│   │       ├── libequivalent-7cd5a0c2043d5ca1.rmeta
+│   │       ├── libfixedbitset-67dd95416c21b93a.rlib
+│   │       ├── libfixedbitset-67dd95416c21b93a.rmeta
+│   │       ├── libfnv-f913f525ca2433d2.rlib
+│   │       ├── libfnv-f913f525ca2433d2.rmeta
+│   │       ├── libfutures_macro-1f7fa7ba57ad97eb.so
+│   │       ├── libgeneric_array-30facbc03785a3fc.rlib
+│   │       ├── libgeneric_array-30facbc03785a3fc.rmeta
+│   │       ├── libhashbrown-7c85d1356a6aec70.rlib
+│   │       ├── libhashbrown-7c85d1356a6aec70.rmeta
+│   │       ├── libhex-0e282666e133265b.rlib
+│   │       ├── libhex-0e282666e133265b.rmeta
+│   │       ├── libic_cdk_macros-0fba5bfd1c976572.so
+│   │       ├── libindexmap-1c266b8ed1d56ff7.rlib
+│   │       ├── libindexmap-1c266b8ed1d56ff7.rmeta
+│   │       ├── libitertools-e691eec581666cee.rlib
+│   │       ├── libitertools-e691eec581666cee.rmeta
+│   │       ├── liblalrpop-4571014820db1749.rlib
+│   │       ├── liblalrpop-4571014820db1749.rmeta
+│   │       ├── liblalrpop_util-3b9fdadbdad3f6d1.rlib
+│   │       ├── liblalrpop_util-3b9fdadbdad3f6d1.rmeta
+│   │       ├── liblazy_static-345b31aa986ebf09.rlib
+│   │       ├── liblazy_static-345b31aa986ebf09.rmeta
+│   │       ├── libleb128-3cd72d43c0e8fa3a.rlib
+│   │       ├── libleb128-3cd72d43c0e8fa3a.rmeta
+│   │       ├── liblibc-e9e8b7fca28ceef9.rlib
+│   │       ├── liblibc-e9e8b7fca28ceef9.rmeta
+│   │       ├── liblock_api-49e9b45e39683848.rlib
+│   │       ├── liblock_api-49e9b45e39683848.rmeta
+│   │       ├── liblog-6c270bd954570698.rlib
+│   │       ├── liblog-6c270bd954570698.rmeta
+│   │       ├── liblogos_codegen-acc254b299401f93.rlib
+│   │       ├── liblogos_codegen-acc254b299401f93.rmeta
+│   │       ├── liblogos_derive-4be95c2e62eea699.so
+│   │       ├── libmemchr-b3fe7a5e8b659978.rlib
+│   │       ├── libmemchr-b3fe7a5e8b659978.rmeta
+│   │       ├── libnum_bigint-a2f8c56f338926ac.rlib
+│   │       ├── libnum_bigint-a2f8c56f338926ac.rmeta
+│   │       ├── libnum_enum-609df9ae9cbc09e8.rlib
+│   │       ├── libnum_enum-609df9ae9cbc09e8.rmeta
+│   │       ├── libnum_enum_derive-4877415040e16326.so
+│   │       ├── libnum_integer-ee6a0dcdef5bc8d0.rlib
+│   │       ├── libnum_integer-ee6a0dcdef5bc8d0.rmeta
+│   │       ├── libnum_traits-321b3ca122e8345e.rlib
+│   │       ├── libnum_traits-321b3ca122e8345e.rmeta
+│   │       ├── libonce_cell-2af2c2d97f5d10ee.rlib
+│   │       ├── libonce_cell-2af2c2d97f5d10ee.rmeta
+│   │       ├── libparking_lot-61d95d212e5b0238.rlib
+│   │       ├── libparking_lot-61d95d212e5b0238.rmeta
+│   │       ├── libparking_lot_core-2ca86068bcc65341.rlib
+│   │       ├── libparking_lot_core-2ca86068bcc65341.rmeta
+│   │       ├── libpaste-53a39d48c60c5e7b.so
+│   │       ├── libpetgraph-029e03e3a653f146.rlib
+│   │       ├── libpetgraph-029e03e3a653f146.rmeta
+│   │       ├── libphf_shared-13d6d5910afed95f.rlib
+│   │       ├── libphf_shared-13d6d5910afed95f.rmeta
+│   │       ├── libpico_args-19122d0634b17dd3.rlib
+│   │       ├── libpico_args-19122d0634b17dd3.rmeta
+│   │       ├── libprecomputed_hash-e8e4905037913ef4.rlib
+│   │       ├── libprecomputed_hash-e8e4905037913ef4.rmeta
+│   │       ├── libpretty-bb89a7cd3cf91e17.rlib
+│   │       ├── libpretty-bb89a7cd3cf91e17.rmeta
+│   │       ├── libproc_macro2-be43479e351d8bb9.rlib
+│   │       ├── libproc_macro2-be43479e351d8bb9.rmeta
+│   │       ├── libproc_macro_crate-1b806dd302280829.rlib
+│   │       ├── libproc_macro_crate-1b806dd302280829.rmeta
+│   │       ├── libpsm-52dd2f69e50e348f.rlib
+│   │       ├── libpsm-52dd2f69e50e348f.rmeta
+│   │       ├── libquote-cb648b02b5bdbec9.rlib
+│   │       ├── libquote-cb648b02b5bdbec9.rmeta
+│   │       ├── libregex-0042e421705e3310.rlib
+│   │       ├── libregex-0042e421705e3310.rmeta
+│   │       ├── libregex_automata-2fa3ef66748eae68.rlib
+│   │       ├── libregex_automata-2fa3ef66748eae68.rmeta
+│   │       ├── libregex_syntax-3429bddea77a6b08.rlib
+│   │       ├── libregex_syntax-3429bddea77a6b08.rmeta
+│   │       ├── libregex_syntax-65be4871ef6db19a.rlib
+│   │       ├── libregex_syntax-65be4871ef6db19a.rmeta
+│   │       ├── librustversion-0c59cea0865f175c.so
+│   │       ├── libsame_file-e7725a35604fdaf4.rlib
+│   │       ├── libsame_file-e7725a35604fdaf4.rmeta
+│   │       ├── libscopeguard-5124698d46465ae0.rlib
+│   │       ├── libscopeguard-5124698d46465ae0.rmeta
+│   │       ├── libserde-d8af2f9ce5872ffb.rlib
+│   │       ├── libserde-d8af2f9ce5872ffb.rmeta
+│   │       ├── libserde_bytes-6c7736fa2938bc04.rlib
+│   │       ├── libserde_bytes-6c7736fa2938bc04.rmeta
+│   │       ├── libserde_derive-2e7960591f8b83f5.so
+│   │       ├── libserde_tokenstream-b29a12be606b9b06.rlib
+│   │       ├── libserde_tokenstream-b29a12be606b9b06.rmeta
+│   │       ├── libsha2-dc910d3d66809f3d.rlib
+│   │       ├── libsha2-dc910d3d66809f3d.rmeta
+│   │       ├── libshlex-d9d0c33542c51b18.rlib
+│   │       ├── libshlex-d9d0c33542c51b18.rmeta
+│   │       ├── libsiphasher-acc39f4e5487a6ff.rlib
+│   │       ├── libsiphasher-acc39f4e5487a6ff.rmeta
+│   │       ├── libsmallvec-3644ac62f4cf3c73.rlib
+│   │       ├── libsmallvec-3644ac62f4cf3c73.rmeta
+│   │       ├── libstacker-32be206d1a6a67dc.rlib
+│   │       ├── libstacker-32be206d1a6a67dc.rmeta
+│   │       ├── libstring_cache-9181f980c5bd13d4.rlib
+│   │       ├── libstring_cache-9181f980c5bd13d4.rmeta
+│   │       ├── libsyn-72d4d8fb09ec6082.rlib
+│   │       ├── libsyn-72d4d8fb09ec6082.rmeta
+│   │       ├── libsyn-7c3b3124b4234a3b.rlib
+│   │       ├── libsyn-7c3b3124b4234a3b.rmeta
+│   │       ├── libterm-b9522bc06fc3c219.rlib
+│   │       ├── libterm-b9522bc06fc3c219.rmeta
+│   │       ├── libtermcolor-8cc0fdb12ec745e0.rlib
+│   │       ├── libtermcolor-8cc0fdb12ec745e0.rmeta
+│   │       ├── libthiserror-71ca6d080c6e282e.rlib
+│   │       ├── libthiserror-71ca6d080c6e282e.rmeta
+│   │       ├── libthiserror_impl-fcc6d73a624a7fa2.so
+│   │       ├── libtiny_keccak-d58fbeb0d4022025.rlib
+│   │       ├── libtiny_keccak-d58fbeb0d4022025.rmeta
+│   │       ├── libtoml_datetime-07e43457436eac49.rlib
+│   │       ├── libtoml_datetime-07e43457436eac49.rmeta
+│   │       ├── libtoml_edit-72b3820350078764.rlib
+│   │       ├── libtoml_edit-72b3820350078764.rmeta
+│   │       ├── libtyped_arena-37c940fb3fcd85e6.rlib
+│   │       ├── libtyped_arena-37c940fb3fcd85e6.rmeta
+│   │       ├── libtypenum-a7836cba033b1927.rlib
+│   │       ├── libtypenum-a7836cba033b1927.rmeta
+│   │       ├── libunicode_ident-c97a9604c5aebdaf.rlib
+│   │       ├── libunicode_ident-c97a9604c5aebdaf.rmeta
+│   │       ├── libunicode_width-8ffe7f69d211dc06.rlib
+│   │       ├── libunicode_width-8ffe7f69d211dc06.rmeta
+│   │       ├── libunicode_xid-0f71ef86bff655dc.rlib
+│   │       ├── libunicode_xid-0f71ef86bff655dc.rmeta
+│   │       ├── libversion_check-a9151cc5c7df1622.rlib
+│   │       ├── libversion_check-a9151cc5c7df1622.rmeta
+│   │       ├── libwalkdir-759ad3c52fe2268a.rlib
+│   │       ├── libwalkdir-759ad3c52fe2268a.rmeta
+│   │       ├── libwinnow-f77a1868f880e72b.rlib
+│   │       ├── libwinnow-f77a1868f880e72b.rmeta
+│   │       ├── libzerocopy_derive-90f64d2895d1b9fa.so
+│   │       ├── lock_api-49e9b45e39683848.d
+│   │       ├── log-6c270bd954570698.d
+│   │       ├── logos_codegen-acc254b299401f93.d
+│   │       ├── logos_derive-4be95c2e62eea699.d
+│   │       ├── memchr-b3fe7a5e8b659978.d
+│   │       ├── num_bigint-a2f8c56f338926ac.d
+│   │       ├── num_enum-609df9ae9cbc09e8.d
+│   │       ├── num_enum_derive-4877415040e16326.d
+│   │       ├── num_integer-ee6a0dcdef5bc8d0.d
+│   │       ├── num_traits-321b3ca122e8345e.d
+│   │       ├── once_cell-2af2c2d97f5d10ee.d
+│   │       ├── parking_lot-61d95d212e5b0238.d
+│   │       ├── parking_lot_core-2ca86068bcc65341.d
+│   │       ├── paste-53a39d48c60c5e7b.d
+│   │       ├── petgraph-029e03e3a653f146.d
+│   │       ├── phf_shared-13d6d5910afed95f.d
+│   │       ├── pico_args-19122d0634b17dd3.d
+│   │       ├── precomputed_hash-e8e4905037913ef4.d
+│   │       ├── pretty-bb89a7cd3cf91e17.d
+│   │       ├── proc_macro2-be43479e351d8bb9.d
+│   │       ├── proc_macro_crate-1b806dd302280829.d
+│   │       ├── psm-52dd2f69e50e348f.d
+│   │       ├── quote-cb648b02b5bdbec9.d
+│   │       ├── regex-0042e421705e3310.d
+│   │       ├── regex_automata-2fa3ef66748eae68.d
+│   │       ├── regex_syntax-3429bddea77a6b08.d
+│   │       ├── regex_syntax-65be4871ef6db19a.d
+│   │       ├── rustversion-0c59cea0865f175c.d
+│   │       ├── same_file-e7725a35604fdaf4.d
+│   │       ├── scopeguard-5124698d46465ae0.d
+│   │       ├── serde-d8af2f9ce5872ffb.d
+│   │       ├── serde_bytes-6c7736fa2938bc04.d
+│   │       ├── serde_derive-2e7960591f8b83f5.d
+│   │       ├── serde_tokenstream-b29a12be606b9b06.d
+│   │       ├── sha2-dc910d3d66809f3d.d
+│   │       ├── shlex-d9d0c33542c51b18.d
+│   │       ├── siphasher-acc39f4e5487a6ff.d
+│   │       ├── smallvec-3644ac62f4cf3c73.d
+│   │       ├── stacker-32be206d1a6a67dc.d
+│   │       ├── string_cache-9181f980c5bd13d4.d
+│   │       ├── syn-72d4d8fb09ec6082.d
+│   │       ├── syn-7c3b3124b4234a3b.d
+│   │       ├── term-b9522bc06fc3c219.d
+│   │       ├── termcolor-8cc0fdb12ec745e0.d
+│   │       ├── thiserror-71ca6d080c6e282e.d
+│   │       ├── thiserror_impl-fcc6d73a624a7fa2.d
+│   │       ├── tiny_keccak-d58fbeb0d4022025.d
+│   │       ├── toml_datetime-07e43457436eac49.d
+│   │       ├── toml_edit-72b3820350078764.d
+│   │       ├── typed_arena-37c940fb3fcd85e6.d
+│   │       ├── typenum-a7836cba033b1927.d
+│   │       ├── unicode_ident-c97a9604c5aebdaf.d
+│   │       ├── unicode_width-8ffe7f69d211dc06.d
+│   │       ├── unicode_xid-0f71ef86bff655dc.d
+│   │       ├── version_check-a9151cc5c7df1622.d
+│   │       ├── walkdir-759ad3c52fe2268a.d
+│   │       ├── winnow-f77a1868f880e72b.d
+│   │       └── zerocopy_derive-90f64d2895d1b9fa.d
+│   └── wasm32-unknown-unknown
+│       └── CACHEDIR.TAG
+├── tree_output.txt
+├── tsconfig.json
+├── tsconfig.node.json
+├── verify-deployment.sh
+├── vite.config.js
+└── vite.config.ts
+
+99 directories, 1164 files

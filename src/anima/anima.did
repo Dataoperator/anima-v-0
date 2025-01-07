@@ -1,0 +1,73 @@
+type DevelopmentalStage = variant {
+    Initial;
+    Beginner;
+    Intermediate;
+    Advanced;
+    Expert;
+};
+
+type EventType = variant {
+    UserInteraction;
+    AutonomousThought;
+    EmotionalResponse;
+    LearningMoment;
+    RelationshipDevelopment;
+};
+
+type Memory = record {
+    timestamp: nat64;
+    event_type: EventType;
+    description: text;
+    emotional_impact: float32;
+};
+
+type NFTPersonality = record {
+    traits: vec record { text; float32; };
+    memories: vec Memory;
+    creation_time: nat64;
+    interaction_count: nat64;
+    growth_level: nat32;
+    developmental_stage: DevelopmentalStage;
+    hash: text;
+};
+
+type Anima = record {
+    owner: principal;
+    name: text;
+    personality: NFTPersonality;
+    creation_time: nat64;
+    last_interaction: nat64;
+    autonomous_enabled: bool;
+};
+
+type InteractionResult = record {
+    response: text;
+    personality_updates: vec record { text; float32; };
+    memory: Memory;
+    is_autonomous: bool;
+};
+
+type Error = variant {
+    NotFound;
+    NotAuthorized;
+    Configuration: text;
+    External: text;
+};
+
+type InitializationStatus = record {
+    is_initialized: bool;
+    config_status: record {
+        openai_configured: bool;
+        quantum_ready: bool;
+        storage_initialized: bool;
+    };
+};
+
+service : {
+    create_anima: (text) -> (variant { Ok: principal; Err: Error });
+    get_anima: (principal) -> (variant { Ok: Anima; Err: Error }) query;
+    interact: (principal, text) -> (variant { Ok: InteractionResult; Err: Error });
+    check_autonomous_messages: (principal) -> (variant { Ok: opt InteractionResult; Err: Error });
+    set_openai_api_key: (text) -> (variant { Ok; Err: Error });
+    check_initialization: () -> (variant { Ok: InitializationStatus; Err: Error }) query;
+};

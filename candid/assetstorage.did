@@ -1,0 +1,48 @@
+type BatchId = nat;
+type ChunkId = nat;
+type Key = text;
+type Time = int;
+
+type CreateAssetArguments = record {
+  key: Key;
+  content_type: text;
+  max_age: opt nat64;
+  headers: opt vec record { text; text; };
+};
+
+type CommitBatchArguments = record {
+  batch_id: BatchId;
+  operations: vec Operation;
+};
+
+type Operation = variant {
+  Clear: record {};
+  CreateAsset: CreateAssetArguments;
+  DeleteAsset: record { key: Key; };
+  SetAssetContent: record {
+    key: Key;
+    sha256: opt blob;
+    chunk_ids: vec ChunkId;
+    content_encoding: text;
+  };
+  UnsetAssetContent: record {
+    key: Key;
+    content_encoding: text;
+  };
+};
+
+service : {
+  commit_batch: (CommitBatchArguments) -> ();
+  create_asset: (CreateAssetArguments) -> ();
+  create_batch: () -> (record { batch_id: BatchId; });
+  create_chunk: (record { content: blob; batch_id: BatchId; }) -> (record { chunk_id: ChunkId; });
+  delete_asset: (record { key: Key }) -> ();
+  get: (record { key: Key; accept_encodings: vec text; }) -> (record { content: blob; content_type: text; content_encoding: text; total_length: nat64; sha256: opt blob; });
+  get_chunk: (record { key: Key; sha256: opt blob; index: nat; content_encoding: text; }) -> (record { content: blob; });
+  http_request: (record { method: text; url: text; headers: vec record { text; text; }; body: blob; }) -> (record { body: blob; headers: vec record { text; text; }; streaming_strategy: opt variant { Callback: record { callback: func () -> (); token: record { key: Key; sha256: opt blob; index: nat; content_encoding: text; }; }; }; status_code: nat16; });
+  http_request_streaming_callback: (record { token: record { key: Key; sha256: opt blob; index: nat; content_encoding: text; }; }) -> (record { body: blob; token: opt record { key: Key; sha256: opt blob; index: nat; content_encoding: text; }; });
+  list: (record {}) -> (vec record { key: Key; content_type: text; encodings: vec record { content_encoding: text; sha256: opt blob; length: nat; modified: Time; }; }) query;
+  set_asset_content: (record { key: Key; sha256: opt blob; chunk_ids: vec ChunkId; content_encoding: text; }) -> ();
+  store: (record { key: Key; content: blob; sha256: opt blob; content_type: text; content_encoding: text; }) -> ();
+  unset_asset_content: (record { key: Key; content_encoding: text; }) -> ();
+}

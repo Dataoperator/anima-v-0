@@ -1,0 +1,1 @@
+export { AnimaGenesis } from './AnimaGenesis';

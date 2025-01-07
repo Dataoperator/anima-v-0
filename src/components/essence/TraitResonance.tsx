@@ -1,0 +1,1 @@
+// Previous content for TraitResonance.tsx

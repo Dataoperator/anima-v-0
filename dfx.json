@@ -1,0 +1,51 @@
+{
+  "canisters": {
+    "anima": {
+      "type": "rust",
+      "package": "anima",
+      "candid": "src/lib.did",
+      "declarations": {
+        "node_compatibility": true
+      },
+      "settings": {
+        "memory_allocation": "8GB",
+        "compute_allocation": "1",
+        "reserved_cycles": "40000000000000",
+        "freezing_threshold": "2592000"
+      }
+    },
+    "anima_assets": {
+      "type": "assets",
+      "source": ["dist"],
+      "dependencies": ["anima"],
+      "settings": {
+        "memory_allocation": "4GB",
+        "compute_allocation": "0.5",
+        "reserved_cycles": "15000000000000",
+        "freezing_threshold": "2592000"
+      }
+    },
+    "ledger": {
+      "type": "custom",
+      "candid": "candid/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/rrkah-fqaaa-aaaaa-aaaaq-cai/ledger.wasm",
+      "remote": {
+        "candid": "candid/ledger.did",
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      },
+      "declarations": {
+        "node_compatibility": true,
+        "output": "src/declarations/ledger"
+      }
+    }
+  },
+  "networks": {
+    "ic": {
+      "providers": ["https://icp0.io"],
+      "type": "persistent"
+    }
+  },
+  "version": 1
+}
