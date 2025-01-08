@@ -1,66 +1,74 @@
-interface ErrorInfo {
-  errorType: string;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH';
-  context: string;
-  error: Error;
-  timestamp?: number;
+export type ErrorSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface ErrorTracking {
+    errorType: string;
+    severity: ErrorSeverity;
+    context: string;
+    error: Error;
+    timestamp?: number;
+}
+
+export interface ErrorContext {
+    operation: string;
+    principal?: string;
+    params?: Record<string, any>;
 }
 
 export class ErrorTracker {
-  private static instance: ErrorTracker;
-  private errors: ErrorInfo[] = [];
-  private readonly maxErrors = 100;
+    private static instance: ErrorTracker;
+    private errors: ErrorTracking[] = [];
+    private readonly MAX_ERRORS = 100;
 
-  private constructor() {}
+    private constructor() {}
 
-  public static getInstance(): ErrorTracker {
-    if (!ErrorTracker.instance) {
-      ErrorTracker.instance = new ErrorTracker();
-    }
-    return ErrorTracker.instance;
-  }
-
-  async trackError(info: ErrorInfo): Promise<void> {
-    const errorInfo = {
-      ...info,
-      timestamp: Date.now()
-    };
-
-    this.errors.push(errorInfo);
-
-    if (this.errors.length > this.maxErrors) {
-      this.errors.shift();
+    static getInstance(): ErrorTracker {
+        if (!ErrorTracker.instance) {
+            ErrorTracker.instance = new ErrorTracker();
+        }
+        return ErrorTracker.instance;
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.group('Quantum Error Tracked:');
-      console.log('Type:', errorInfo.errorType);
-      console.log('Severity:', errorInfo.severity);
-      console.log('Context:', errorInfo.context);
-      console.error('Error:', errorInfo.error);
-      console.groupEnd();
+    async trackError(error: {
+        errorType: string;
+        severity: ErrorSeverity;
+        context: string | ErrorContext;
+        error: Error;
+    }): Promise<void> {
+        const errorContext = typeof error.context === 'string' 
+            ? { operation: error.context }
+            : error.context;
+
+        const errorTracking: ErrorTracking = {
+            errorType: error.errorType,
+            severity: error.severity,
+            context: JSON.stringify(errorContext),
+            error: error.error,
+            timestamp: Date.now()
+        };
+
+        this.errors.unshift(errorTracking);
+
+        if (this.errors.length > this.MAX_ERRORS) {
+            this.errors = this.errors.slice(0, this.MAX_ERRORS);
+        }
+
+        console.error(`[${error.severity}] ${error.errorType}:`, {
+            context: errorContext,
+            error: error.error
+        });
     }
-  }
 
-  getErrors(): ErrorInfo[] {
-    return [...this.errors];
-  }
+    getRecentErrors(count: number = 10): ErrorTracking[] {
+        return this.errors.slice(0, count);
+    }
 
-  getRecentErrors(count: number = 5): ErrorInfo[] {
-    return [...this.errors]
-      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
-      .slice(0, count);
-  }
+    clearErrors(): void {
+        this.errors = [];
+    }
 
-  clearErrors(): void {
-    this.errors = [];
-  }
-
-  getErrorStats(): { [key: string]: number } {
-    const stats: { [key: string]: number } = {};
-    this.errors.forEach(error => {
-      stats[error.errorType] = (stats[error.errorType] || 0) + 1;
-    });
-    return stats;
-  }
+    getErrorCount(): number {
+        return this.errors.length;
+    }
 }
+
+export const errorTracker = ErrorTracker.getInstance();

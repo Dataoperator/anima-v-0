@@ -6,24 +6,12 @@
       "candid": "src/lib.did",
       "declarations": {
         "node_compatibility": true
-      },
-      "settings": {
-        "memory_allocation": "8GB",
-        "compute_allocation": "1",
-        "reserved_cycles": "40000000000000",
-        "freezing_threshold": "2592000"
       }
     },
     "anima_assets": {
       "type": "assets",
       "source": ["dist"],
-      "dependencies": ["anima"],
-      "settings": {
-        "memory_allocation": "4GB",
-        "compute_allocation": "0.5",
-        "reserved_cycles": "15000000000000",
-        "freezing_threshold": "2592000"
-      }
+      "dependencies": ["anima"]
     },
     "ledger": {
       "type": "custom",
@@ -41,11 +29,18 @@
       }
     }
   },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
   "networks": {
     "ic": {
-      "providers": ["https://icp0.io"],
+      "providers": ["https://ic0.app", "https://icp0.io"],
       "type": "persistent"
     }
   },
-  "version": 1
+  "version": 1,
+  "dfx": "0.15.1"
 }

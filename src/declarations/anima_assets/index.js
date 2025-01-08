@@ -10,7 +10,8 @@ export { idlFactory } from "./anima_assets.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_ANIMA_ASSETS;
+  process.env.CANISTER_ID_ANIMA_ASSETS ||
+  process.env.ANIMA_ASSETS_CANISTER_ID;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
@@ -39,4 +40,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const anima_assets = canisterId ? createActor(canisterId) : undefined;
+export const anima_assets = createActor(canisterId);

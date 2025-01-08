@@ -25,6 +25,11 @@ export const idlFactory = ({ IDL }) => {
     'understanding' : IDL.Float64,
     'awareness' : IDL.Float64,
   });
+  const StabilityMetrics = IDL.Record({
+    'resonance' : IDL.Float64,
+    'stability' : IDL.Float64,
+    'coherence' : IDL.Float64,
+  });
   const AnimaCreationResult = IDL.Record({
     'id' : IDL.Text,
     'timestamp' : IDL.Nat64,
@@ -81,6 +86,16 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Variant({ 'Ok' : IDL.Vec(TraitEvolution), 'Err' : Error })],
         ['query'],
       ),
+    'get_quantum_status' : IDL.Func(
+        [],
+        [IDL.Variant({ 'Ok' : IDL.Text, 'Err' : Error })],
+        ['query'],
+      ),
+    'get_stability_metrics' : IDL.Func(
+        [],
+        [IDL.Variant({ 'Ok' : StabilityMetrics, 'Err' : Error })],
+        ['query'],
+      ),
     'initialize_genesis' : IDL.Func(
         [],
         [IDL.Variant({ 'Ok' : AnimaCreationResult, 'Err' : Error })],
@@ -115,6 +130,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Text, IDL.Float64],
         [IDL.Variant({ 'Ok' : IDL.Vec(MemoryFragment), 'Err' : Error })],
         ['query'],
+      ),
+    'update_stability' : IDL.Func(
+        [IDL.Float64],
+        [IDL.Variant({ 'Ok' : IDL.Bool, 'Err' : Error })],
+        [],
       ),
   });
 };

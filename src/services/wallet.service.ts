@@ -1,13 +1,16 @@
 import { Principal } from '@dfinity/principal';
-import { ActorSubclass } from '@dfinity/agent';
+import { ActorSubclass, Identity } from '@dfinity/agent';
 import { ErrorTracker, ErrorCategory, ErrorSeverity } from './error-tracker';
 import { ICPLedgerService, icpLedgerService } from './icp-ledger';
 import { QuantumState } from '../quantum/types';
 import { quantumStateService } from './quantum-state.service';
 import { ErrorContext } from '@/types/error';
-import { AccountIdentifier } from '@dfinity/nns';
+import { AccountIdentifier, SubAccount } from '@dfinity/ledger-icp';
 import { WalletState, SwapParams, TransactionResult } from '@/types/wallet';
 import { animaActorService } from './anima-actor.service';
+
+// ANIMA canister ID from dfx.json
+const ANIMA_CANISTER_ID = 'l2ilz-iqaaa-aaaaj-qngjq-cai';
 
 class WalletService {
   private errorTracker: ErrorTracker;
@@ -35,21 +38,23 @@ class WalletService {
 
   async generateDepositAddress(principal: Principal): Promise<string> {
     try {
+      // Create a unique subaccount for this user
+      const subAccount = SubAccount.fromPrincipal(principal);
+      
       const accountIdentifier = AccountIdentifier.fromPrincipal({
-        principal,
-        subAccount: undefined
+        principal: Principal.fromText(ANIMA_CANISTER_ID),
+        subAccount
       });
 
-      const rawAddress = accountIdentifier.toUint8Array();
-      const hexAddress = Buffer.from(rawAddress).toString('hex');
+      const address = accountIdentifier.toHex();
       
       this.state = {
         ...this.state,
-        depositAddress: hexAddress,
-        rawAddress
+        depositAddress: address,
+        accountIdentifier
       };
       
-      return hexAddress;
+      return address;
     } catch (error) {
       await this.trackError(
         error instanceof Error ? error : new Error('Deposit address generation failed'),
@@ -83,14 +88,18 @@ class WalletService {
 
   async refreshBalance(principal: Principal): Promise<void> {
     try {
+      if (!this.state.accountIdentifier) {
+        throw new Error('Account identifier not initialized');
+      }
+
       const [icpBalance, animaBalance] = await Promise.all([
-        icpLedgerService.getBalance(this.state.depositAddress),
+        icpLedgerService.account_balance({ account: this.state.accountIdentifier.toUint8Array() }),
         this.getAnimaBalance(principal)
       ]);
 
       this.state = {
         ...this.state,
-        balance: Number(icpBalance) / 1e8,
+        balance: Number(icpBalance.e8s) / 1e8,
         animaBalance,
         lastUpdate: Date.now()
       };
@@ -105,9 +114,16 @@ class WalletService {
 
   async getAnimaBalance(principal: Principal): Promise<number> {
     try {
-      const actor = await this.getActor(principal);
-      const balance = await actor.token_balance();
-      return Number(balance) / 1e8;
+      if (!this.state.accountIdentifier) {
+        throw new Error('Account identifier not initialized');
+      }
+
+      const actor = await this.getActor();
+      const balance = await actor.token_balance({ 
+        owner: principal,
+        subaccount: this.state.accountIdentifier.toUint8Array()
+      });
+      return Number(balance.e8s) / 1e8;
     } catch (error) {
       await this.trackError(
         error instanceof Error ? error : new Error('Get ANIMA balance failed'),
@@ -147,15 +163,15 @@ class WalletService {
       if (params.direction === 'icpToAnima') {
         const amountE8s = BigInt(Math.floor(params.amount * 1e8));
         await icpLedgerService.transfer({
-          to: Principal.fromText(process.env.ANIMA_CANISTER_ID || ''),
-          amount: amountE8s,
+          to: this.state.accountIdentifier!.toUint8Array(),
+          amount: { e8s: amountE8s },
           memo: BigInt(Date.now())
         });
       } else {
-        const actor = await this.getActor(Principal.fromText(process.env.ANIMA_CANISTER_ID || ''));
+        const actor = await this.getActor();
         await actor.transfer({
-          to: this.state.depositAddress,
-          amount: BigInt(Math.floor(params.amount * 1e8))
+          to: this.state.accountIdentifier!.toUint8Array(),
+          amount: { e8s: BigInt(Math.floor(params.amount * 1e8)) }
         });
       }
 
@@ -183,11 +199,11 @@ class WalletService {
       }
 
       const amountE8s = BigInt(Math.floor(amount * 1e8));
-      const actor = await this.getActor(Principal.fromText(process.env.ANIMA_CANISTER_ID || ''));
+      const actor = await this.getActor();
       
       await actor.mint({
-        to: this.state.depositAddress,
-        amount: amountE8s,
+        to: this.state.accountIdentifier!.toUint8Array(),
+        amount: { e8s: amountE8s },
         quantum_state: quantumState
       });
 
@@ -211,9 +227,9 @@ class WalletService {
     return { ...this.state };
   }
 
-  private async getActor(principal: Principal): Promise<ActorSubclass<any>> {
+  private async getActor(): Promise<ActorSubclass<any>> {
     try {
-      const actor = animaActorService.createActor(identity);
+      const actor = animaActorService.createActor(ANIMA_CANISTER_ID);
       if (!actor) {
         throw new Error('Failed to create actor');
       }

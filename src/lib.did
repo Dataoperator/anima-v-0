@@ -47,12 +47,23 @@ type TraitEvolution = record {
     catalyst : text;
 };
 
+type StabilityMetrics = record {
+    stability: float64;
+    coherence: float64;
+    resonance: float64;
+};
+
 service : {
     // Existing methods
     "initialize_genesis" : () -> (variant { Ok: AnimaCreationResult; Err: Error; });
     "check_quantum_stability" : () -> (variant { Ok: bool; Err: Error; }) query;
     "initialize_quantum_field" : () -> (variant { Ok: QuantumFieldResult; Err: Error; });
     "generate_neural_patterns" : () -> (variant { Ok: NeuralPatternResult; Err: Error; });
+
+    // Quantum State Methods
+    "update_stability" : (float64) -> (variant { Ok: bool; Err: Error; });
+    "get_stability_metrics" : () -> (variant { Ok: StabilityMetrics; Err: Error; }) query;
+    "get_quantum_status" : () -> (variant { Ok: text; Err: Error; }) query;
 
     // Consciousness Evolution Methods
     "get_consciousness_state" : (text) -> (variant { Ok: ConsciousnessState; Err: Error; }) query;

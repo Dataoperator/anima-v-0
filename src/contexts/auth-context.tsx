@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthClient } from '@dfinity/auth-client';
 import { Principal } from '@dfinity/principal';
-import { ErrorTracker } from '../error/quantum_error';  // Updated path
-import { icManager } from '../ic-init';  // Updated path
+import { Identity } from '@dfinity/agent';
+import { ErrorTracker } from '../error/quantum_error';
+import { icManager } from '../ic-init';
 
 interface AuthContextType {
   authClient: AuthClient | null;
   isAuthenticated: boolean;
-  identity: any;
+  identity: Identity | null;
   principal: Principal | null;
   isInitializing: boolean;
   login: () => Promise<void>;
@@ -32,7 +33,7 @@ const defaultOptions = {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [identity, setIdentity] = useState(null);
+  const [identity, setIdentity] = useState<Identity | null>(null);
   const [principal, setPrincipal] = useState<Principal | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const errorTracker = ErrorTracker.getInstance();
@@ -71,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const currentIdentity = icManager.getIdentity();
           if (currentIdentity) {
             console.log('✨ Setting identity and principal...');
-            setIdentity(currentIdentity);
+            setIdentity(currentIdentity as Identity);
             setPrincipal(currentIdentity.getPrincipal());
           }
         }
@@ -83,7 +84,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await errorTracker.trackError({
           errorType: 'AUTH_INIT',
           severity: 'HIGH',
-          context: 'Authentication Initialization',
+          context: {
+            operation: 'Authentication Initialization',
+            error: error instanceof Error ? error.message : 'Unknown error'
+          },
           error: error instanceof Error ? error : new Error('Auth initialization failed')
         });
       } finally {
@@ -122,7 +126,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await errorTracker.trackError({
         errorType: 'AUTH_LOGIN',
         severity: 'HIGH',
-        context: 'Login Attempt',
+        context: {
+          operation: 'Login Attempt',
+          error: error instanceof Error ? error.message : 'Unknown error'
+        },
         error: error instanceof Error ? error : new Error('Login failed')
       });
     } finally {
@@ -146,7 +153,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await errorTracker.trackError({
         errorType: 'AUTH_LOGOUT',
         severity: 'MEDIUM',
-        context: 'Logout Attempt',
+        context: {
+          operation: 'Logout Attempt',
+          error: error instanceof Error ? error.message : 'Unknown error'
+        },
         error: error instanceof Error ? error : new Error('Logout failed')
       });
     }

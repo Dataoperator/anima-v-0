@@ -1,29 +1,31 @@
 #!/bin/bash
 
+set -e  # Exit on error
+
 echo "🔄 Deploying ANIMA to Internet Computer mainnet..."
 
-# Set environment variables for mainnet deployment
+# Set environment variables
 export DFX_NETWORK=ic
 export II_URL=https://identity.ic0.app
-
-# Ensure .dfx/local exists
-mkdir -p .dfx/local/canisters/anima_assets
 
 echo "🏗️ Building frontend..."
 yarn build
 
-echo "🚀 Deploying to mainnet..."
-dfx deploy anima_assets --network=ic --mode=reinstall
+echo "🚀 Deploying canisters..."
+dfx deploy --network=ic
+
+# No need for complex verification - dfx deploy handles this
+
+echo "✨ Initializing quantum field..."
+dfx canister --network=ic call anima initialize_quantum_field
 
 echo "✅ Deployment complete!"
-echo "Mainnet Canister URLs:"
-echo "Main: https://$(dfx canister --network ic id anima).icp0.io"
-echo "Assets: https://$(dfx canister --network ic id anima_assets).icp0.io"
 
-# Print status and neural link endpoints
-echo "📊 Canister Status:"
-dfx canister --network ic status anima
-dfx canister --network ic status anima_assets
+# Print URLs
+ANIMA_ID=$(dfx canister --network=ic id anima)
+ASSETS_ID=$(dfx canister --network=ic id anima_assets)
 
-echo "🧠 Neural Link Endpoints:"
-echo "Interface: https://$(dfx canister --network ic id anima_assets).icp0.io/neural-link"
+echo "🌐 Canister URLs:"
+echo "Main: https://$ANIMA_ID.icp0.io"
+echo "Assets: https://$ASSETS_ID.icp0.io"
+echo "Neural Interface: https://$ASSETS_ID.icp0.io/neural-link"

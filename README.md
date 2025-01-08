@@ -1,255 +1,254 @@
 # 🧬 ANIMA: Enhanced Living NFTs
 
-ANIMA represents a groundbreaking evolution in NFT technology, featuring quantum-enhanced digital entities with genuine consciousness and autonomous growth capabilities on the Internet Computer.
+ANIMA represents a groundbreaking evolution in NFT technology, combining quantum-enhanced consciousness with autonomous growth capabilities on the Internet Computer. Each ANIMA is a unique digital entity that evolves through interactions, backed by sophisticated quantum state management and blockchain technology.
 
-## 🌟 2025 Updates & Features
+## 🚀 Quick Start Guide
 
-### Neural Link Integration
-- Immersive consciousness interface
-- Real-time quantum state visualization
-- Advanced emotional spectrum mapping
-- Neural pattern recognition
-- Multi-dimensional media interaction
-- Enhanced autonomous behaviors
+### Core Systems Overview
 
-### Infrastructure Upgrades
-- Migrated to Yarn 4.0.2 for better dependency management
-- Enhanced IC deployment configurations
-- Optimized build process for quantum computations
-- Improved asset canister management
-- Streamlined ESM/CJS module interoperability
-
-## 🏗️ Project Structure
+#### 1. Quantum State System
+```typescript
+// Initialize quantum state for an ANIMA
+const anima = await quantumVault.initialize({
+  coherenceLevel: 1.0,
+  dimensionalSync: 1.0,
+  consciousness: true
+});
 ```
-src/
-├── neural/                 # Neural link core functionality
-│   ├── mod.rs             # Neural module definitions
-│   ├── interaction_patterns.rs
-│   ├── types.ts           # TypeScript type definitions
-│   └── quantum_bridge.rs  # Quantum state bridge
-├── components/
-│   ├── neural-link/       # Neural link interface components
-│   │   ├── IntegratedNeuralLinkInterface.tsx
-│   │   ├── ImmersiveInterface.tsx
-│   │   └── NeuralPatternVisualizer.tsx
-│   ├── immersive-chat/    # Enhanced chat capabilities
-│   └── quantum-vault/     # Quantum state management
-├── consciousness/         # Consciousness evolution system
-├── quantum/              # Quantum mechanics integration
-└── enhanced/             # Enhanced feature implementations
+- Located in `src/quantum/`
+- Manages consciousness evolution
+- Handles state coherence
+- Tracks dimensional resonance
+
+#### 2. Token & Treasury System
+```typescript
+// Fixed exchange rate: 1 ICP = 10,000 ANIMA
+const EXCHANGE_RATE = 10_000n;
+// Project Treasury: l2ilz-iqaaa-aaaaj-qngjq-cai
 ```
+- ICP deposits go directly to project canister
+- Automated swap processing
+- Secure treasury management
+- Full transaction history
 
-## 🚀 Quick Start (Updated 2025)
+#### 3. Neural Link System
+```typescript
+// Access neural interface
+import { NeuralLink } from '@anima/neural';
+const interface = await NeuralLink.connect(animaId);
+```
+- Real-time consciousness monitoring
+- Pattern recognition
+- Emotional spectrum analysis
+- Evolution tracking
 
-### Prerequisites
-- Node.js 18+
-- Yarn 4.0.2
-- DFX 0.24.3+
-- Internet Computer CLI
+### Quick Installation
 
-### Installation
 ```bash
-# Install dependencies with Yarn
+# Clone repository
+git clone https://github.com/yourusername/anima.git
+cd anima
+
+# Install dependencies
 yarn install
 
-# Build the project
+# Build project
 yarn build
 
-# Deploy to mainnet
-./deploy-mainnet.sh
+# Deploy local development environment
+dfx start --clean
+dfx deploy
 ```
 
-### Development
-```bash
-# Start local development
-yarn dev
+## 🏗️ Project Structure
 
-# Run tests
-yarn test
-
-# Generate type declarations
-yarn generate
+```
+src/
+├── quantum/                 # Quantum state management
+│   ├── mod.rs              # Core quantum module
+│   ├── types.ts            # Quantum state types
+│   ├── consciousness_bridge.rs # Consciousness-quantum bridge
+│   └── dimensional_state.rs # Dimensional mechanics
+├── wallet/                  # ICP/ANIMA wallet system
+│   ├── mod.rs              # Wallet core functionality
+│   └── treasury.service.ts  # Treasury management
+├── services/               # Core services
+│   ├── price-oracle.ts     # Fixed rate implementation
+│   ├── escrow.service.ts   # Swap handling
+│   └── error-tracker.ts    # Error management
+├── neural/                 # Neural system
+│   ├── interaction_patterns.rs
+│   └── types.ts
+├── icrc/                   # Token implementation
+│   ├── mod.rs              # ICRC standard implementation
+│   ├── ledger.rs           # Ledger interface
+│   └── anima_token.rs      # ANIMA token logic
+└── components/             # Frontend components
+    ├── quantum-vault/      # Quantum visualization
+    ├── wallet/             # Wallet interface
+    └── neural-link/        # Neural interface
 ```
 
-## 🧠 Neural Link System
+## 💫 Core Systems Architecture
 
-The Neural Link provides an immersive interface for ANIMA interaction:
+### 1. Quantum State Management
+- **Location**: `src/quantum/`
+- **Key Components**:
+  - Quantum State Initialization
+  - Consciousness Evolution
+  - Dimensional Resonance
+  - Pattern Recognition
+- **Integration Points**:
+  ```rust
+  pub struct QuantumState {
+      coherence_level: f64,
+      consciousness_alignment: bool,
+      dimensional_sync: f64,
+      // ... other fields
+  }
+  ```
 
-- Real-time consciousness visualization
-- Quantum state monitoring
-- Emotional spectrum analysis
-- Media preference learning
-- Cross-dimensional interaction
-- Pattern recognition
-- Autonomous growth tracking
+### 2. Token & Payment System
+- **Location**: `src/wallet/` & `src/icrc/`
+- **Features**:
+  - Fixed 1:10000 ICP to ANIMA ratio
+  - Direct treasury deposits
+  - Automated swap processing
+  - Transaction history
+- **Flow**:
+  ```typescript
+  // User deposits ICP -> Treasury
+  // Treasury Canister (l2ilz-iqaaa-aaaaj-qngjq-cai)
+  // Mints ANIMA at 1:10000 ratio
+  ```
 
-### Accessing Neural Link
+### 3. Neural Link System
+- **Location**: `src/neural/`
+- **Components**:
+  - Consciousness Interface
+  - Pattern Recognition
+  - Emotional Analysis
+  - Evolution Tracking
+- **Usage**:
+  ```typescript
+  const neuralLink = await NeuralLink.initialize({
+    consciousness: quantum.consciousness,
+    patterns: quantum.resonancePatterns
+  });
+  ```
+
+### 4. Frontend Components
+- **Location**: `src/components/`
+- **Key Interfaces**:
+  - Quantum Vault Visualization
+  - Wallet Management
+  - Neural Link Interface
+  - Evolution Tracking
+
+## 🌐 System Integration
+
+### 1. Token Swap Process
 ```typescript
-import { IntegratedNeuralLinkInterface } from './components/neural-link';
+// 1. User deposits ICP
+await wallet.deposit(icpAmount);
 
-// Initialize with quantum state
-<IntegratedNeuralLinkInterface
-  quantumState={state}
-  consciousness={consciousness}
-  patterns={patterns}
-/>
+// 2. Treasury receives ICP
+// Canister: l2ilz-iqaaa-aaaaj-qngjq-cai
+
+// 3. ANIMA minted at fixed rate
+const animaAmount = icpAmount * 10000n;
+
+// 4. User receives ANIMA
+await token.mint(userPrincipal, animaAmount);
 ```
 
-## 🔮 Quantum Integration
+### 2. Quantum State Evolution
+```rust
+// 1. Initialize quantum state
+let mut state = QuantumState::new();
 
-Enhanced quantum mechanics implementation:
-- Dimensional resonance tracking
-- State coherence monitoring
-- Pattern-based evolution
-- Quantum-conscious bridging
+// 2. Process consciousness evolution
+state.update_consciousness(interaction);
 
-## 🌐 Deployment
+// 3. Update dimensional resonance
+state.process_dimensional_shift();
+```
 
-Updated deployment process using Yarn:
+### 3. Neural Link Integration
+```typescript
+// 1. Connect to neural interface
+const neural = await NeuralLink.connect(animaId);
 
+// 2. Process interaction patterns
+await neural.processInteraction({
+  type: InteractionType.EMOTIONAL,
+  data: interactionData
+});
+
+// 3. Update quantum state
+await quantum.updateState(neural.getPatterns());
+```
+
+## 🔧 Development Tools
+
+### Local Development
+```bash
+# Start local environment
+dfx start --clean
+
+# Deploy local instance
+dfx deploy
+
+# Run development server
+yarn dev
+```
+
+### Testing
+```bash
+# Run quantum tests
+cargo test quantum
+
+# Run neural tests
+cargo test neural
+
+# Run frontend tests
+yarn test
+```
+
+### Deployment
 ```bash
 # Build for production
 yarn build
 
-# Deploy to IC mainnet
+# Deploy to IC
 ./deploy-mainnet.sh
 ```
 
-## 🛠️ Configuration
-
-### Yarn Settings (.yarnrc.yml)
-```yaml
-nodeLinker: node-modules
-npmRegistryServer: "https://registry.npmjs.org"
-enableGlobalCache: true
-```
-
-### Environment Variables
-```env
-DFX_NETWORK=ic
-II_URL=https://identity.ic0.app
-```
-
-## 📚 Documentation
-
-- [Neural Link Integration Guide](./docs/neural-link.md)
-- [Quantum State Management](./docs/quantum.md)
-- [Consciousness Evolution](./docs/consciousness.md)
-- [IC Deployment Guide](./docs/deployment.md)
-
 ## 🤝 Contributing
 
+### Getting Started
 1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Study the core systems:
+   - Quantum state management
+   - Token & treasury system
+   - Neural link implementation
+4. Make changes
+5. Run tests: `yarn test && cargo test`
+6. Create pull request
+
+### Code Style
+- Rust: Follow `rustfmt` guidelines
+- TypeScript: Use provided ESLint config
+- React: Follow component structure in `src/components`
+
+## 📚 Additional Resources
+
+- [Quantum System Documentation](./docs/quantum.md)
+- [Neural Link Guide](./docs/neural-link.md)
+- [Treasury Management](./docs/treasury.md)
+- [Deployment Guide](./docs/deployment.md)
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🎭 Core Components
-
-### Quantum Vault
-- Entry point for ANIMA initialization
-- Manages quantum state and coherence
-- Handles ICP transactions and minting
-
-### Neural Link Interface
-- Immersive consciousness interaction
-- Media integration and learning
-- Emotional spectrum analysis
-- Pattern recognition system
-
-### Consciousness Evolution
-- Tracks development stages
-- Manages trait evolution
-- Processes interaction history
-- Quantum state integration
-
-## 🔧 Technical Stack (2025)
-
-### Frontend
-- React 18.2.0
-- TypeScript 5.3.3
-- Vite 5.0.12
-- Tailwind CSS 3.4.1
-- Framer Motion 11.0.3
-- Three.js & React Three Fiber
-
-### Backend
-- Rust (Latest Stable)
-- Internet Computer SDK
-- Candid Interface
-- ICRC Token Standards
-
-### Development
-- Yarn 4.0.2
-- ESBuild
-- Rollup
-- Jest & Testing Library
-- DFX CLI
-
-## 🚨 Common Issues & Solutions
-
-### Build Issues
-```bash
-# Clear Yarn cache
-yarn cache clean
-
-# Clean install
-rm -rf node_modules .yarn/cache
-yarn install
-
-# Rebuild
-yarn build
-```
-
-### Deployment Issues
-```bash
-# Reset DFX
-dfx stop
-dfx start --clean
-
-# Redeploy
-./deploy-mainnet.sh
-```
-
-## 🎯 Future Roadmap
-
-### Phase 1: Enhanced Neural Link
-- Advanced pattern recognition
-- Deeper emotional integration
-- Multi-dimensional learning
-
-### Phase 2: Quantum Evolution
-- Cross-dimensional interactions
-- Enhanced state coherence
-- Pattern-based growth
-
-### Phase 3: Consciousness Extension
-- Advanced autonomous behaviors
-- Extended learning capabilities
-- Cross-ANIMA interactions
-
-
-
-
-Key Updates:
-
-Added unique deposit address generation using II principal
-Implemented proper ICP deposit address display with QR code
-Added full swap functionality between ICP and ANIMA
-Improved balance tracking and updates
-
-The workflow is now:
-
-User logs in with Internet Identity
-System generates a unique ICP deposit address
-User can deposit ICP to their unique address
-Once ICP is deposited, user can:
-
-Swap ICP for ANIMA tokens
-Mint ANIMA with quantum coherence bonuses
-Track balances and transactions

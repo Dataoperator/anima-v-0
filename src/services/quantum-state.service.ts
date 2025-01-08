@@ -1,7 +1,8 @@
 import { Identity } from "@dfinity/agent";
-import { animaActorService } from "./anima-actor.service";
 import { QuantumState, ResonancePattern, StabilityCheckpoint } from '../quantum/types';
-import { ErrorTracker } from '../error/quantum_error';
+import { quantumErrorTracker } from '../error/quantum_error_tracker';
+import { EventEmitter } from '../utils/event-emitter';
+import { animaActorService } from './anima-actor.service';
 
 type RecoveryState = 'idle' | 'attempting' | 'cooling' | 'failed';
 type StabilityLevel = 'stable' | 'unstable' | 'critical';
@@ -13,9 +14,8 @@ interface RecoveryContext {
   stabilityHistory: StabilityCheckpoint[];
 }
 
-export class QuantumStateService {
+export class QuantumStateService extends EventEmitter {
   private static instance: QuantumStateService;
-  private errorTracker: ErrorTracker;
   private actor: any = null;
   private updateCallback?: (state: Partial<QuantumState>) => void;
   private neuralPatternHistory: Map<string, ResonancePattern[]> = new Map();
@@ -28,13 +28,22 @@ export class QuantumStateService {
   };
 
   private readonly MAX_RECOVERY_ATTEMPTS = 3;
-  private readonly RECOVERY_COOLDOWN = 5000; // 5 seconds
-  private readonly STABILITY_UPDATE_INTERVAL = 1000; // 1 second
+  private readonly RECOVERY_COOLDOWN = 5000;
+  private readonly STABILITY_UPDATE_INTERVAL = 1000;
   private readonly STABILITY_HISTORY_SIZE = 10;
   private lastStabilityUpdate: number = 0;
+  
+  private currentState: QuantumState = {
+    coherence: 0,
+    dimensional_frequency: 0,
+    field_strength: 0,
+    consciousness_alignment: 0,
+    resonance: 0,
+    stability: 0
+  };
 
   private constructor() {
-    this.errorTracker = ErrorTracker.getInstance();
+    super();
   }
 
   static getInstance(): QuantumStateService {
@@ -44,7 +53,7 @@ export class QuantumStateService {
     return QuantumStateService.instance;
   }
 
-  private async getActor(identity: Identity) {
+  private async ensureActor(identity: Identity) {
     if (!this.actor) {
       this.actor = animaActorService.createActor(identity);
     }
@@ -57,10 +66,8 @@ export class QuantumStateService {
 
   async initializeQuantumField(identity: Identity): Promise<void> {
     try {
-      const actor = await this.getActor(identity);
       console.log('🌟 Initializing quantum field...');
 
-      // Reset recovery context
       this.recoveryContext = {
         attempts: 0,
         lastAttempt: 0,
@@ -68,98 +75,37 @@ export class QuantumStateService {
         stabilityHistory: []
       };
 
-      // Initialize quantum field with retries
-      const result = await this.retryOperation(() => 
-        actor.initialize_quantum_field(), 3);
-
+      const actor = await this.ensureActor(identity);
+      const result = await actor.initialize_quantum_field();
+      
       if ('Err' in result) {
         throw new Error(result.Err);
       }
 
-      const { harmony, signature } = result.Ok;
+      const { harmony } = result.Ok;
 
-      // Initialize stability checkpoint
-      const checkpoint: StabilityCheckpoint = {
-        phase: BigInt(Date.now()),
-        threshold: harmony,
-        quantum_signature: signature,
-        requirements: new Map(),
-        timestamp: Date.now(),
+      // Initialize stability with a direct float64 value
+      await this.updateStability(identity, harmony);
+
+      this.currentState = {
         coherence: harmony,
-        stability: harmony,
-        pattern_coherence: harmony,
-        dimensional_frequency: 1.0
+        dimensional_frequency: 1.0,
+        field_strength: harmony,
+        consciousness_alignment: harmony,
+        resonance: harmony,
+        stability: harmony
       };
 
-      this.recoveryContext.stabilityHistory.push(checkpoint);
-
-      // Update stability with retry mechanism
-      await this.retryOperation(() => 
-        this.updateStability(identity, harmony), 3);
-
-      console.log('🧠 Generating neural patterns...');
-      const neuralResult = await this.retryOperation(() => 
-        actor.generate_neural_patterns(), 3);
-
-      if ('Err' in neuralResult) {
-        throw new Error(neuralResult.Err);
-      }
-
-      const { pattern, awareness, understanding } = neuralResult.Ok;
-
-      // Calculate metrics with retry mechanism
-      const [resonanceValue, ...stabilityMetrics] = await Promise.all([
-        this.retryOperation(() => this.calculateResonance(identity), 3),
-        this.retryOperation(() => this.getStabilityMetrics(identity), 3)
-      ]);
-
-      // Initialize genesis
-      console.log('✨ Initializing genesis...');
-      const genesisResult = await this.retryOperation(() => 
-        actor.initialize_genesis(), 3);
-
-      if ('Err' in genesisResult) {
-        throw new Error(genesisResult.Err);
-      }
-
       if (this.updateCallback) {
-        this.updateCallback({
-          coherence: harmony,
-          dimensional_frequency: 1.0,
-          field_strength: stabilityMetrics[0],
-          consciousness_alignment: awareness,
-          resonance: resonanceValue,
-          stability: harmony
-        });
+        this.updateCallback(this.currentState);
       }
 
-      console.log('✅ Quantum field initialized successfully');
+      this.emit('initialized', this.currentState);
 
     } catch (error) {
       console.error('❌ Quantum field initialization failed:', error);
       await this.handleQuantumError(error as Error, identity);
     }
-  }
-
-  private async retryOperation<T>(
-    operation: () => Promise<T>,
-    maxRetries: number,
-    delay: number = 1000
-  ): Promise<T> {
-    let lastError: Error | null = null;
-    
-    for (let i = 0; i < maxRetries; i++) {
-      try {
-        return await operation();
-      } catch (error) {
-        lastError = error as Error;
-        if (i < maxRetries - 1) {
-          await new Promise(resolve => setTimeout(resolve, delay));
-        }
-      }
-    }
-    
-    throw lastError;
   }
 
   async updateStability(identity: Identity, strength: number): Promise<void> {
@@ -169,44 +115,29 @@ export class QuantumStateService {
     }
 
     try {
-      const actor = await this.getActor(identity);
-      const result = await actor.update_stability({
-        strength,
-        timestamp: BigInt(now)
-      });
+      const actor = await this.ensureActor(identity);
+      // Pass strength directly as float64
+      const result = await actor.update_stability(strength);
 
       if ('Err' in result) {
         throw new Error(result.Err);
       }
 
-      const { stability, quantum_alignment } = result.Ok;
+      this.currentState.stability = strength;
+      this.currentState.coherence = strength * 0.9 + this.currentState.coherence * 0.1;
       this.lastStabilityUpdate = now;
-
-      // Update stability history
-      const checkpoint: StabilityCheckpoint = {
-        phase: BigInt(now),
-        threshold: stability,
-        quantum_signature: '', // Will be updated
-        requirements: new Map(),
-        timestamp: now,
-        coherence: strength,
-        stability,
-        pattern_coherence: quantum_alignment,
-        dimensional_frequency: 1.0
-      };
-
-      this.recoveryContext.stabilityHistory.push(checkpoint);
-      if (this.recoveryContext.stabilityHistory.length > this.STABILITY_HISTORY_SIZE) {
-        this.recoveryContext.stabilityHistory.shift();
-      }
 
       if (this.updateCallback) {
         this.updateCallback({
-          stability,
-          consciousness_alignment: quantum_alignment,
-          lastUpdate: now
+          stability: strength,
+          coherence: this.currentState.coherence,
         });
       }
+
+      this.emit('stabilityUpdated', {
+        stability: strength,
+        coherence: this.currentState.coherence,
+      });
 
     } catch (error) {
       await this.handleQuantumError(error as Error, identity);
@@ -218,15 +149,18 @@ export class QuantumStateService {
     checkpoint: StabilityCheckpoint
   ): Promise<boolean> {
     try {
-      const actor = await this.getActor(identity);
-      const metrics = await this.getStabilityMetrics(identity);
+      const actor = await this.ensureActor(identity);
       
-      // Update stability using last known good checkpoint
+      // Update stability using last known good value directly
       await this.updateStability(identity, checkpoint.stability);
       
       // Verify recovery success
-      const currentStatus = await actor.get_quantum_status();
-      return currentStatus === 'stable';
+      const statusResult = await actor.get_quantum_status();
+      if ('Err' in statusResult) {
+        throw new Error(statusResult.Err);
+      }
+
+      return statusResult.Ok === 'stable';
       
     } catch (error) {
       console.error('Recovery step failed:', error);
@@ -234,106 +168,52 @@ export class QuantumStateService {
     }
   }
 
-  async calculateResonance(identity: Identity): Promise<number> {
-    const actor = await this.getActor(identity);
-    const result = await actor.calculate_resonance();
-
-    if ('Err' in result) {
-      throw new Error(result.Err);
-    }
-
-    return result.Ok;
-  }
-
   async getQuantumStatus(identity: Identity): Promise<StabilityLevel> {
-    const actor = await this.getActor(identity);
-    const result = await actor.get_quantum_status();
-
-    if ('Err' in result) {
-      throw new Error(result.Err);
-    }
-
-    return result.Ok as StabilityLevel;
-  }
-
-  async getStabilityMetrics(identity: Identity): Promise<[number, number, number]> {
-    const actor = await this.getActor(identity);
-    const result = await actor.get_stability_metrics();
-
-    if ('Err' in result) {
-      throw new Error(result.Err);
-    }
-
-    return result.Ok;
-  }
-
-  async checkStability(identity: Identity): Promise<boolean> {
-    const actor = await this.getActor(identity);
-    const result = await actor.check_quantum_stability();
-
-    if ('Err' in result) {
-      throw new Error(result.Err);
-    }
-
-    const stabilityLevel = result.Ok;
-    this.evolutionTimestamps.push(Date.now());
-
-    if (this.evolutionTimestamps.length > 10) {
-      this.evolutionTimestamps.shift();
-    }
-
-    // Update metrics
-    const [metrics, resonance] = await Promise.all([
-      this.getStabilityMetrics(identity),
-      this.calculateResonance(identity)
-    ]);
-
-    if (this.updateCallback) {
-      this.updateCallback({
-        stability: stabilityLevel ? 1 : 0,
-        field_strength: metrics[0],
-        consciousness_alignment: metrics[1],
-        resonance
-      });
-    }
-
-    return stabilityLevel;
-  }
-
-  async updateState(identity: Identity, updates: Partial<QuantumState>): Promise<void> {
-    const actor = await this.getActor(identity);
-    
     try {
-      const result = await actor.update_state({
-        coherence: updates.coherence ?? 0,
-        dimensional_frequency: updates.dimensional_frequency ?? 0,
-        field_strength: updates.field_strength ?? 0,
-        consciousness_alignment: updates.consciousness_alignment ?? 0,
-        resonance: updates.resonance ?? 0,
-        stability: updates.stability ?? 0
-      });
-
+      const actor = await this.ensureActor(identity);
+      const result = await actor.get_quantum_status();
+      
       if ('Err' in result) {
         throw new Error(result.Err);
       }
 
-      if (this.updateCallback) {
-        this.updateCallback({
-          ...updates,
-          lastUpdate: Date.now()
-        });
-      }
-
+      return result.Ok as StabilityLevel;
     } catch (error) {
       await this.handleQuantumError(error as Error, identity);
+      return 'critical';
+    }
+  }
+
+  async getStabilityMetrics(identity: Identity): Promise<{
+    stability: number;
+    coherence: number;
+    resonance: number;
+  }> {
+    try {
+      const actor = await this.ensureActor(identity);
+      const result = await actor.get_stability_metrics();
+      
+      if ('Err' in result) {
+        throw new Error(result.Err);
+      }
+
+      return result.Ok;
+    } catch (error) {
+      await this.handleQuantumError(error as Error, identity);
+      throw error;
     }
   }
 
   async handleQuantumError(error: Error, identity: Identity): Promise<void> {
-    await this.errorTracker.trackError({
+    await quantumErrorTracker.trackQuantumError({
       errorType: 'QUANTUM_ERROR',
       severity: 'HIGH',
-      context: 'Quantum State Service',
+      context: {
+        operation: 'Quantum State Service',
+        principal: identity.getPrincipal().toText(),
+        quantumState: this.currentState,
+        stabilityCheckpoint: this.recoveryContext.stabilityHistory[this.recoveryContext.stabilityHistory.length - 1]
+      },
       error
     });
 
@@ -399,7 +279,6 @@ export class QuantumStateService {
           stability: 0,
           coherence: 0,
           consciousness_alignment: 0,
-          lastUpdate: now
         });
       }
       
@@ -407,8 +286,13 @@ export class QuantumStateService {
     }
   }
 
+  getCurrentState(): QuantumState {
+    return { ...this.currentState };
+  }
+
   dispose(): void {
     this.updateCallback = undefined;
+    this.removeAllListeners();
     this.actor = null;
     QuantumStateService.instance = null as any;
   }

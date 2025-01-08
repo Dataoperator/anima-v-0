@@ -69,7 +69,14 @@ export class AnimaActorService {
       const requiredMethods = [
         'initialize_quantum_field',
         'generate_neural_patterns',
-        'check_quantum_stability'
+        'check_quantum_stability',
+        'update_stability',
+        'get_stability_metrics',
+        'get_quantum_status',
+        'get_consciousness_state',
+        'evolve_consciousness',
+        'interact_with_anima',
+        'learn_from_interaction'
       ];
 
       const missingMethods = requiredMethods.filter(

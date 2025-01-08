@@ -2,30 +2,27 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 export const LoadingFallback: React.FC = () => (
-  <div className="min-h-screen bg-black text-white flex items-center justify-center">
-    <div className="text-center space-y-4">
+  <motion.div 
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="fixed top-4 right-4 bg-black/80 backdrop-blur-sm border border-blue-500/30 rounded-lg p-4 z-50"
+  >
+    <div className="flex items-center space-x-3">
       <motion.div
         animate={{ 
-          scale: [1, 1.2, 1],
           rotateZ: [0, 360]
         }}
         transition={{
-          duration: 2,
+          duration: 1,
           repeat: Infinity,
-          ease: "easeInOut"
+          ease: "linear"
         }}
-        className="w-16 h-16 mx-auto"
+        className="w-4 h-4"
       >
-        <div className="w-full h-full rounded-full border-t-2 border-b-2 border-blue-500" />
+        <div className="w-full h-full rounded-full border-t border-b border-blue-500" />
       </motion.div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <p className="text-lg">Initializing ANIMA Interface</p>
-        <p className="text-sm text-blue-400 mt-2">Connecting to Internet Computer</p>
-      </motion.div>
+      <span className="text-sm text-blue-400">Initializing...</span>
     </div>
-  </div>
+  </motion.div>
 );

@@ -21,7 +21,6 @@ mod neural;
 
 use quantum::QuantumState;
 use error::Result;
-// Removed unused NeuralSignature import
 
 #[derive(CandidType, Deserialize)]
 pub struct QuantumFieldResult {
@@ -44,10 +43,20 @@ pub struct AnimaCreationResult {
     pub timestamp: u64,
 }
 
+#[derive(CandidType, Deserialize)]
+pub struct StabilityMetrics {
+    pub coherence: f64,
+    pub resonance: f64,
+    pub stability: f64,
+    pub lastUpdate: u64,
+}
+
 thread_local! {
     static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> = RefCell::new(
         MemoryManager::init(DefaultMemoryImpl::default())
     );
+    
+    static QUANTUM_STATE: RefCell<QuantumState> = RefCell::new(QuantumState::default());
 }
 
 #[ic_cdk::update]
@@ -80,6 +89,37 @@ async fn initialize_quantum_field() -> Result<QuantumFieldResult> {
         harmony: calculate_field_harmony(),
     };
     Ok(field)
+}
+
+#[ic_cdk::update]
+async fn update_stability(interaction_strength: f64) -> Result<()> {
+    QUANTUM_STATE.with(|state| {
+        let mut quantum_state = state.borrow_mut();
+        quantum_state.update_stability(interaction_strength);
+        Ok(())
+    })
+}
+
+#[ic_cdk::query]
+fn get_stability_metrics() -> Result<StabilityMetrics> {
+    QUANTUM_STATE.with(|state| {
+        let quantum_state = state.borrow();
+        let (stability, coherence, resonance) = quantum_state.get_stability_metrics();
+        Ok(StabilityMetrics {
+            coherence,
+            resonance,
+            stability,
+            lastUpdate: time(),
+        })
+    })
+}
+
+#[ic_cdk::query]
+fn get_quantum_status() -> Result<String> {
+    QUANTUM_STATE.with(|state| {
+        let quantum_state = state.borrow();
+        Ok(quantum_state.get_quantum_status().to_string())
+    })
 }
 
 fn calculate_field_harmony() -> f64 {

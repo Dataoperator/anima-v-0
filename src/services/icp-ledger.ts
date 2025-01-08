@@ -1,6 +1,6 @@
 import { ActorSubclass, Identity } from '@dfinity/agent';
 import { Principal } from '@dfinity/principal';
-import { AccountIdentifier } from '@dfinity/nns';
+import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { ErrorTracker, ErrorCategory, ErrorSeverity } from './error-tracker';
 import { LEDGER_CONFIG } from './icp/ledger';
 

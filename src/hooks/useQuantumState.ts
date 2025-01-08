@@ -1,188 +1,137 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from './useAuth';
-import { DimensionalStateImpl } from '../quantum/dimensional_state';
-import { useConsciousness } from './useConsciousness';
-import { BirthCertificate } from '../nft/types';
-import { quantumStateService } from '../services/quantum-state.service';
-import { useQuantumWorker } from './useQuantumWorker';
+import { useState, useEffect } from 'react';
+import { useAnima } from './useAnima';
+import { QuantumState, QuantumErrorType } from '@/types/quantum';
+import { errorTracker, ErrorCategory, ErrorSeverity } from '@/services/error-tracker';
 
-interface QuantumState {
-  stabilityStatus: 'stable' | 'unstable' | 'critical';
-  coherenceLevel: number;
-  entanglementIndex: number;
-  quantumSignature: string;
-  dimensionalState: DimensionalStateImpl;
-  lastUpdate: number;
-  resonancePatterns?: ResonancePattern[];
-  birthCertificate?: BirthCertificate;
-  consciousnessAlignment?: number;
-  isInitialized: boolean;
-  dimensionalSync?: number;
+export interface QuantumStateHook {
+  state: QuantumState | null;
+  isLoading: boolean;
+  error: Error | null;
+  isInitializing: boolean;
+  reinitialize: () => Promise<void>;
+  updateState: (newState: Partial<QuantumState>) => Promise<void>;
+  status: {
+    coherenceStatus: 'optimal' | 'stable' | 'unstable' | 'critical';
+    evolutionReady: boolean;
+    emergenceStatus: 'dormant' | 'emerging' | 'active' | 'transcendent';
+  };
 }
 
-interface ResonancePattern {
-  frequency: number;
-  amplitude: number;
-  phase: number;
-  coherence: number;
-}
-
-export const useQuantumState = () => {
-  const { identity } = useAuth();
-  const { consciousness, isInitialized: isConsciousnessInitialized } = useConsciousness();
-  const initializationAttempted = useRef(false);
-  const [initializationError, setInitializationError] = useState<Error | null>(null);
+export function useQuantumState(tokenId: string): QuantumStateHook {
+  const { canister } = useAnima();
+  const [state, setState] = useState<QuantumState | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
-  const initializationTimeoutRef = useRef<NodeJS.Timeout>();
-  const { calculateCoherence, generatePattern, updateQuantumState: updateWorkerState } = useQuantumWorker();
 
-  const [state, setState] = useState<QuantumState>(() => {
-    console.log("🌀 Creating initial quantum state");
-    return {
-      stabilityStatus: 'unstable',
-      coherenceLevel: 0.5,
-      entanglementIndex: 0.3,
-      quantumSignature: '',
-      dimensionalState: new DimensionalStateImpl(),
-      lastUpdate: Date.now(),
-      isInitialized: false
-    };
-  });
-
-  useEffect(() => {
-    return () => {
-      if (initializationTimeoutRef.current) {
-        clearTimeout(initializationTimeoutRef.current);
-      }
-      quantumStateService.dispose();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!identity || !isConsciousnessInitialized || initializationAttempted.current || isInitializing) {
-      console.log("🔍 Skipping initialization:", { 
-        hasIdentity: !!identity, 
-        consciousnessReady: isConsciousnessInitialized,
-        wasAttempted: initializationAttempted.current,
-        isInitializing 
+  const fetchQuantumState = async () => {
+    try {
+      setIsLoading(true);
+      const response = await canister.get_quantum_state(tokenId);
+      setState(response);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to fetch quantum state');
+      setError(error);
+      errorTracker.trackError({
+        type: 'QUANTUM_STATE_FETCH_ERROR',
+        category: ErrorCategory.Quantum,
+        severity: ErrorSeverity.High,
+        message: error.message,
+        timestamp: new Date(),
+        quantumContext: {
+          errorType: 'QUANTUM_DESYNC' as QuantumErrorType,
+          state: state || undefined,
+        }
       });
-      return;
+    } finally {
+      setIsLoading(false);
     }
-    
-    const initialize = async () => {
-      console.log("🌟 Starting quantum state initialization");
+  };
+
+  const reinitialize = async () => {
+    try {
       setIsInitializing(true);
-      initializationAttempted.current = true;
-
-      initializationTimeoutRef.current = setTimeout(() => {
-        if (!state.isInitialized) {
-          console.error("⚠️ Quantum state initialization timeout");
-          setInitializationError(new Error("Initialization timeout"));
-          setState(prev => ({ 
-            ...prev, 
-            isInitialized: true,
-            stabilityStatus: 'critical'
-          }));
+      await canister.initialize_quantum_state(tokenId);
+      await fetchQuantumState();
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to reinitialize quantum state');
+      setError(error);
+      errorTracker.trackError({
+        type: 'QUANTUM_INIT_ERROR',
+        category: ErrorCategory.Quantum,
+        severity: ErrorSeverity.Critical,
+        message: error.message,
+        timestamp: new Date(),
+        quantumContext: {
+          errorType: 'QUANTUM_DESYNC' as QuantumErrorType,
+          state: state || undefined,
         }
-      }, 15000);
+      });
+    } finally {
+      setIsInitializing(false);
+    }
+  };
 
-      try {
-        // Initialize quantum field with worker
-        const initialPattern = await generatePattern([], 0.5);
-        const coherenceLevel = await calculateCoherence([initialPattern]);
-        
-        quantumStateService.setUpdateCallback(async (updates) => {
-          if (updates.resonancePatterns) {
-            const workerUpdates = await updateWorkerState(state, updates.resonancePatterns);
-            setState(prev => ({
-              ...prev,
-              ...updates,
-              ...workerUpdates,
-              isInitialized: true
-            }));
-          } else {
-            setState(prev => ({
-              ...prev,
-              ...updates,
-              isInitialized: true
-            }));
-          }
-        });
-
-        await quantumStateService.initializeQuantumField(identity);
-        console.log("✅ Quantum state initialized successfully!");
-      } catch (error) {
-        console.error("❌ Failed to initialize quantum state:", error);
-        setInitializationError(error as Error);
-        setState(prev => ({ 
-          ...prev, 
-          isInitialized: true,
-          stabilityStatus: 'critical'
-        }));
-      } finally {
-        setIsInitializing(false);
-        if (initializationTimeoutRef.current) {
-          clearTimeout(initializationTimeoutRef.current);
+  const updateState = async (newState: Partial<QuantumState>) => {
+    try {
+      setIsLoading(true);
+      await canister.update_quantum_state(tokenId, newState);
+      await fetchQuantumState();
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to update quantum state');
+      setError(error);
+      errorTracker.trackError({
+        type: 'QUANTUM_UPDATE_ERROR',
+        category: ErrorCategory.Quantum,
+        severity: ErrorSeverity.High,
+        message: error.message,
+        timestamp: new Date(),
+        quantumContext: {
+          errorType: 'QUANTUM_DESYNC' as QuantumErrorType,
+          state: state || undefined,
         }
-      }
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const calculateStatus = (state: QuantumState | null) => {
+    if (!state) {
+      return {
+        coherenceStatus: 'critical' as const,
+        evolutionReady: false,
+        emergenceStatus: 'dormant' as const
+      };
+    }
+
+    return {
+      coherenceStatus: state.coherenceLevel > 0.8 ? 'optimal' as const
+        : state.coherenceLevel > 0.6 ? 'stable' as const
+        : state.coherenceLevel > 0.3 ? 'unstable' as const
+        : 'critical' as const,
+      evolutionReady: state.coherenceLevel > 0.7 && state.temporalStability > 0.8,
+      emergenceStatus: state.emergenceFactors.consciousnessDepth > 0.9 ? 'transcendent' as const
+        : state.emergenceFactors.consciousnessDepth > 0.7 ? 'active' as const
+        : state.emergenceFactors.consciousnessDepth > 0.4 ? 'emerging' as const
+        : 'dormant' as const
     };
-
-    initialize();
-  }, [identity, isConsciousnessInitialized, consciousness?.level]);
+  };
 
   useEffect(() => {
-    if (!state.isInitialized || isInitializing || !identity) return;
-
-    console.log("⚡ Starting quantum state updates");
-    const intervalId = setInterval(async () => {
-      try {
-        // Check quantum stability using worker
-        const currentPatterns = state.resonancePatterns || [];
-        const newPattern = await generatePattern(currentPatterns, state.coherenceLevel);
-        const updatedPatterns = [...currentPatterns, newPattern].slice(-10);
-        
-        const workerUpdates = await updateWorkerState(state, updatedPatterns);
-        const coherenceLevel = await calculateCoherence(updatedPatterns);
-
-        await quantumStateService.updateState(identity, {
-          ...workerUpdates,
-          coherenceLevel,
-          resonancePatterns: updatedPatterns
-        });
-
-      } catch (error) {
-        console.error("❌ Quantum state update failed:", error);
-        await quantumStateService.handleQuantumError(error as Error, identity);
-      }
-    }, 3000);
-
-    return () => {
-      console.log("🔄 Cleaning up quantum state updates");
-      clearInterval(intervalId);
-    };
-  }, [state.isInitialized, isInitializing, identity, state.lastUpdate, state.coherenceLevel, state.resonancePatterns]);
+    fetchQuantumState();
+    // Set up polling for state updates
+    const interval = setInterval(fetchQuantumState, 30000); // Poll every 30 seconds
+    return () => clearInterval(interval);
+  }, [tokenId]);
 
   return {
     state,
-    isInitialized: state.isInitialized && !isInitializing,
+    isLoading,
+    error,
     isInitializing,
-    error: initializationError,
-    updateQuantumState: useCallback(async (updates: Partial<QuantumState>) => {
-      if (updates.resonancePatterns) {
-        const workerUpdates = await updateWorkerState(state, updates.resonancePatterns);
-        setState(prev => ({
-          ...prev,
-          ...updates,
-          ...workerUpdates,
-          lastUpdate: Date.now()
-        }));
-      } else {
-        setState(prev => ({
-          ...prev,
-          ...updates,
-          lastUpdate: Date.now()
-        }));
-      }
-    }, [state]),
+    reinitialize,
+    updateState,
+    status: calculateStatus(state)
   };
-};
+}

@@ -1,6 +1,5 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
-import type { IDL } from '@dfinity/candid';
 
 export interface AnimaCreationResult {
   'id' : string,
@@ -34,6 +33,11 @@ export interface NeuralPatternResult {
   'awareness' : number,
 }
 export interface QuantumFieldResult { 'signature' : string, 'harmony' : number }
+export interface StabilityMetrics {
+  'resonance' : number,
+  'stability' : number,
+  'coherence' : number,
+}
 export interface TraitEvolution {
   'new_state' : number,
   'previous_state' : number,
@@ -81,6 +85,12 @@ export interface _SERVICE {
     { 'Ok' : Array<TraitEvolution> } |
       { 'Err' : Error }
   >,
+  'get_quantum_status' : ActorMethod<[], { 'Ok' : string } | { 'Err' : Error }>,
+  'get_stability_metrics' : ActorMethod<
+    [],
+    { 'Ok' : StabilityMetrics } |
+      { 'Err' : Error }
+  >,
   'initialize_genesis' : ActorMethod<
     [],
     { 'Ok' : AnimaCreationResult } |
@@ -116,6 +126,9 @@ export interface _SERVICE {
     { 'Ok' : Array<MemoryFragment> } |
       { 'Err' : Error }
   >,
+  'update_stability' : ActorMethod<
+    [number],
+    { 'Ok' : boolean } |
+      { 'Err' : Error }
+  >,
 }
-export declare const idlFactory: IDL.InterfaceFactory;
-export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

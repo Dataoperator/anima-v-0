@@ -139,27 +139,7 @@ type ListPermitted = record { permission: Permission };
 
 type ValidationResult = variant { Ok : text; Err : text };
 
-type AssetCanisterArgs = variant {
-  Init: InitArgs;
-  Upgrade: UpgradeArgs;
-};
-
-type InitArgs = record {
-  set_permissions: opt SetPermissions;
-};
-
-type UpgradeArgs = record {
-  set_permissions: opt SetPermissions;
-};
-
-/// Sets the list of principals granted each permission.
-type SetPermissions = record {
-  prepare: vec principal;
-  commit: vec principal;
-  manage_permissions: vec principal;
-};
-
-service: (asset_canister_args: opt AssetCanisterArgs) -> {
+service: {
   api_version: () -> (nat16) query;
 
   get: (record {
@@ -201,7 +181,6 @@ service: (asset_canister_args: opt AssetCanisterArgs) -> {
   create_batch : (record {}) -> (record { batch_id: BatchId });
 
   create_chunk: (record { batch_id: BatchId; content: blob }) -> (record { chunk_id: ChunkId });
-  create_chunks: (record { batch_id: BatchId; content: vec blob }) -> (record { chunk_ids: vec ChunkId });
 
   // Perform all operations successfully, or reject
   commit_batch: (CommitBatchArguments) -> ();
@@ -241,10 +220,10 @@ service: (asset_canister_args: opt AssetCanisterArgs) -> {
 
   authorize: (principal) -> ();
   deauthorize: (principal) -> ();
-  list_authorized: () -> (vec principal);
+  list_authorized: () -> (vec principal) query;
   grant_permission: (GrantPermission) -> ();
   revoke_permission: (RevokePermission) -> ();
-  list_permitted: (ListPermitted) -> (vec principal);
+  list_permitted: (ListPermitted) -> (vec principal) query;
   take_ownership: () -> ();
 
   get_asset_properties : (key: Key) -> (record {
