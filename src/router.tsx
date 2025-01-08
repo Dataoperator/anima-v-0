@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { LandingPage } from '@/components/layout/LandingPage';
+import LandingPage from '@/components/layout/LandingPage';
 import { LoginPage } from '@/components/auth/LoginPage';
 import { CyberpunkQuantumVault } from '@/components/quantum-vault/CyberpunkQuantumVault';
 import { MintAnima } from '@/components/anima/MintAnima';
@@ -23,6 +23,15 @@ const routes = [
   },
   {
     path: '/quantum-vault',
+    element: (
+      <AuthGuard>
+        <CyberpunkQuantumVault />
+      </AuthGuard>
+    ),
+    errorElement: <ErrorBoundary />
+  },
+  {
+    path: '/vault',  // Alias for quantum-vault for backwards compatibility
     element: (
       <AuthGuard>
         <CyberpunkQuantumVault />

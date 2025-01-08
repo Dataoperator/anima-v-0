@@ -11,12 +11,13 @@ import { Actor, ActorSubclass } from '@dfinity/agent';
 const CANISTER_ID = {
   anima: process.env.CANISTER_ID_ANIMA?.toString() || 'l2ilz-iqaaa-aaaaj-qngjq-cai',
   assets: process.env.CANISTER_ID_ANIMA_ASSETS?.toString() || 'lpp2u-jyaaa-aaaaj-qngka-cai',
-  ledger: 'ryjl3-tyaaa-aaaaa-aaaba-cai' // ICP Ledger canister ID
+  ledger: 'ryjl3-tyaaa-aaaaa-aaaba-cai'
 };
 
 const HOST = 'https://icp0.io';
 
 type StageChangeCallback = (stage: string) => void;
+type InitializationState = 'idle' | 'initializing' | 'initialized' | 'error';
 
 export async function createICPLedgerActor(identity: Identity): Promise<ActorSubclass<LedgerService>> {
   const agent = new HttpAgent({
@@ -40,20 +41,13 @@ class ICManager {
   private agent: HttpAgent | null = null;
   private authClient: AuthClient | null = null;
   private identity: Identity | null = null;
-  private initialized = false;
-  private initializing = false;
+  private state: InitializationState = 'idle';
   private stageChangeCallbacks: StageChangeCallback[] = [];
   private errorTracker: ErrorTracker;
+  private initializationPromise: Promise<void> | null = null;
 
   private constructor() {
     this.errorTracker = ErrorTracker.getInstance();
-    if (typeof window !== 'undefined') {
-      window.ic = {
-        ...(window.ic || {}),
-        agent: null,
-        HttpAgent
-      };
-    }
   }
 
   static getInstance(): ICManager {
@@ -63,8 +57,11 @@ class ICManager {
     return ICManager.instance;
   }
 
-  onStageChange(callback: StageChangeCallback) {
+  onStageChange(callback: StageChangeCallback): () => void {
     this.stageChangeCallbacks.push(callback);
+    return () => {
+      this.stageChangeCallbacks = this.stageChangeCallbacks.filter(cb => cb !== callback);
+    };
   }
 
   private updateStage(stage: string) {
@@ -73,29 +70,31 @@ class ICManager {
   }
 
   async initialize(): Promise<void> {
-    if (this.initialized) {
-      console.log('IC already initialized');
+    if (this.state === 'initialized') {
       return;
     }
 
-    if (this.initializing) {
-      console.log('IC initialization already in progress');
-      return;
+    if (this.initializationPromise) {
+      return this.initializationPromise;
     }
 
+    this.initializationPromise = this.performInitialization();
+    return this.initializationPromise;
+  }
+
+  private async performInitialization(): Promise<void> {
     try {
-      this.initializing = true;
+      this.state = 'initializing';
       console.log('Starting IC initialization...');
 
       this.updateStage('Creating AuthClient...');
-      if (!this.authClient) {
-        this.authClient = await AuthClient.create({
-          idleOptions: { disableIdle: true }
-        });
-      }
+      this.authClient = await AuthClient.create({
+        idleOptions: { disableIdle: true }
+      });
       
       this.updateStage('Getting identity...');
       this.identity = this.authClient.getIdentity();
+
       if (!this.identity) {
         throw new Error('Failed to get identity');
       }
@@ -124,28 +123,24 @@ class ICManager {
         agent: this.agent
       }) as AnimaService;
 
-      // Verify the actor
       if (!this.actor || typeof this.actor.initialize_genesis !== 'function') {
         throw new Error('Actor creation failed or missing required methods');
       }
 
       this.updateStage('Setting up window.ic...');
-      window.ic = {
-        ...(window.ic || {}),
-        agent: this.agent,
-        HttpAgent
-      };
-
-      if (this.actor) {
+      if (typeof window !== 'undefined') {
+        window.ic = {
+          agent: this.agent,
+          HttpAgent
+        };
         window.canister = this.actor;
       }
       
-      this.initialized = true;
-      this.initializing = false;
+      this.state = 'initialized';
       this.updateStage('Initialization complete!');
 
     } catch (error) {
-      this.initializing = false;
+      this.state = 'error';
       await this.errorTracker.trackError({
         errorType: 'IC_INIT_ERROR',
         severity: 'HIGH',
@@ -153,10 +148,16 @@ class ICManager {
         error: error instanceof Error ? error : new Error('Unknown error')
       });
       throw error;
+    } finally {
+      this.initializationPromise = null;
     }
   }
 
   getActor(): AnimaService | null {
+    return this.actor;
+  }
+
+  getAnimaActor(): AnimaService | null {
     return this.actor;
   }
 
@@ -172,8 +173,12 @@ class ICManager {
     return this.authClient;
   }
 
+  getState(): InitializationState {
+    return this.state;
+  }
+
   isInitialized(): boolean {
-    return this.initialized;
+    return this.state === 'initialized';
   }
 }
 
@@ -188,6 +193,3 @@ declare global {
 }
 
 export const icManager = ICManager.getInstance();
-
-// Initialize immediately
-icManager.initialize().catch(console.error);
