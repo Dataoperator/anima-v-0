@@ -7360,6 +7360,7 @@
 │   │   │   ├── AnimaPreview.jsx
 │   │   │   ├── InitializationFlow.jsx
 │   │   │   ├── InitializationFlow.tsx
+│   │   │   ├── MintAnima.tsx
 │   │   │   ├── NeuralMantra.jsx
 │   │   │   ├── QuantumInterface.jsx
 │   │   │   ├── QuantumInterface.tsx
@@ -7373,6 +7374,7 @@
 │   │   │   ├── AuthGuard.tsx
 │   │   │   ├── AuthRedirect.tsx
 │   │   │   ├── IntroView.jsx
+│   │   │   ├── LoginPage.tsx
 │   │   │   ├── backup_20250104
 │   │   │   ├── index.js
 │   │   │   └── index.ts
@@ -7433,12 +7435,12 @@
 │   │   │   ├── AppLayout.jsx
 │   │   │   ├── ErrorBoundary.jsx
 │   │   │   ├── LandingPage.jsx
-│   │   │   ├── LandingPage.tsx
 │   │   │   ├── Loading.jsx
 │   │   │   ├── MatrixLayout.tsx
 │   │   │   ├── ProtectedLayout.jsx
 │   │   │   ├── RootLayout.tsx
 │   │   │   ├── TopNav.jsx
+│   │   │   ├── backup_20250104
 │   │   │   └── cleanup.sh
 │   │   ├── market
 │   │   │   └── MarketplacePage.jsx
@@ -7455,6 +7457,7 @@
 │   │   │   ├── ImmersiveInterface.tsx
 │   │   │   ├── IntegratedNeuralLinkInterface.tsx
 │   │   │   ├── NeuralPatternVisualizer.tsx
+│   │   │   ├── UnifiedNeuralLink.tsx
 │   │   │   └── index.ts
 │   │   ├── nexus
 │   │   │   ├── Nexus.jsx
@@ -7620,6 +7623,7 @@
 │   │   └── systemMessages.js
 │   ├── contexts
 │   │   ├── AnimaContext.tsx
+│   │   ├── AppFlow.tsx
 │   │   ├── QuantumContext.tsx
 │   │   ├── WalletContext.tsx
 │   │   ├── anima-context.tsx
@@ -7874,12 +7878,14 @@
 │   │   └── rarity_engine.rs
 │   ├── resonance
 │   │   └── quantum_harmonics.rs
+│   ├── router.jsx
 │   ├── router.tsx
 │   ├── services
 │   │   ├── BuildManager.ts
 │   │   ├── FileService.ts
 │   │   ├── MetricsService.ts
 │   │   ├── RealtimeService.ts
+│   │   ├── ai.service.ts
 │   │   ├── analytics
 │   │   │   └── payment-analytics.ts
 │   │   ├── anima-actor.service.ts
@@ -8371,4 +8377,4 @@
 ├── vite.config.ts
 └── yarn.lock
 
-1318 directories, 7053 files
+1319 directories, 7058 files

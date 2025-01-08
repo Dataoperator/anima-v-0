@@ -1,158 +1,140 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import { useWallet } from '@/contexts/WalletContext';
+import React, { useState, useEffect } from 'react';
 import { Principal } from '@dfinity/principal';
-import { motion } from 'framer-motion';
-import { useQuantumState } from '@/hooks/useQuantumState';
-import { ErrorTracker, ErrorCategory, ErrorSeverity } from '@/services/error-tracker';
-import { Button } from '@/components/ui/button';
-import { Alert } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { PaymentVerification, PaymentVerificationService } from '@/services/payment-verification.service';
+import { Card } from '../ui/card';
+import { Alert, AlertDescription } from '../ui/alert';
+import { Button } from '../ui/button';
+import { QRCode } from '../ui/QRCode';
 
 interface ICPPaymentPanelProps {
-  onSuccess?: () => void;
-  onError?: (error: Error) => void;
-  amount?: bigint;
+  onSuccess: () => void;
+  onError: (error: string) => void;
 }
 
 export const ICPPaymentPanel: React.FC<ICPPaymentPanelProps> = ({
   onSuccess,
-  onError,
-  amount = BigInt(100000000), // Default 1 ICP
+  onError
 }) => {
   const { identity } = useAuth();
-  const { balance, spend, error: walletError, refreshBalance } = useWallet();
-  const { quantumState } = useQuantumState();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [transactionError, setTransactionError] = useState<string | null>(null);
-  const errorTracker = ErrorTracker.getInstance();
+  const [paymentAddress, setPaymentAddress] = useState('');
+  const [verificationStatus, setVerificationStatus] = useState<PaymentVerification>({ status: 'pending' });
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
-    if (identity) {
-      refreshBalance();
-    }
-  }, [identity, refreshBalance]);
+    const generatePaymentDetails = async () => {
+      if (!identity) return;
 
-  const handlePayment = async () => {
-    if (!identity || isProcessing) return;
+      setIsGenerating(true);
+      try {
+        // Generate unique payment address for this minting session
+        const response = await fetch('/api/generate-payment-address', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            principal: identity.toString()
+          })
+        });
 
-    setIsProcessing(true);
-    setTransactionError(null);
-
-    try {
-      const transaction = await spend(
-        amount,
-        `ANIMA_MINT_${Date.now()}_${quantumState?.coherence || 1.0}`
-      );
-
-      if (transaction.status === 'completed') {
-        await refreshBalance();
-        onSuccess?.();
-      } else {
-        throw new Error('Transaction failed to complete');
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Payment failed';
-      setTransactionError(errorMessage);
-      onError?.(err instanceof Error ? err : new Error(errorMessage));
-      
-      errorTracker.trackError(
-        ErrorCategory.PAYMENT,
-        err instanceof Error ? err : new Error(errorMessage),
-        ErrorSeverity.HIGH,
-        {
-          amount: amount.toString(),
-          quantumCoherence: quantumState?.coherence.toString(),
-          principal: identity.getPrincipal().toString()
+        if (!response.ok) {
+          throw new Error('Failed to generate payment address');
         }
-      );
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
-  const insufficientFunds = balance !== null && balance < amount;
-  const isStable = quantumState?.coherence >= 0.7;
+        const { address, amount, memo } = await response.json();
+        setPaymentAddress(address);
+
+        // Start payment verification
+        PaymentVerificationService.waitForVerification(
+          identity,
+          address,
+          BigInt(amount),
+          BigInt(memo),
+          (status) => {
+            setVerificationStatus(status);
+            if (status.status === 'verified') {
+              onSuccess();
+            } else if (status.status === 'failed') {
+              onError(status.error || 'Payment verification failed');
+            }
+          }
+        );
+
+      } catch (error) {
+        onError(error instanceof Error ? error.message : 'Failed to generate payment details');
+      } finally {
+        setIsGenerating(false);
+      }
+    };
+
+    generatePaymentDetails();
+  }, [identity, onSuccess, onError]);
 
   return (
-    <div className="space-y-4">
-      {/* Balance Display */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-black/40 backdrop-blur-xl rounded-xl p-4 border border-white/10"
-      >
-        <div className="flex justify-between items-center">
-          <span className="text-gray-400">Balance</span>
-          <span className="text-xl font-medium">
-            {balance === null ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              `${Number(balance) / 100000000} ICP`
-            )}
-          </span>
-        </div>
-
-        <div className="mt-2 flex justify-between items-center">
-          <span className="text-gray-400">Quantum State</span>
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${
-              isStable ? 'bg-green-400' : 'bg-yellow-400'
-            }`} />
-            <span className="text-sm">
-              {isStable ? 'Stable' : 'Stabilizing'}
-            </span>
+    <Card className="p-6 bg-black/80 border border-cyan-500/20">
+      <div className="space-y-6">
+        <h3 className="text-xl font-bold text-cyan-500">Genesis Payment</h3>
+        
+        {isGenerating ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500" />
           </div>
-        </div>
-      </motion.div>
+        ) : (
+          <>
+            {paymentAddress && (
+              <div className="space-y-4">
+                <div className="flex justify-center">
+                  <QRCode value={paymentAddress} size={200} />
+                </div>
+                
+                <div className="bg-cyan-950/30 p-4 rounded-md">
+                  <p className="text-sm font-mono break-all text-cyan-300">{paymentAddress}</p>
+                </div>
 
-      {/* Error Messages */}
-      {(transactionError || walletError) && (
-        <Alert variant="destructive">
-          {transactionError || walletError}
-        </Alert>
-      )}
+                <div className="flex justify-between text-sm text-cyan-400">
+                  <span>Amount:</span>
+                  <span>1.0 ICP</span>
+                </div>
+              </div>
+            )}
 
-      {/* Payment Button */}
-      <div className="space-y-4">
+            {verificationStatus.status === 'pending' && (
+              <Alert className="bg-yellow-500/10 border-yellow-500/30">
+                <AlertDescription className="text-yellow-300">
+                  Awaiting payment confirmation...
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {verificationStatus.status === 'verified' && (
+              <Alert className="bg-green-500/10 border-green-500/30">
+                <AlertDescription className="text-green-300">
+                  Payment verified successfully
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {verificationStatus.status === 'failed' && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  {verificationStatus.error || 'Payment verification failed'}
+                </AlertDescription>
+              </Alert>
+            )}
+          </>
+        )}
+
         <Button
-          onClick={handlePayment}
-          disabled={isProcessing || insufficientFunds || !isStable}
-          className="w-full relative bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:from-gray-500 disabled:to-gray-600"
+          onClick={() => window.location.reload()}
+          className="w-full mt-4 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
+          disabled={isGenerating || verificationStatus.status === 'pending'}
         >
-          {isProcessing ? (
-            <div className="flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Processing...</span>
-            </div>
-          ) : (
-            <span>Pay {Number(amount) / 100000000} ICP</span>
-          )}
+          Retry Payment
         </Button>
-
-        {insufficientFunds && (
-          <Alert>
-            <p className="text-sm">
-              Insufficient balance. You need at least {Number(amount) / 100000000} ICP to mint.
-            </p>
-            <Button
-              variant="link"
-              className="mt-2 text-purple-400"
-              onClick={() => window.open('https://nns.ic0.app/', '_blank')}
-            >
-              Add Funds →
-            </Button>
-          </Alert>
-        )}
-
-        {!isStable && (
-          <Alert>
-            <p className="text-sm">
-              Quantum state is currently stabilizing. Please wait a moment before minting.
-            </p>
-          </Alert>
-        )}
       </div>
-    </div>
+    </Card>
   );
 };
+
+export default ICPPaymentPanel;

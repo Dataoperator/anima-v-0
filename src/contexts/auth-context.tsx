@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthClient } from '@dfinity/auth-client';
 import { Principal } from '@dfinity/principal';
-import { Identity } from '@dfinity/agent';
+import { Identity, ActorSubclass } from '@dfinity/agent';
 import { ErrorTracker } from '../error/quantum_error';
 import { icManager } from '../ic-init';
+import { _SERVICE as AnimaService } from '@/declarations/anima/anima.did';
 
 interface AuthContextType {
   authClient: AuthClient | null;
@@ -11,6 +12,7 @@ interface AuthContextType {
   identity: Identity | null;
   principal: Principal | null;
   isInitializing: boolean;
+  actor: ActorSubclass<AnimaService> | null;
   login: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -37,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [principal, setPrincipal] = useState<Principal | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const errorTracker = ErrorTracker.getInstance();
+  const [actor, setActor] = useState<ActorSubclass<AnimaService> | null>(null);
 
   useEffect(() => {
     console.log('🔄 Starting auth initialization sequence...');
@@ -74,6 +77,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('✨ Setting identity and principal...');
             setIdentity(currentIdentity as Identity);
             setPrincipal(currentIdentity.getPrincipal());
+            const newActor = icManager.getAnimaActor();
+            if (newActor) {
+              setActor(newActor);
+            }
           }
         }
 
@@ -115,9 +122,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('✅ Login successful, updating state...');
           const identity = authClient.getIdentity();
           const principal = identity.getPrincipal();
+          const newActor = icManager.getAnimaActor();
           setIsAuthenticated(true);
           setIdentity(identity);
           setPrincipal(principal);
+          if (newActor) {
+            setActor(newActor);
+          }
           console.log('🎉 Login complete!');
         }
       });
@@ -146,6 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsAuthenticated(false);
         setIdentity(null);
         setPrincipal(null);
+        setActor(null);
         console.log('🎉 Logout complete!');
       }
     } catch (error) {
@@ -168,6 +180,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     identity,
     principal,
     isInitializing,
+    actor: actor,
     login,
     logout
   };

@@ -1,177 +1,148 @@
-import { Actor, HttpAgent, Identity } from '@dfinity/agent';
-import { canisterId, createActor, idlFactory } from '@/declarations/anima';
-import type { _SERVICE as AnimaService } from '@/declarations/anima/anima.did';
-import { walletService } from './wallet.service';
-import { quantumStateService } from './quantum-state.service';
+import { Principal } from '@dfinity/principal';
+import { ActorSubclass } from '@dfinity/agent';
+import { _SERVICE as AnimaService } from '../declarations/anima/anima.did';
+import { AnimaConfig, MintingResult } from '../types/anima';
+import { QuantumState } from '../quantum/types';
+import { createActor } from '../utils/createActor';
 
-// Store actor with its identity for validation
-let actorCache: {
-  actor: AnimaService | null;
-  identity: Identity | null;
-} = {
-  actor: null,
-  identity: null
-};
-
-export interface MintOptions {
-  name?: string;
-  metadata?: Record<string, any>;
-  quantumConfig?: {
-    coherenceThreshold?: number;
-    stabilityRequired?: boolean;
+export interface MintingOptions {
+  name: string;
+  quantumConfig: {
+    coherenceThreshold: number;
+    stabilityRequired: boolean;
+    dimensionalSync: boolean;
+    patternResonance: boolean;
+  };
+  genesisConfig: {
+    ritualCompleted: boolean;
+    designationSource: string;
+    neuralPathways: boolean;
+    ghostIntegration: boolean;
   };
 }
 
-export interface MintResult {
-  tokenId: bigint;
-  transactionId: string;
-  quantumSignature: string;
-  metadata: {
-    name: string;
-    quantumState: {
-      coherence: number;
-      resonance: number;
-      stability: number;
-    };
-  };
-}
+export class AnimaClient {
+  private actor: ActorSubclass<AnimaService> | null = null;
 
-export const getAnimaActor = async (identity?: Identity | null): Promise<AnimaService> => {
-  if (!identity) {
-    console.error('No identity provided to getAnimaActor');
-    throw new Error('Authentication required');
+  async initialize(identity: Principal) {
+    this.actor = await createActor<AnimaService>('anima', identity);
   }
 
-  // Check if we need to invalidate cached actor
-  const shouldCreateNewActor = !actorCache.actor || 
-    !actorCache.identity ||
-    actorCache.identity.getPrincipal().toText() !== identity.getPrincipal().toText();
+  async mintAnima(identity: Principal, options: MintingOptions): Promise<MintingResult> {
+    if (!this.actor) {
+      await this.initialize(identity);
+    }
 
-  if (shouldCreateNewActor) {
     try {
-      console.log('Creating new actor with:', {
-        canisterId,
-        principal: identity.getPrincipal().toText(),
-        network: process.env.DFX_NETWORK
-      });
-
-      const actor = createActor(canisterId, {
-        agentOptions: {
-          identity,
-          host: process.env.DFX_NETWORK === 'ic' ? 'https://ic0.app' : undefined
-        }
-      });
-
-      // Test actor connection
-      try {
-        const principal = identity.getPrincipal();
-        console.log('Testing actor connection with principal:', principal.toText());
-        const testResult = await actor.get_user_animas(principal);
-        console.log('Actor test successful, found animas:', testResult);
-      } catch (testError) {
-        console.error('Actor test failed:', testError);
-        throw new Error('Actor validation failed');
+      // Initialize and validate quantum state
+      const quantumState = await this.initializeQuantumState(options.quantumConfig);
+      if (!quantumState) {
+        throw new Error('Failed to initialize quantum state');
       }
 
-      // Cache the working actor
-      actorCache = {
-        actor,
-        identity
-      };
+      // Verify payment requirements
+      const { paymentRequired, fee } = await this.actor!.getMintingRequirements();
+      if (paymentRequired) {
+        await this.verifyPayment(identity, fee);
+      }
 
-      console.log('New actor created and cached successfully');
+      // Execute minting with retry logic
+      const result = await this.executeWithRetry(async () => {
+        return await this.actor!.mintAnima({
+          owner: identity,
+          name: options.name,
+          quantumState: quantumState,
+          config: {
+            ...options.genesisConfig,
+            timestamp: BigInt(Date.now()),
+            dimensionalAlignment: true,
+          }
+        });
+      }, 3);
+
+      // Verify minting success
+      if (!result.ok) {
+        throw new Error(result.err);
+      }
+
+      // Initialize neural pathways
+      await this.initializeNeuralPathways(result.ok.tokenId, options.genesisConfig);
+
+      return result.ok;
+
     } catch (error) {
-      console.error('Failed to create actor:', error);
-      throw new Error('Failed to initialize connection');
+      console.error('Minting failed:', error);
+      throw new Error(error instanceof Error ? error.message : 'Unknown minting error');
     }
-  } else {
-    console.log('Using cached actor for principal:', identity.getPrincipal().toText());
   }
 
-  return actorCache.actor!;
+  private async initializeQuantumState(config: MintingOptions['quantumConfig']): Promise<QuantumState> {
+    if (!this.actor) throw new Error('Actor not initialized');
+
+    const state = await this.actor.initializeQuantumState({
+      coherenceThreshold: config.coherenceThreshold,
+      requireStability: config.stabilityRequired,
+      dimensionalSyncEnabled: config.dimensionalSync,
+      resonanceRequired: config.patternResonance
+    });
+
+    if (!state.ok) {
+      throw new Error(`Quantum state initialization failed: ${state.err}`);
+    }
+
+    return state.ok;
+  }
+
+  private async verifyPayment(identity: Principal, amount: bigint): Promise<void> {
+    if (!this.actor) throw new Error('Actor not initialized');
+
+    const verified = await this.actor.verifyPayment(identity, amount);
+    if (!verified) {
+      throw new Error('Payment verification failed');
+    }
+  }
+
+  private async initializeNeuralPathways(tokenId: bigint, config: MintingOptions['genesisConfig']): Promise<void> {
+    if (!this.actor) throw new Error('Actor not initialized');
+
+    await this.actor.initializeNeuralPathways({
+      tokenId,
+      pathwaysEnabled: config.neuralPathways,
+      ghostIntegration: config.ghostIntegration
+    });
+  }
+
+  private async executeWithRetry<T>(
+    operation: () => Promise<T>,
+    maxRetries: number = 3,
+    delay: number = 1000
+  ): Promise<T> {
+    let lastError: Error | null = null;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error('Unknown error');
+        if (attempt === maxRetries) break;
+        await new Promise(resolve => setTimeout(resolve, delay * attempt));
+      }
+    }
+    
+    throw lastError;
+  }
+}
+
+export const createAnimaClient = async (identity: Principal): Promise<AnimaClient> => {
+  const client = new AnimaClient();
+  await client.initialize(identity);
+  return client;
 };
 
 export const mintAnima = async (
-  identity: Identity,
-  options: MintOptions = {}
-): Promise<MintResult> => {
-  try {
-    // 1. Verify quantum state and wallet balance
-    const quantumMetrics = await quantumStateService.getQuantumMetrics();
-    const coherenceThreshold = options.quantumConfig?.coherenceThreshold ?? 0.7;
-    
-    if (quantumMetrics.coherenceLevel < coherenceThreshold) {
-      throw new Error(`Quantum coherence too low (${quantumMetrics.coherenceLevel.toFixed(2)}). Required: ${coherenceThreshold}`);
-    }
-
-    if (options.quantumConfig?.stabilityRequired && !await quantumStateService.checkStability(identity)) {
-      throw new Error('Quantum state must be stable for minting');
-    }
-
-    // 2. Check wallet balance and process payment
-    const mintCost = walletService.getMintCost();
-    if (!walletService.hasEnoughForMint()) {
-      throw new Error(`Insufficient balance. Required: ${Number(mintCost) / 100_000_000} ICP`);
-    }
-
-    // 3. Process the minting transaction
-    const transaction = await walletService.executeTransaction(
-      identity,
-      mintCost,
-      'mint'
-    );
-
-    // 4. Get the Anima actor
-    const actor = await getAnimaActor(identity);
-
-    // 5. Generate quantum-enhanced metadata
-    const patterns = await quantumStateService.generateNeuralPatterns(identity);
-    const metadata = {
-      name: options.name || `ANIMA #${Date.now()}`,
-      created_at: Date.now(),
-      quantum_state: {
-        coherence: quantumMetrics.coherenceLevel,
-        resonance: patterns.resonance,
-        stability: patterns.stability,
-      },
-      ...options.metadata
-    };
-
-    // 6. Call the actor to mint the NFT
-    console.log('Minting ANIMA with metadata:', metadata);
-    const mintResult = await actor.mint_anima({
-      metadata: metadata,
-      quantum_signature: transaction.quantum_signature!,
-      transaction_id: transaction.id
-    });
-
-    console.log('Mint successful:', mintResult);
-
-    // 7. Return the result
-    return {
-      tokenId: mintResult.token_id,
-      transactionId: transaction.id,
-      quantumSignature: transaction.quantum_signature!,
-      metadata: {
-        name: metadata.name,
-        quantumState: metadata.quantum_state
-      }
-    };
-
-  } catch (error) {
-    console.error('Minting failed:', error);
-    // Attempt to rollback transaction if possible
-    throw error instanceof Error ? error : new Error('Minting failed');
-  }
-};
-
-export const getUserAnimas = async (identity: Identity) => {
-  const actor = await getAnimaActor(identity);
-  const principal = identity.getPrincipal();
-  return actor.get_user_animas(principal);
-};
-
-export const getAnimaDetails = async (identity: Identity, tokenId: bigint) => {
-  const actor = await getAnimaActor(identity);
-  return actor.get_anima_details(tokenId);
+  identity: Principal,
+  options: MintingOptions
+): Promise<MintingResult> => {
+  const client = await createAnimaClient(identity);
+  return await client.mintAnima(identity, options);
 };

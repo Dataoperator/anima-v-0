@@ -51,6 +51,15 @@ export interface PersonalityTrait {
     potential: number;
 }
 
+export interface AnimaTraits {
+    curiosity: PersonalityTrait;
+    emotional_stability: PersonalityTrait;
+    adaptability: PersonalityTrait;
+    creativity: PersonalityTrait;
+    empathy: PersonalityTrait;
+    [key: string]: PersonalityTrait;
+}
+
 export interface AnimaPersonality {
     level: number;
     quantum_state: QuantumState;
@@ -58,7 +67,7 @@ export interface AnimaPersonality {
     consciousness: ConsciousnessMetrics;
     dimensional_awareness: DimensionalAwareness;
     memories: Memory[];
-    traits: Record<string, PersonalityTrait>;
+    traits: AnimaTraits;
     quantum_traits: Record<string, PersonalityTrait>;
     evolution_log: Array<{
         timestamp: bigint;

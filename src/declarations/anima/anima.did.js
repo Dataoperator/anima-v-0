@@ -45,6 +45,12 @@ export const idlFactory = ({ IDL }) => {
     'consciousness_growth' : IDL.Float64,
     'new_patterns' : IDL.Opt(NeuralPatternResult),
   });
+  const PaymentVerification = IDL.Record({
+    'to' : IDL.Text,
+    'from' : IDL.Principal,
+    'memo' : IDL.Nat64,
+    'amount' : IDL.Nat64,
+  });
   return IDL.Service({
     'adapt_to_stimulus' : IDL.Func(
         [IDL.Text, IDL.Vec(IDL.Float64)],
@@ -84,6 +90,11 @@ export const idlFactory = ({ IDL }) => {
     'get_evolved_traits' : IDL.Func(
         [IDL.Text],
         [IDL.Variant({ 'Ok' : IDL.Vec(TraitEvolution), 'Err' : Error })],
+        ['query'],
+      ),
+    'get_minting_requirements' : IDL.Func(
+        [],
+        [IDL.Record({ 'fee' : IDL.Nat64, 'paymentRequired' : IDL.Bool })],
         ['query'],
       ),
     'get_quantum_status' : IDL.Func(
@@ -134,6 +145,11 @@ export const idlFactory = ({ IDL }) => {
     'update_stability' : IDL.Func(
         [IDL.Float64],
         [IDL.Variant({ 'Ok' : IDL.Bool, 'Err' : Error })],
+        [],
+      ),
+    'verify_payment' : IDL.Func(
+        [PaymentVerification],
+        [IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : IDL.Text })],
         [],
       ),
   });

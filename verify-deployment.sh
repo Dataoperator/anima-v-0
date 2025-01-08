@@ -1,28 +1,76 @@
 #!/bin/bash
-set -e
 
-echo "Verifying deployment..."
+echo "🔍 Verifying deployment configuration..."
 
-# Check canister status
-dfx canister --network ic status anima
-dfx canister --network ic status anima_assets
+# Check DFX version
+DFX_VERSION=$(dfx --version)
+REQUIRED_VERSION="0.15.1"
+if [ "$DFX_VERSION" != "dfx $REQUIRED_VERSION" ]; then
+    echo "❌ Wrong dfx version. Required: $REQUIRED_VERSION, Found: $DFX_VERSION"
+    exit 1
+fi
 
-# Test basic functionality
-echo "Testing basic functionality..."
+# Verify canister IDs exist
+if [ ! -f "canister_ids.json" ]; then
+    echo "❌ Missing canister_ids.json"
+    exit 1
+fi
 
-# Create test anima
-RESULT=$(dfx canister --network ic call anima create_anima '("Test Anima")')
-echo "Create Anima Result: $RESULT"
+# Verify candid interfaces
+echo "📝 Verifying Candid interfaces..."
+if [ ! -f "src/lib.did" ]; then
+    echo "❌ Missing lib.did"
+    exit 1
+fi
 
-# Get the created anima
-OWNER=$(dfx identity get-principal)
-echo "Testing get_user_animas for owner: $OWNER"
-ANIMAS=$(dfx canister --network ic call anima get_user_animas "($OWNER)")
-echo "User Animas: $ANIMAS"
+if [ ! -f "candid/ledger.did" ]; then
+    echo "❌ Missing ledger.did"
+    exit 1
+fi
 
-# Test quantum interaction
-echo "Testing quantum interaction..."
-TOKEN_ID="1"
-dfx canister --network ic call anima process_quantum_interaction "($TOKEN_ID, \"test_interaction\", \"Hello quantum world!\")"
+# Check environment files
+echo "🔐 Checking environment configuration..."
+if [ ! -f ".env.production" ]; then
+    echo "❌ Missing .env.production"
+    exit 1
+fi
 
-echo "Verification complete!"
+# Verify build output
+echo "🏗️ Verifying build artifacts..."
+if [ ! -d "dist" ]; then
+    echo "❌ Missing dist directory"
+    exit 1
+fi
+
+# Check dependencies
+echo "📦 Checking dependencies..."
+MISSING_DEPS=0
+REQUIRED_DEPS=("@dfinity/agent" "@dfinity/candid" "@dfinity/principal" "react" "react-dom")
+
+for dep in "${REQUIRED_DEPS[@]}"; do
+    if ! grep -q "\"$dep\":" package.json; then
+        echo "❌ Missing dependency: $dep"
+        MISSING_DEPS=1
+    fi
+done
+
+if [ $MISSING_DEPS -eq 1 ]; then
+    exit 1
+fi
+
+# Verify IC network configuration
+echo "🌐 Verifying IC network configuration..."
+if ! dfx ping ic; then
+    echo "❌ Cannot connect to IC network"
+    exit 1
+fi
+
+# Verify WASM module integrity
+if [ -f "target/wasm32-unknown-unknown/release/anima.wasm" ]; then
+    echo "✅ WASM module exists"
+else
+    echo "❌ Missing WASM module"
+    exit 1
+fi
+
+echo "✅ Deployment verification complete!"

@@ -1,25 +1,31 @@
 import React from 'react';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { AppFlowProvider } from '@/contexts/AppFlow';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { LandingPage } from '@/components/layout/LandingPage';
-import { InitializationFlow } from '@/components/anima/InitializationFlow';
-import { Genesis } from '@/components/genesis/Genesis';
-import { AnimaPage } from '@/components/anima/AnimaPage';
-import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary';
+import { LoginPage } from '@/components/auth/LoginPage';
+import { CyberpunkQuantumVault } from '@/components/quantum-vault/CyberpunkQuantumVault';
+import { MintAnima } from '@/components/anima/MintAnima';
+import { UnifiedNeuralLink } from '@/components/neural-link/UnifiedNeuralLink';
 import { AuthGuard } from '@/components/guards/AuthGuard';
 import { AnimaGuard } from '@/components/guards/AnimaGuard';
+import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary';
 
-const router = createBrowserRouter([
+// Create router configuration
+const routes = [
   {
     path: '/',
     element: <LandingPage />,
     errorElement: <ErrorBoundary />
   },
   {
-    path: '/initialization',
+    path: '/login',
+    element: <LoginPage />,
+    errorElement: <ErrorBoundary />
+  },
+  {
+    path: '/quantum-vault',
     element: (
       <AuthGuard>
-        <InitializationFlow />
+        <CyberpunkQuantumVault />
       </AuthGuard>
     ),
     errorElement: <ErrorBoundary />
@@ -28,26 +34,28 @@ const router = createBrowserRouter([
     path: '/genesis',
     element: (
       <AuthGuard>
-        <Genesis />
+        <MintAnima />
       </AuthGuard>
     ),
     errorElement: <ErrorBoundary />
   },
   {
-    path: '/anima/:id',
+    path: '/neural-link/:id',
     element: (
       <AuthGuard>
         <AnimaGuard>
-          <AnimaPage />
+          <UnifiedNeuralLink />
         </AnimaGuard>
       </AuthGuard>
     ),
     errorElement: <ErrorBoundary />
   }
-]);
+];
 
-export const Router = () => (
-  <AppFlowProvider>
-    <RouterProvider router={router} />
-  </AppFlowProvider>
-);
+// Create and export the router configuration
+export const routerConfig = createBrowserRouter(routes);
+
+// Router component
+export const Router: React.FC = () => {
+  return <RouterProvider router={routerConfig} />;
+};

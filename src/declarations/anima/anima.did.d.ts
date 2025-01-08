@@ -32,6 +32,12 @@ export interface NeuralPatternResult {
   'understanding' : number,
   'awareness' : number,
 }
+export interface PaymentVerification {
+  'to' : string,
+  'from' : Principal,
+  'memo' : bigint,
+  'amount' : bigint,
+}
 export interface QuantumFieldResult { 'signature' : string, 'harmony' : number }
 export interface StabilityMetrics {
   'resonance' : number,
@@ -85,6 +91,10 @@ export interface _SERVICE {
     { 'Ok' : Array<TraitEvolution> } |
       { 'Err' : Error }
   >,
+  'get_minting_requirements' : ActorMethod<
+    [],
+    { 'fee' : bigint, 'paymentRequired' : boolean }
+  >,
   'get_quantum_status' : ActorMethod<[], { 'Ok' : string } | { 'Err' : Error }>,
   'get_stability_metrics' : ActorMethod<
     [],
@@ -130,5 +140,10 @@ export interface _SERVICE {
     [number],
     { 'Ok' : boolean } |
       { 'Err' : Error }
+  >,
+  'verify_payment' : ActorMethod<
+    [PaymentVerification],
+    { 'Ok' : bigint } |
+      { 'Err' : string }
   >,
 }

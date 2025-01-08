@@ -53,8 +53,19 @@ type StabilityMetrics = record {
     resonance: float64;
 };
 
+type PaymentVerification = record {
+    from: principal;
+    to: text;
+    amount: nat64;
+    memo: nat64;
+};
+
 service : {
-    // Existing methods
+    // Payment Methods
+    "verify_payment" : (PaymentVerification) -> (variant { Ok: nat64; Err: text; });
+    "get_minting_requirements" : () -> (record { paymentRequired: bool; fee: nat64; }) query;
+
+    // Genesis & Initialization
     "initialize_genesis" : () -> (variant { Ok: AnimaCreationResult; Err: Error; });
     "check_quantum_stability" : () -> (variant { Ok: bool; Err: Error; }) query;
     "initialize_quantum_field" : () -> (variant { Ok: QuantumFieldResult; Err: Error; });
