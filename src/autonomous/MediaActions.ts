@@ -1,7 +1,8 @@
 import { mediaSources, MediaSource } from '../components/media/MediaSources';
+import { EventEmitter } from 'events';
 
 export interface MediaAction {
-  type: 'search' | 'play' | 'pause' | 'adjust';
+  type: 'search' | 'play' | 'pause' | 'adjust' | 'stop';
   source: 'youtube' | 'tiktok' | 'twitch' | 'vimeo' | 'other';
   payload: {
     query?: string;
@@ -16,15 +17,29 @@ export interface MediaState {
   isPlaying: boolean;
   volume: number;
   timestamp: number;
+  source: string | null;
+  duration: number | null;
 }
 
-export class MediaActionSystem {
+export class MediaActionSystem extends EventEmitter {
   private state: MediaState = {
     currentUrl: null,
     isPlaying: false,
     volume: 0.75,
-    timestamp: 0
+    timestamp: 0,
+    source: null,
+    duration: null
   };
+
+  constructor() {
+    super();
+    this.handleStateUpdate = this.handleStateUpdate.bind(this);
+  }
+
+  private handleStateUpdate(newState: Partial<MediaState>) {
+    this.state = { ...this.state, ...newState };
+    this.emit('stateChanged', this.state);
+  }
 
   private getMediaSource(url: string): MediaSource | undefined {
     return mediaSources.find(source => 
@@ -34,7 +49,7 @@ export class MediaActionSystem {
 
   async searchMedia(query: string, source: 'youtube' | 'tiktok' | 'twitch' | 'vimeo' | 'other' = 'youtube'): Promise<string[]> {
     try {
-      // Demo URLs that match our MediaSources patterns
+      // In a full implementation, this would interact with media platform APIs
       const demoUrls = {
         youtube: [
           'https://youtube.com/watch?v=jNQXAC9IVRw',
@@ -58,53 +73,79 @@ export class MediaActionSystem {
         ]
       };
 
-      // Return appropriate demo URLs based on source
-      return demoUrls[source] || demoUrls.other;
+      const urls = demoUrls[source] || demoUrls.other;
+      this.emit('searchCompleted', { query, urls });
+      return urls;
     } catch (error) {
-      console.error('Media search failed:', error);
+      this.emit('error', { type: 'SEARCH_FAILED', error });
       throw new Error('Failed to search for media');
     }
   }
 
   processAction(action: MediaAction): MediaState {
-    switch (action.type) {
-      case 'search':
-        if (!action.payload.query) break;
-        return {
-          ...this.state,
-          currentUrl: null,
-          isPlaying: false
-        };
+    try {
+      switch (action.type) {
+        case 'search':
+          if (!action.payload.query) break;
+          this.handleStateUpdate({
+            currentUrl: null,
+            isPlaying: false
+          });
+          break;
 
-      case 'play':
-        if (!action.payload.url) break;
-        const mediaSource = this.getMediaSource(action.payload.url);
-        if (!mediaSource) break;
+        case 'play':
+          if (!action.payload.url) break;
+          const mediaSource = this.getMediaSource(action.payload.url);
+          if (!mediaSource) break;
 
-        const embedUrl = mediaSource.getEmbedUrl(action.payload.url);
-        return {
-          ...this.state,
-          currentUrl: embedUrl,
-          isPlaying: true,
-          timestamp: action.payload.timestamp || 0
-        };
+          const embedUrl = mediaSource.getEmbedUrl(action.payload.url);
+          this.handleStateUpdate({
+            currentUrl: embedUrl,
+            isPlaying: true,
+            timestamp: action.payload.timestamp || 0,
+            source: action.source
+          });
+          break;
 
-      case 'pause':
-        return {
-          ...this.state,
-          isPlaying: false,
-          timestamp: action.payload.timestamp || this.state.timestamp
-        };
+        case 'pause':
+          this.handleStateUpdate({
+            isPlaying: false,
+            timestamp: action.payload.timestamp || this.state.timestamp
+          });
+          break;
 
-      case 'adjust':
-        return {
-          ...this.state,
-          volume: action.payload.volume ?? this.state.volume,
-          timestamp: action.payload.timestamp ?? this.state.timestamp
-        };
+        case 'stop':
+          this.handleStateUpdate({
+            currentUrl: null,
+            isPlaying: false,
+            timestamp: 0,
+            source: null,
+            duration: null
+          });
+          break;
+
+        case 'adjust':
+          this.handleStateUpdate({
+            volume: action.payload.volume ?? this.state.volume,
+            timestamp: action.payload.timestamp ?? this.state.timestamp
+          });
+          break;
+      }
+
+      this.emit('actionProcessed', { action, newState: this.state });
+      return this.state;
+    } catch (error) {
+      this.emit('error', { type: 'PROCESS_ACTION_FAILED', error });
+      throw error;
     }
+  }
 
-    return this.state;
+  updateDuration(duration: number) {
+    this.handleStateUpdate({ duration });
+  }
+
+  updateTimestamp(timestamp: number) {
+    this.handleStateUpdate({ timestamp });
   }
 
   getCurrentState(): MediaState {

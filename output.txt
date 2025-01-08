@@ -3,45 +3,48 @@
 ├── Cargo.toml
 ├── README.md
 ├── anima@0.1.0
+├── backup_old
+│   ├── hooks
+│   │   └── useICPLedger.ts
+│   ├── icp-ledger.ts
+│   └── services
+│       ├── treasury.service.ts
+│       └── wallet.service.ts
+├── candid
+│   ├── assetstorage.did
+│   └── ledger.did
 ├── canister_ids.json
+├── cleanup-duplicates.sh
+├── cleanup-unused.sh
+├── cleanup.sh
+├── cleanup.txt
 ├── deploy-full.sh
 ├── deploy-mainnet.sh
 ├── dfx
 ├── dfx.json
 ├── dist
 │   ├── assets
-│   │   ├── AnimaPage-DQIHXVKn.js
-│   │   ├── AnimaPage-DQIHXVKn.js.map
-│   │   ├── CyberpunkQuantumVault-BS1EuCLE.js
-│   │   ├── CyberpunkQuantumVault-BS1EuCLE.js.map
-│   │   ├── EmotionalState-D_SfqYF2.js
-│   │   ├── EmotionalState-D_SfqYF2.js.map
-│   │   ├── EnhancedNeuralLinkPage-rlql2LQq.js
-│   │   ├── EnhancedNeuralLinkPage-rlql2LQq.js.map
-│   │   ├── GenesisPage-CXOIE6Yi.js
-│   │   ├── GenesisPage-CXOIE6Yi.js.map
-│   │   ├── LandingPage-B8vXCE3Y.js
-│   │   ├── LandingPage-B8vXCE3Y.js.map
-│   │   ├── MatrixRain-DPsl7GoI.js
-│   │   ├── MatrixRain-DPsl7GoI.js.map
-│   │   ├── QuantumField-DHV91S0x.js
-│   │   ├── QuantumField-DHV91S0x.js.map
-│   │   ├── WaveformGenerator-BVUp_W1l.js
-│   │   ├── WaveformGenerator-BVUp_W1l.js.map
-│   │   ├── anima-context-Di824KZf.js
-│   │   ├── anima-context-Di824KZf.js.map
-│   │   ├── framer-DtKNVek7.js
-│   │   ├── framer-DtKNVek7.js.map
-│   │   ├── main-62z6StZH.js
-│   │   ├── main-62z6StZH.js.map
-│   │   ├── main-C60j6wRR.css
-│   │   ├── useAuth-DGQ0HXN9.js
-│   │   ├── useAuth-DGQ0HXN9.js.map
-│   │   ├── vendor-5D7zIO-3.js
-│   │   └── vendor-5D7zIO-3.js.map
+│   │   ├── AnimaPage-Xe0YrPv5.js
+│   │   ├── GenesisPage-DOHKdtV_.js
+│   │   ├── LandingPage-BeRfRfvO.js
+│   │   ├── LaughingMan-BOmzzoz2.js
+│   │   ├── QuantumField-CenIWfQk.js
+│   │   ├── Wallet-Dphu-Bhs.js
+│   │   ├── consciousness-DF22nPsr.js
+│   │   ├── index-BRzc-LFi.css
+│   │   ├── index-DIvno398.js
+│   │   ├── media-BEBqFcd5.js
+│   │   ├── neural-interface-NfsZp0eb.js
+│   │   ├── quantum-core-r1yZI7_r.js
+│   │   ├── quantum-vault-cggo3Dw6.js
+│   │   ├── quantum.worker-CuOBBW0Q.js
+│   │   └── usePayment-BEJmJN6e.js
 │   ├── index.html
 │   └── web.config
+├── fix.json
 ├── index.html
+├── init-canisters.sh
+├── make-cleanup-executable.sh
 ├── make-scripts-executable.sh
 ├── node_modules
 │   ├── @alloc
@@ -90,6 +93,7 @@
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
 │   │   │   ├── lib
+│   │   │   ├── node_modules
 │   │   │   └── package.json
 │   │   ├── helper-module-imports
 │   │   │   ├── LICENSE
@@ -166,19 +170,6 @@
 │   │       ├── README.md
 │   │       ├── lib
 │   │       └── package.json
-│   ├── @csstools
-│   │   ├── selector-resolve-nested
-│   │   │   ├── CHANGELOG.md
-│   │   │   ├── LICENSE.md
-│   │   │   ├── README.md
-│   │   │   ├── dist
-│   │   │   └── package.json
-│   │   └── selector-specificity
-│   │       ├── CHANGELOG.md
-│   │       ├── LICENSE.md
-│   │       ├── README.md
-│   │       ├── dist
-│   │       └── package.json
 │   ├── @dfinity
 │   │   ├── agent
 │   │   │   ├── LICENSE
@@ -204,13 +195,34 @@
 │   │   │   ├── lib
 │   │   │   ├── package.json
 │   │   │   └── types
-│   │   └── principal
+│   │   ├── ledger-icp
+│   │   │   ├── LICENSE
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── nns
+│   │   │   ├── LICENSE
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── nns-proto
+│   │   │   ├── LICENSE
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── principal
+│   │   │   ├── LICENSE
+│   │   │   ├── README.md
+│   │   │   ├── lib
+│   │   │   └── package.json
+│   │   └── utils
 │   │       ├── LICENSE
 │   │       ├── README.md
-│   │       ├── lib
+│   │       ├── dist
 │   │       └── package.json
 │   ├── @emotion
 │   │   ├── is-prop-valid
+│   │   │   ├── CHANGELOG.md
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
 │   │   │   ├── dist
@@ -218,6 +230,7 @@
 │   │   │   ├── src
 │   │   │   └── types
 │   │   ├── memoize
+│   │   │   ├── CHANGELOG.md
 │   │   │   ├── LICENSE
 │   │   │   ├── dist
 │   │   │   ├── package.json
@@ -240,6 +253,7 @@
 │   │       ├── README.md
 │   │       ├── build
 │   │       ├── index.mjs
+│   │       ├── node_modules
 │   │       └── package.json
 │   ├── @jridgewell
 │   │   ├── gen-mapping
@@ -277,16 +291,6 @@
 │   │       ├── vision_bundle.mjs
 │   │       ├── vision_bundle.mjs.map
 │   │       └── wasm
-│   ├── @monogrid
-│   │   └── gainmap-js
-│   │       ├── CHANGELOG.md
-│   │       ├── CODE_OF_CONDUCT.md
-│   │       ├── CONTRIBUTING.md
-│   │       ├── LICENSE
-│   │       ├── README.md
-│   │       ├── dist
-│   │       ├── libultrahdr-wasm
-│   │       └── package.json
 │   ├── @noble
 │   │   ├── curves
 │   │   │   ├── LICENSE
@@ -488,6 +492,76 @@
 │   │       ├── internal
 │   │       ├── package.json
 │   │       └── utils.js
+│   ├── @radix-ui
+│   │   ├── primitive
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-alert-dialog
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   ├── package.json
+│   │   │   └── src
+│   │   ├── react-compose-refs
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-context
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-dialog
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-dismissable-layer
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-focus-guards
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-focus-scope
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-id
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-portal
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-presence
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-primitive
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-slot
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-use-callback-ref
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-use-controllable-state
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   ├── react-use-escape-keydown
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   └── package.json
+│   │   └── react-use-layout-effect
+│   │       ├── README.md
+│   │       ├── dist
+│   │       └── package.json
 │   ├── @react-spring
 │   │   ├── animated
 │   │   │   ├── LICENSE
@@ -515,9 +589,16 @@
 │   │   │   ├── dist
 │   │   │   └── package.json
 │   │   └── types
+│   │       ├── CHANGELOG.md
 │   │       ├── LICENSE
-│   │       ├── dist
-│   │       └── package.json
+│   │       ├── animated.d.ts
+│   │       ├── animated.js
+│   │       ├── index.d.ts
+│   │       ├── index.js
+│   │       ├── interpolation.d.ts
+│   │       ├── interpolation.js
+│   │       ├── package.json
+│   │       └── util.d.ts
 │   ├── @react-three
 │   │   ├── drei
 │   │   │   ├── LICENSE
@@ -530,12 +611,12 @@
 │   │   │   ├── materials
 │   │   │   ├── native
 │   │   │   ├── package.json
+│   │   │   ├── react-three-drei-0.0.0-semantic-release.tgz
 │   │   │   └── web
 │   │   └── fiber
 │   │       ├── CHANGELOG.md
 │   │       ├── dist
 │   │       ├── native
-│   │       ├── node_modules
 │   │       ├── package.json
 │   │       └── readme.md
 │   ├── @remix-run
@@ -550,14 +631,10 @@
 │   │       ├── router.ts
 │   │       └── utils.ts
 │   ├── @rollup
-│   │   ├── rollup-linux-x64-gnu
-│   │   │   ├── README.md
-│   │   │   ├── package.json
-│   │   │   └── rollup.linux-x64-gnu.node
-│   │   └── rollup-linux-x64-musl
+│   │   └── rollup-linux-x64-gnu
 │   │       ├── README.md
 │   │       ├── package.json
-│   │       └── rollup.linux-x64-musl.node
+│   │       └── rollup.linux-x64-gnu.node
 │   ├── @types
 │   │   ├── babel__core
 │   │   │   ├── LICENSE
@@ -624,11 +701,6 @@
 │   │   │   ├── README.md
 │   │   │   ├── index.d.ts
 │   │   │   └── package.json
-│   │   ├── debounce
-│   │   │   ├── LICENSE
-│   │   │   ├── README.md
-│   │   │   ├── index.d.ts
-│   │   │   └── package.json
 │   │   ├── draco3d
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
@@ -640,22 +712,15 @@
 │   │   │   ├── flow.d.ts
 │   │   │   ├── index.d.ts
 │   │   │   └── package.json
-│   │   ├── hoist-non-react-statics
-│   │   │   ├── LICENSE
-│   │   │   ├── README.md
-│   │   │   ├── index.d.ts
-│   │   │   └── package.json
 │   │   ├── node
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
 │   │   │   ├── assert
 │   │   │   ├── assert.d.ts
 │   │   │   ├── async_hooks.d.ts
-│   │   │   ├── buffer.buffer.d.ts
 │   │   │   ├── buffer.d.ts
 │   │   │   ├── child_process.d.ts
 │   │   │   ├── cluster.d.ts
-│   │   │   ├── compatibility
 │   │   │   ├── console.d.ts
 │   │   │   ├── constants.d.ts
 │   │   │   ├── crypto.d.ts
@@ -669,7 +734,7 @@
 │   │   │   ├── fs
 │   │   │   ├── fs.d.ts
 │   │   │   ├── globals.d.ts
-│   │   │   ├── globals.typedarray.d.ts
+│   │   │   ├── globals.global.d.ts
 │   │   │   ├── http.d.ts
 │   │   │   ├── http2.d.ts
 │   │   │   ├── https.d.ts
@@ -687,7 +752,6 @@
 │   │   │   ├── readline
 │   │   │   ├── readline.d.ts
 │   │   │   ├── repl.d.ts
-│   │   │   ├── sea.d.ts
 │   │   │   ├── stream
 │   │   │   ├── stream.d.ts
 │   │   │   ├── string_decoder.d.ts
@@ -696,7 +760,7 @@
 │   │   │   ├── timers.d.ts
 │   │   │   ├── tls.d.ts
 │   │   │   ├── trace_events.d.ts
-│   │   │   ├── ts5.6
+│   │   │   ├── ts4.8
 │   │   │   ├── tty.d.ts
 │   │   │   ├── url.d.ts
 │   │   │   ├── util.d.ts
@@ -714,6 +778,14 @@
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
 │   │   │   ├── index.d.ts
+│   │   │   └── package.json
+│   │   ├── qrcode
+│   │   │   ├── LICENSE
+│   │   │   ├── README.md
+│   │   │   ├── build
+│   │   │   ├── helper
+│   │   │   ├── index.d.ts
+│   │   │   ├── node_modules
 │   │   │   └── package.json
 │   │   ├── react
 │   │   │   ├── LICENSE
@@ -733,6 +805,7 @@
 │   │   │   ├── client.d.ts
 │   │   │   ├── experimental.d.ts
 │   │   │   ├── index.d.ts
+│   │   │   ├── node_modules
 │   │   │   ├── package.json
 │   │   │   ├── server.d.ts
 │   │   │   └── test-utils
@@ -741,20 +814,18 @@
 │   │   │   ├── README.md
 │   │   │   ├── constants.d.ts
 │   │   │   ├── index.d.ts
+│   │   │   ├── node_modules
+│   │   │   └── package.json
+│   │   ├── scheduler
+│   │   │   ├── LICENSE
+│   │   │   ├── README.md
+│   │   │   ├── index.d.ts
 │   │   │   └── package.json
 │   │   ├── stats.js
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
 │   │   │   ├── index.d.ts
 │   │   │   └── package.json
-│   │   ├── styled-components
-│   │   │   ├── LICENSE
-│   │   │   ├── README.md
-│   │   │   ├── cssprop.d.ts
-│   │   │   ├── index.d.ts
-│   │   │   ├── macro.d.ts
-│   │   │   ├── package.json
-│   │   │   └── test-utils.d.ts
 │   │   ├── stylis
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
@@ -854,6 +925,14 @@
 │   │   ├── index.d.ts
 │   │   ├── index.js
 │   │   └── package.json
+│   ├── aria-hidden
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── dist
+│   │   │   ├── es2015
+│   │   │   ├── es2019
+│   │   │   └── es5
+│   │   └── package.json
 │   ├── asn1js
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -891,6 +970,16 @@
 │   │   │   ├── value.js
 │   │   │   └── vendor.js
 │   │   └── package.json
+│   ├── available-typed-arrays
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
 │   ├── balanced-match
 │   │   ├── LICENSE.md
 │   │   ├── README.md
@@ -957,7 +1046,8 @@
 │   │   │   ├── index.min.js.LICENSE.txt
 │   │   │   └── index.min.js.map
 │   │   ├── node_modules
-│   │   │   └── buffer
+│   │   │   ├── buffer
+│   │   │   └── commander
 │   │   ├── package.json
 │   │   └── src
 │   │       ├── commented.js
@@ -1006,6 +1096,52 @@
 │   │   ├── index.d.ts
 │   │   ├── index.js
 │   │   └── package.json
+│   ├── call-bind
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── callBound.js
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   └── test
+│   │       ├── callBound.js
+│   │       └── index.js
+│   ├── call-bind-apply-helpers
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── actualApply.d.ts
+│   │   ├── actualApply.js
+│   │   ├── applyBind.d.ts
+│   │   ├── applyBind.js
+│   │   ├── functionApply.d.ts
+│   │   ├── functionApply.js
+│   │   ├── functionCall.d.ts
+│   │   ├── functionCall.js
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── reflectApply.d.ts
+│   │   ├── reflectApply.js
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
+│   ├── call-bound
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
+│   ├── camelcase
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── license
+│   │   ├── package.json
+│   │   └── readme.md
 │   ├── camelcase-css
 │   │   ├── README.md
 │   │   ├── index-es5.js
@@ -1058,11 +1194,15 @@
 │   │   │   ├── constants.js
 │   │   │   ├── fsevents-handler.js
 │   │   │   └── nodefs-handler.js
-│   │   ├── node_modules
-│   │   │   └── glob-parent
 │   │   ├── package.json
 │   │   └── types
 │   │       └── index.d.ts
+│   ├── cliui
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE.txt
+│   │   ├── README.md
+│   │   ├── index.js
+│   │   └── package.json
 │   ├── clsx
 │   │   ├── clsx.d.mts
 │   │   ├── clsx.d.ts
@@ -1545,6 +1685,11 @@
 │   │       ├── common.js
 │   │       ├── index.js
 │   │       └── node.js
+│   ├── decamelize
+│   │   ├── index.js
+│   │   ├── license
+│   │   ├── package.json
+│   │   └── readme.md
 │   ├── decimal.js-light
 │   │   ├── CHANGELOG.md
 │   │   ├── LICENCE.md
@@ -1557,6 +1702,16 @@
 │   │   │   ├── API.html
 │   │   │   └── decimal.js.map
 │   │   └── package.json
+│   ├── define-data-property
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
 │   ├── delimit-stream
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -1578,12 +1733,31 @@
 │   │   │   ├── rollup
 │   │   │   └── src
 │   │   └── package.json
+│   ├── detect-node-es
+│   │   ├── LICENSE
+│   │   ├── Readme.md
+│   │   ├── es5
+│   │   │   ├── browser.js
+│   │   │   ├── node.d.ts
+│   │   │   └── node.js
+│   │   ├── esm
+│   │   │   ├── browser.js
+│   │   │   └── node.js
+│   │   └── package.json
 │   ├── didyoumean
 │   │   ├── LICENSE
 │   │   ├── README.md
 │   │   ├── didYouMean-1.2.1.js
 │   │   ├── didYouMean-1.2.1.min.js
 │   │   └── package.json
+│   ├── dijkstrajs
+│   │   ├── CONTRIBUTING.md
+│   │   ├── LICENSE.md
+│   │   ├── README.md
+│   │   ├── dijkstra.js
+│   │   ├── package.json
+│   │   └── test
+│   │       └── dijkstra.test.js
 │   ├── dlv
 │   │   ├── README.md
 │   │   ├── dist
@@ -1598,345 +1772,56 @@
 │   ├── dom-helpers
 │   │   ├── LICENSE
 │   │   ├── README.md
-│   │   ├── activeElement
-│   │   │   └── package.json
-│   │   ├── addClass
-│   │   │   └── package.json
-│   │   ├── addEventListener
-│   │   │   └── package.json
-│   │   ├── animate
-│   │   │   └── package.json
-│   │   ├── animationFrame
-│   │   │   └── package.json
-│   │   ├── attribute
-│   │   │   └── package.json
-│   │   ├── camelize
-│   │   │   └── package.json
-│   │   ├── camelizeStyle
-│   │   │   └── package.json
-│   │   ├── canUseDOM
-│   │   │   └── package.json
-│   │   ├── childElements
-│   │   │   └── package.json
-│   │   ├── childNodes
-│   │   │   └── package.json
-│   │   ├── cjs
-│   │   │   ├── activeElement.d.ts
-│   │   │   ├── activeElement.js
-│   │   │   ├── addClass.d.ts
+│   │   ├── activeElement.js
+│   │   ├── class
 │   │   │   ├── addClass.js
-│   │   │   ├── addEventListener.d.ts
-│   │   │   ├── addEventListener.js
-│   │   │   ├── animate.d.ts
-│   │   │   ├── animate.js
-│   │   │   ├── animationFrame.d.ts
-│   │   │   ├── animationFrame.js
-│   │   │   ├── attribute.d.ts
-│   │   │   ├── attribute.js
-│   │   │   ├── camelize.d.ts
-│   │   │   ├── camelize.js
-│   │   │   ├── camelizeStyle.d.ts
-│   │   │   ├── camelizeStyle.js
-│   │   │   ├── canUseDOM.d.ts
-│   │   │   ├── canUseDOM.js
-│   │   │   ├── childElements.d.ts
-│   │   │   ├── childElements.js
-│   │   │   ├── childNodes.d.ts
-│   │   │   ├── childNodes.js
-│   │   │   ├── clear.d.ts
-│   │   │   ├── clear.js
-│   │   │   ├── closest.d.ts
-│   │   │   ├── closest.js
-│   │   │   ├── collectElements.d.ts
-│   │   │   ├── collectElements.js
-│   │   │   ├── collectSiblings.d.ts
-│   │   │   ├── collectSiblings.js
-│   │   │   ├── contains.d.ts
-│   │   │   ├── contains.js
-│   │   │   ├── css.d.ts
-│   │   │   ├── css.js
-│   │   │   ├── filterEventHandler.d.ts
-│   │   │   ├── filterEventHandler.js
-│   │   │   ├── getComputedStyle.d.ts
-│   │   │   ├── getComputedStyle.js
-│   │   │   ├── getScrollAccessor.d.ts
-│   │   │   ├── getScrollAccessor.js
-│   │   │   ├── hasClass.d.ts
 │   │   │   ├── hasClass.js
-│   │   │   ├── height.d.ts
-│   │   │   ├── height.js
-│   │   │   ├── hyphenate.d.ts
-│   │   │   ├── hyphenate.js
-│   │   │   ├── hyphenateStyle.d.ts
-│   │   │   ├── hyphenateStyle.js
-│   │   │   ├── index.d.ts
 │   │   │   ├── index.js
-│   │   │   ├── insertAfter.d.ts
-│   │   │   ├── insertAfter.js
-│   │   │   ├── isDocument.d.ts
-│   │   │   ├── isDocument.js
-│   │   │   ├── isInput.d.ts
-│   │   │   ├── isInput.js
-│   │   │   ├── isTransform.d.ts
-│   │   │   ├── isTransform.js
-│   │   │   ├── isVisible.d.ts
-│   │   │   ├── isVisible.js
-│   │   │   ├── isWindow.d.ts
-│   │   │   ├── isWindow.js
-│   │   │   ├── listen.d.ts
-│   │   │   ├── listen.js
-│   │   │   ├── matches.d.ts
-│   │   │   ├── matches.js
-│   │   │   ├── nextUntil.d.ts
-│   │   │   ├── nextUntil.js
-│   │   │   ├── offset.d.ts
-│   │   │   ├── offset.js
-│   │   │   ├── offsetParent.d.ts
-│   │   │   ├── offsetParent.js
-│   │   │   ├── ownerDocument.d.ts
-│   │   │   ├── ownerDocument.js
-│   │   │   ├── ownerWindow.d.ts
-│   │   │   ├── ownerWindow.js
-│   │   │   ├── parents.d.ts
-│   │   │   ├── parents.js
-│   │   │   ├── position.d.ts
-│   │   │   ├── position.js
-│   │   │   ├── prepend.d.ts
-│   │   │   ├── prepend.js
-│   │   │   ├── querySelectorAll.d.ts
-│   │   │   ├── querySelectorAll.js
-│   │   │   ├── remove.d.ts
-│   │   │   ├── remove.js
-│   │   │   ├── removeClass.d.ts
-│   │   │   ├── removeClass.js
-│   │   │   ├── removeEventListener.d.ts
-│   │   │   ├── removeEventListener.js
-│   │   │   ├── scrollLeft.d.ts
-│   │   │   ├── scrollLeft.js
-│   │   │   ├── scrollParent.d.ts
-│   │   │   ├── scrollParent.js
-│   │   │   ├── scrollTo.d.ts
-│   │   │   ├── scrollTo.js
-│   │   │   ├── scrollTop.d.ts
-│   │   │   ├── scrollTop.js
-│   │   │   ├── scrollbarSize.d.ts
-│   │   │   ├── scrollbarSize.js
-│   │   │   ├── siblings.d.ts
-│   │   │   ├── siblings.js
-│   │   │   ├── text.d.ts
-│   │   │   ├── text.js
-│   │   │   ├── toggleClass.d.ts
-│   │   │   ├── toggleClass.js
-│   │   │   ├── transitionEnd.d.ts
-│   │   │   ├── transitionEnd.js
-│   │   │   ├── triggerEvent.d.ts
-│   │   │   ├── triggerEvent.js
-│   │   │   ├── types.d.ts
-│   │   │   ├── width.d.ts
-│   │   │   └── width.js
-│   │   ├── clear
-│   │   │   └── package.json
-│   │   ├── closest
-│   │   │   └── package.json
-│   │   ├── collectElements
-│   │   │   └── package.json
-│   │   ├── collectSiblings
-│   │   │   └── package.json
-│   │   ├── contains
-│   │   │   └── package.json
-│   │   ├── css
-│   │   │   └── package.json
-│   │   ├── esm
-│   │   │   ├── activeElement.d.ts
-│   │   │   ├── activeElement.js
-│   │   │   ├── addClass.d.ts
-│   │   │   ├── addClass.js
-│   │   │   ├── addEventListener.d.ts
-│   │   │   ├── addEventListener.js
-│   │   │   ├── animate.d.ts
-│   │   │   ├── animate.js
-│   │   │   ├── animationFrame.d.ts
-│   │   │   ├── animationFrame.js
-│   │   │   ├── attribute.d.ts
-│   │   │   ├── attribute.js
-│   │   │   ├── camelize.d.ts
-│   │   │   ├── camelize.js
-│   │   │   ├── camelizeStyle.d.ts
-│   │   │   ├── camelizeStyle.js
-│   │   │   ├── canUseDOM.d.ts
-│   │   │   ├── canUseDOM.js
-│   │   │   ├── childElements.d.ts
-│   │   │   ├── childElements.js
-│   │   │   ├── childNodes.d.ts
-│   │   │   ├── childNodes.js
-│   │   │   ├── clear.d.ts
-│   │   │   ├── clear.js
-│   │   │   ├── closest.d.ts
-│   │   │   ├── closest.js
-│   │   │   ├── collectElements.d.ts
-│   │   │   ├── collectElements.js
-│   │   │   ├── collectSiblings.d.ts
-│   │   │   ├── collectSiblings.js
-│   │   │   ├── contains.d.ts
-│   │   │   ├── contains.js
-│   │   │   ├── css.d.ts
-│   │   │   ├── css.js
-│   │   │   ├── filterEventHandler.d.ts
-│   │   │   ├── filterEventHandler.js
-│   │   │   ├── getComputedStyle.d.ts
-│   │   │   ├── getComputedStyle.js
-│   │   │   ├── getScrollAccessor.d.ts
-│   │   │   ├── getScrollAccessor.js
-│   │   │   ├── hasClass.d.ts
-│   │   │   ├── hasClass.js
-│   │   │   ├── height.d.ts
-│   │   │   ├── height.js
-│   │   │   ├── hyphenate.d.ts
-│   │   │   ├── hyphenate.js
-│   │   │   ├── hyphenateStyle.d.ts
-│   │   │   ├── hyphenateStyle.js
-│   │   │   ├── index.d.ts
+│   │   │   └── removeClass.js
+│   │   ├── events
+│   │   │   ├── filter.js
 │   │   │   ├── index.js
-│   │   │   ├── insertAfter.d.ts
-│   │   │   ├── insertAfter.js
-│   │   │   ├── isDocument.d.ts
-│   │   │   ├── isDocument.js
-│   │   │   ├── isInput.d.ts
-│   │   │   ├── isInput.js
-│   │   │   ├── isTransform.d.ts
-│   │   │   ├── isTransform.js
-│   │   │   ├── isVisible.d.ts
-│   │   │   ├── isVisible.js
-│   │   │   ├── isWindow.d.ts
-│   │   │   ├── isWindow.js
-│   │   │   ├── listen.d.ts
 │   │   │   ├── listen.js
-│   │   │   ├── matches.d.ts
-│   │   │   ├── matches.js
-│   │   │   ├── nextUntil.d.ts
-│   │   │   ├── nextUntil.js
-│   │   │   ├── offset.d.ts
-│   │   │   ├── offset.js
-│   │   │   ├── offsetParent.d.ts
-│   │   │   ├── offsetParent.js
-│   │   │   ├── ownerDocument.d.ts
-│   │   │   ├── ownerDocument.js
-│   │   │   ├── ownerWindow.d.ts
-│   │   │   ├── ownerWindow.js
-│   │   │   ├── parents.d.ts
-│   │   │   ├── parents.js
-│   │   │   ├── position.d.ts
-│   │   │   ├── position.js
-│   │   │   ├── prepend.d.ts
-│   │   │   ├── prepend.js
-│   │   │   ├── querySelectorAll.d.ts
-│   │   │   ├── querySelectorAll.js
-│   │   │   ├── remove.d.ts
-│   │   │   ├── remove.js
-│   │   │   ├── removeClass.d.ts
-│   │   │   ├── removeClass.js
-│   │   │   ├── removeEventListener.d.ts
-│   │   │   ├── removeEventListener.js
-│   │   │   ├── scrollLeft.d.ts
-│   │   │   ├── scrollLeft.js
-│   │   │   ├── scrollParent.d.ts
-│   │   │   ├── scrollParent.js
-│   │   │   ├── scrollTo.d.ts
-│   │   │   ├── scrollTo.js
-│   │   │   ├── scrollTop.d.ts
-│   │   │   ├── scrollTop.js
-│   │   │   ├── scrollbarSize.d.ts
-│   │   │   ├── scrollbarSize.js
-│   │   │   ├── siblings.d.ts
-│   │   │   ├── siblings.js
-│   │   │   ├── text.d.ts
-│   │   │   ├── text.js
-│   │   │   ├── toggleClass.d.ts
-│   │   │   ├── toggleClass.js
-│   │   │   ├── transitionEnd.d.ts
-│   │   │   ├── transitionEnd.js
-│   │   │   ├── triggerEvent.d.ts
-│   │   │   ├── triggerEvent.js
-│   │   │   ├── types.d.ts
-│   │   │   ├── width.d.ts
-│   │   │   └── width.js
-│   │   ├── filterEventHandler
-│   │   │   └── package.json
-│   │   ├── getComputedStyle
-│   │   │   └── package.json
-│   │   ├── getScrollAccessor
-│   │   │   └── package.json
-│   │   ├── hasClass
-│   │   │   └── package.json
-│   │   ├── height
-│   │   │   └── package.json
-│   │   ├── hyphenate
-│   │   │   └── package.json
-│   │   ├── hyphenateStyle
-│   │   │   └── package.json
-│   │   ├── insertAfter
-│   │   │   └── package.json
-│   │   ├── isDocument
-│   │   │   └── package.json
-│   │   ├── isInput
-│   │   │   └── package.json
-│   │   ├── isTransform
-│   │   │   └── package.json
-│   │   ├── isVisible
-│   │   │   └── package.json
-│   │   ├── isWindow
-│   │   │   └── package.json
-│   │   ├── listen
-│   │   │   └── package.json
-│   │   ├── matches
-│   │   │   └── package.json
-│   │   ├── nextUntil
-│   │   │   └── package.json
-│   │   ├── offset
-│   │   │   └── package.json
-│   │   ├── offsetParent
-│   │   │   └── package.json
-│   │   ├── ownerDocument
-│   │   │   └── package.json
-│   │   ├── ownerWindow
-│   │   │   └── package.json
+│   │   │   ├── off.js
+│   │   │   └── on.js
+│   │   ├── index.js
+│   │   ├── ownerDocument.js
+│   │   ├── ownerWindow.js
 │   │   ├── package.json
-│   │   ├── parents
-│   │   │   └── package.json
-│   │   ├── position
-│   │   │   └── package.json
-│   │   ├── prepend
-│   │   │   └── package.json
-│   │   ├── querySelectorAll
-│   │   │   └── package.json
-│   │   ├── remove
-│   │   │   └── package.json
-│   │   ├── removeClass
-│   │   │   └── package.json
-│   │   ├── removeEventListener
-│   │   │   └── package.json
-│   │   ├── scrollLeft
-│   │   │   └── package.json
-│   │   ├── scrollParent
-│   │   │   └── package.json
-│   │   ├── scrollTo
-│   │   │   └── package.json
-│   │   ├── scrollTop
-│   │   │   └── package.json
-│   │   ├── scrollbarSize
-│   │   │   └── package.json
-│   │   ├── siblings
-│   │   │   └── package.json
-│   │   ├── text
-│   │   │   └── package.json
-│   │   ├── toggleClass
-│   │   │   └── package.json
-│   │   ├── transitionEnd
-│   │   │   └── package.json
-│   │   ├── triggerEvent
-│   │   │   └── package.json
-│   │   └── width
-│   │       └── package.json
+│   │   ├── query
+│   │   │   ├── closest.js
+│   │   │   ├── contains.js
+│   │   │   ├── height.js
+│   │   │   ├── index.js
+│   │   │   ├── isWindow.js
+│   │   │   ├── matches.js
+│   │   │   ├── offset.js
+│   │   │   ├── offsetParent.js
+│   │   │   ├── position.js
+│   │   │   ├── querySelectorAll.js
+│   │   │   ├── scrollLeft.js
+│   │   │   ├── scrollParent.js
+│   │   │   ├── scrollTop.js
+│   │   │   └── width.js
+│   │   ├── style
+│   │   │   ├── getComputedStyle.js
+│   │   │   ├── index.js
+│   │   │   └── removeStyle.js
+│   │   ├── transition
+│   │   │   ├── animate.js
+│   │   │   ├── end.js
+│   │   │   ├── index.js
+│   │   │   ├── isTransform.js
+│   │   │   └── properties.js
+│   │   └── util
+│   │       ├── camelize.js
+│   │       ├── camelizeStyle.js
+│   │       ├── hyphenate.js
+│   │       ├── hyphenateStyle.js
+│   │       ├── inDOM.js
+│   │       ├── requestAnimationFrame.js
+│   │       ├── scrollTo.js
+│   │       └── scrollbarSize.js
 │   ├── draco3d
 │   │   ├── README.md
 │   │   ├── bunny.drc
@@ -1950,6 +1835,20 @@
 │   │   ├── draco_minimal_encoder_example.js
 │   │   ├── draco_nodejs_example.js
 │   │   └── package.json
+│   ├── dunder-proto
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── get.d.ts
+│   │   ├── get.js
+│   │   ├── package.json
+│   │   ├── set.d.ts
+│   │   ├── set.js
+│   │   ├── test
+│   │   │   ├── get.js
+│   │   │   ├── index.js
+│   │   │   └── set.js
+│   │   └── tsconfig.json
 │   ├── eastasianwidth
 │   │   ├── README.md
 │   │   ├── eastasianwidth.js
@@ -1970,20 +1869,65 @@
 │   ├── emoji-regex
 │   │   ├── LICENSE-MIT.txt
 │   │   ├── README.md
-│   │   ├── RGI_Emoji.d.ts
-│   │   ├── RGI_Emoji.js
 │   │   ├── es2015
-│   │   │   ├── RGI_Emoji.d.ts
-│   │   │   ├── RGI_Emoji.js
-│   │   │   ├── index.d.ts
 │   │   │   ├── index.js
-│   │   │   ├── text.d.ts
 │   │   │   └── text.js
 │   │   ├── index.d.ts
 │   │   ├── index.js
 │   │   ├── package.json
-│   │   ├── text.d.ts
 │   │   └── text.js
+│   ├── encode-utf8
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── readme.md
+│   │   └── test.js
+│   ├── es-define-property
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
+│   ├── es-errors
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── eval.d.ts
+│   │   ├── eval.js
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── range.d.ts
+│   │   ├── range.js
+│   │   ├── ref.d.ts
+│   │   ├── ref.js
+│   │   ├── syntax.d.ts
+│   │   ├── syntax.js
+│   │   ├── test
+│   │   │   └── index.js
+│   │   ├── tsconfig.json
+│   │   ├── type.d.ts
+│   │   ├── type.js
+│   │   ├── uri.d.ts
+│   │   └── uri.js
+│   ├── es-object-atoms
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── RequireObjectCoercible.d.ts
+│   │   ├── RequireObjectCoercible.js
+│   │   ├── ToObject.d.ts
+│   │   ├── ToObject.js
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
 │   ├── esbuild
 │   │   ├── LICENSE.md
 │   │   ├── README.md
@@ -2018,12 +1962,43 @@
 │   │       ├── eventemitter3.js
 │   │       ├── eventemitter3.min.js
 │   │       └── eventemitter3.min.js.map
+│   ├── events
+│   │   ├── History.md
+│   │   ├── LICENSE
+│   │   ├── Readme.md
+│   │   ├── events.js
+│   │   ├── package.json
+│   │   ├── security.md
+│   │   └── tests
+│   │       ├── add-listeners.js
+│   │       ├── check-listener-leaks.js
+│   │       ├── common.js
+│   │       ├── errors.js
+│   │       ├── events-list.js
+│   │       ├── events-once.js
+│   │       ├── index.js
+│   │       ├── legacy-compat.js
+│   │       ├── listener-count.js
+│   │       ├── listeners-side-effects.js
+│   │       ├── listeners.js
+│   │       ├── max-listeners.js
+│   │       ├── method-names.js
+│   │       ├── modify-in-emit.js
+│   │       ├── num-args.js
+│   │       ├── once.js
+│   │       ├── prepend.js
+│   │       ├── remove-all-listeners.js
+│   │       ├── remove-listeners.js
+│   │       ├── set-max-listeners-side-effects.js
+│   │       ├── special-event-names.js
+│   │       ├── subclass.js
+│   │       └── symbols.js
 │   ├── fast-equals
 │   │   ├── BUILD.md
 │   │   ├── CHANGELOG.md
 │   │   ├── LICENSE
 │   │   ├── README.md
-│   │   ├── build
+│   │   ├── config
 │   │   │   ├── rollup
 │   │   │   ├── tsconfig
 │   │   │   └── webpack.config.js
@@ -2040,6 +2015,8 @@
 │   │   │   ├── legacy-regexp-support.md
 │   │   │   ├── non-standard-properties.md
 │   │   │   └── using-meta-in-comparison.md
+│   │   ├── scripts
+│   │   │   └── fallback-types.mjs
 │   │   └── src
 │   │       ├── comparator.ts
 │   │       ├── equals.ts
@@ -2049,8 +2026,6 @@
 │   ├── fast-glob
 │   │   ├── LICENSE
 │   │   ├── README.md
-│   │   ├── node_modules
-│   │   │   └── glob-parent
 │   │   ├── out
 │   │   │   ├── index.d.ts
 │   │   │   ├── index.js
@@ -2099,6 +2074,19 @@
 │   │   ├── README.md
 │   │   ├── index.js
 │   │   └── package.json
+│   ├── find-up
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── license
+│   │   ├── package.json
+│   │   └── readme.md
+│   ├── for-each
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   └── test
+│   │       └── test.js
 │   ├── foreground-child
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -2118,31 +2106,17 @@
 │   ├── framer-motion
 │   │   ├── LICENSE.md
 │   │   ├── README.md
-│   │   ├── client
-│   │   │   ├── README.md
-│   │   │   └── package.json
 │   │   ├── dist
 │   │   │   ├── cjs
-│   │   │   ├── client.d.ts
-│   │   │   ├── dom-mini.d.ts
-│   │   │   ├── dom-mini.js
-│   │   │   ├── dom.d.ts
-│   │   │   ├── dom.js
+│   │   │   ├── dom-entry.d.ts
 │   │   │   ├── es
 │   │   │   ├── framer-motion.dev.js
 │   │   │   ├── framer-motion.js
 │   │   │   ├── index.d.ts
-│   │   │   ├── m.d.ts
-│   │   │   ├── mini.d.ts
-│   │   │   ├── mini.js
-│   │   │   └── three.d.ts
+│   │   │   ├── projection.dev.js
+│   │   │   └── three-entry.d.ts
 │   │   ├── dom
 │   │   │   ├── README.md
-│   │   │   ├── mini
-│   │   │   └── package.json
-│   │   ├── m
-│   │   │   └── package.json
-│   │   ├── mini
 │   │   │   └── package.json
 │   │   └── package.json
 │   ├── function-bind
@@ -2162,6 +2136,43 @@
 │   │   ├── package.json
 │   │   └── test
 │   │       └── index.test.js
+│   ├── get-caller-file
+│   │   ├── LICENSE.md
+│   │   ├── README.md
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── index.js.map
+│   │   └── package.json
+│   ├── get-intrinsic
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   └── test
+│   │       └── GetIntrinsic.js
+│   ├── get-nonce
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── dist
+│   │   │   ├── es2015
+│   │   │   └── es5
+│   │   └── package.json
+│   ├── get-proto
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── Object.getPrototypeOf.d.ts
+│   │   ├── Object.getPrototypeOf.js
+│   │   ├── README.md
+│   │   ├── Reflect.getPrototypeOf.d.ts
+│   │   ├── Reflect.getPrototypeOf.js
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
 │   ├── glob
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -2170,6 +2181,7 @@
 │   │   │   └── esm
 │   │   └── package.json
 │   ├── glob-parent
+│   │   ├── CHANGELOG.md
 │   │   ├── LICENSE
 │   │   ├── README.md
 │   │   ├── index.js
@@ -2196,6 +2208,62 @@
 │   │       ├── 2d.glsl
 │   │       ├── 3d.glsl
 │   │       └── 4d.glsl
+│   ├── google-protobuf
+│   │   ├── LICENSE-asserts.md
+│   │   ├── LICENSE.md
+│   │   ├── README.md
+│   │   ├── google
+│   │   │   └── protobuf
+│   │   ├── google-protobuf.js
+│   │   └── package.json
+│   ├── gopd
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── gOPD.d.ts
+│   │   ├── gOPD.js
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
+│   ├── has-property-descriptors
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   └── test
+│   │       └── index.js
+│   ├── has-symbols
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── shams.d.ts
+│   │   ├── shams.js
+│   │   ├── test
+│   │   │   ├── index.js
+│   │   │   ├── shams
+│   │   │   └── tests.js
+│   │   └── tsconfig.json
+│   ├── has-tostringtag
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── shams.d.ts
+│   │   ├── shams.js
+│   │   ├── test
+│   │   │   ├── index.js
+│   │   │   ├── shams
+│   │   │   └── tests.js
+│   │   └── tsconfig.json
 │   ├── hasown
 │   │   ├── CHANGELOG.md
 │   │   ├── LICENSE
@@ -2204,59 +2272,6 @@
 │   │   ├── index.js
 │   │   ├── package.json
 │   │   └── tsconfig.json
-│   ├── hls.js
-│   │   ├── LICENSE
-│   │   ├── README.md
-│   │   ├── dist
-│   │   │   ├── hls-demo.js
-│   │   │   ├── hls-demo.js.map
-│   │   │   ├── hls.js
-│   │   │   ├── hls.js.d.ts
-│   │   │   ├── hls.js.map
-│   │   │   ├── hls.light.js
-│   │   │   ├── hls.light.js.map
-│   │   │   ├── hls.light.min.js
-│   │   │   ├── hls.light.min.js.map
-│   │   │   ├── hls.light.mjs
-│   │   │   ├── hls.light.mjs.map
-│   │   │   ├── hls.min.js
-│   │   │   ├── hls.min.js.map
-│   │   │   ├── hls.mjs
-│   │   │   ├── hls.mjs.map
-│   │   │   ├── hls.worker.js
-│   │   │   └── hls.worker.js.map
-│   │   ├── package.json
-│   │   └── src
-│   │       ├── config.ts
-│   │       ├── controller
-│   │       ├── crypt
-│   │       ├── define-plugin.d.ts
-│   │       ├── demux
-│   │       ├── empty-es.js
-│   │       ├── empty.js
-│   │       ├── errors.ts
-│   │       ├── events.ts
-│   │       ├── exports-default.ts
-│   │       ├── exports-named.ts
-│   │       ├── hls.ts
-│   │       ├── is-supported.ts
-│   │       ├── loader
-│   │       ├── polyfills
-│   │       ├── remux
-│   │       ├── task-loop.ts
-│   │       ├── types
-│   │       └── utils
-│   ├── hoist-non-react-statics
-│   │   ├── CHANGELOG.md
-│   │   ├── LICENSE.md
-│   │   ├── README.md
-│   │   ├── dist
-│   │   │   ├── hoist-non-react-statics.cjs.js
-│   │   │   ├── hoist-non-react-statics.js
-│   │   │   └── hoist-non-react-statics.min.js
-│   │   ├── package.json
-│   │   └── src
-│   │       └── index.js
 │   ├── idb
 │   │   ├── CHANGELOG.md
 │   │   ├── LICENSE
@@ -2286,16 +2301,6 @@
 │   │   ├── index.d.ts
 │   │   ├── index.js
 │   │   └── package.json
-│   ├── immediate
-│   │   ├── LICENSE.txt
-│   │   ├── README.md
-│   │   ├── dist
-│   │   │   ├── immediate.js
-│   │   │   └── immediate.min.js
-│   │   ├── lib
-│   │   │   ├── browser.js
-│   │   │   └── index.js
-│   │   └── package.json
 │   ├── inherits
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -2311,12 +2316,30 @@
 │   │   ├── package.json
 │   │   └── src
 │   │       └── index.js
+│   ├── is-arguments
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
 │   ├── is-binary-path
 │   │   ├── index.d.ts
 │   │   ├── index.js
 │   │   ├── license
 │   │   ├── package.json
 │   │   └── readme.md
+│   ├── is-callable
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   └── test
+│   │       └── index.js
 │   ├── is-core-module
 │   │   ├── CHANGELOG.md
 │   │   ├── LICENSE
@@ -2337,6 +2360,18 @@
 │   │   ├── license
 │   │   ├── package.json
 │   │   └── readme.md
+│   ├── is-generator-function
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   ├── corejs.js
+│   │   │   ├── index.js
+│   │   │   └── uglified.js
+│   │   └── tsconfig.json
 │   ├── is-glob
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -2347,12 +2382,26 @@
 │   │   ├── README.md
 │   │   ├── index.js
 │   │   └── package.json
-│   ├── is-promise
+│   ├── is-regex
+│   │   ├── CHANGELOG.md
 │   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.d.ts
 │   │   ├── index.js
-│   │   ├── index.mjs
 │   │   ├── package.json
-│   │   └── readme.md
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
+│   ├── is-typed-array
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
 │   ├── isexe
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -2465,27 +2514,13 @@
 │   │   │   ├── util.d.ts
 │   │   │   └── util.js
 │   │   └── package.json
-│   ├── lie
-│   │   ├── README.md
-│   │   ├── dist
-│   │   │   ├── lie.js
-│   │   │   ├── lie.min.js
-│   │   │   ├── lie.polyfill.js
-│   │   │   └── lie.polyfill.min.js
-│   │   ├── lib
-│   │   │   ├── browser.js
-│   │   │   └── index.js
-│   │   ├── license.md
-│   │   ├── lie.d.ts
-│   │   ├── package.json
-│   │   └── polyfill.js
 │   ├── lilconfig
 │   │   ├── LICENSE
+│   │   ├── dist
+│   │   │   ├── index.d.ts
+│   │   │   └── index.js
 │   │   ├── package.json
-│   │   ├── readme.md
-│   │   └── src
-│   │       ├── index.d.ts
-│   │       └── index.js
+│   │   └── readme.md
 │   ├── lines-and-columns
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -2493,6 +2528,12 @@
 │   │   │   ├── index.d.ts
 │   │   │   └── index.js
 │   │   └── package.json
+│   ├── locate-path
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── license
+│   │   ├── package.json
+│   │   └── readme.md
 │   ├── lodash
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -3561,7 +3602,9 @@
 │   ├── lru-cache
 │   │   ├── LICENSE
 │   │   ├── README.md
-│   │   ├── index.js
+│   │   ├── dist
+│   │   │   ├── commonjs
+│   │   │   └── esm
 │   │   └── package.json
 │   ├── lucide-react
 │   │   ├── LICENSE
@@ -3652,6 +3695,45 @@
 │   │   └── vector3
 │   │       ├── dist
 │   │       └── package.json
+│   ├── math-intrinsics
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── abs.d.ts
+│   │   ├── abs.js
+│   │   ├── constants
+│   │   │   ├── maxArrayLength.d.ts
+│   │   │   ├── maxArrayLength.js
+│   │   │   ├── maxSafeInteger.d.ts
+│   │   │   ├── maxSafeInteger.js
+│   │   │   ├── maxValue.d.ts
+│   │   │   └── maxValue.js
+│   │   ├── floor.d.ts
+│   │   ├── floor.js
+│   │   ├── isFinite.d.ts
+│   │   ├── isFinite.js
+│   │   ├── isInteger.d.ts
+│   │   ├── isInteger.js
+│   │   ├── isNaN.d.ts
+│   │   ├── isNaN.js
+│   │   ├── isNegativeZero.d.ts
+│   │   ├── isNegativeZero.js
+│   │   ├── max.d.ts
+│   │   ├── max.js
+│   │   ├── min.d.ts
+│   │   ├── min.js
+│   │   ├── mod.d.ts
+│   │   ├── mod.js
+│   │   ├── package.json
+│   │   ├── pow.d.ts
+│   │   ├── pow.js
+│   │   ├── round.d.ts
+│   │   ├── round.js
+│   │   ├── sign.d.ts
+│   │   ├── sign.js
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
 │   ├── merge2
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -3707,20 +3789,6 @@
 │   │   ├── dist
 │   │   │   ├── commonjs
 │   │   │   └── esm
-│   │   └── package.json
-│   ├── motion-dom
-│   │   ├── LICENSE.md
-│   │   ├── dist
-│   │   │   ├── cjs
-│   │   │   ├── es
-│   │   │   └── index.d.ts
-│   │   └── package.json
-│   ├── motion-utils
-│   │   ├── LICENSE.md
-│   │   ├── dist
-│   │   │   ├── cjs
-│   │   │   ├── es
-│   │   │   └── index.d.ts
 │   │   └── package.json
 │   ├── ms
 │   │   ├── index.js
@@ -3798,6 +3866,24 @@
 │   │   ├── index.js
 │   │   ├── package.json
 │   │   └── readme.markdown
+│   ├── p-limit
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── license
+│   │   ├── package.json
+│   │   └── readme.md
+│   ├── p-locate
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── license
+│   │   ├── package.json
+│   │   └── readme.md
+│   ├── p-try
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── license
+│   │   ├── package.json
+│   │   └── readme.md
 │   ├── package-json-from-dist
 │   │   ├── LICENSE.md
 │   │   ├── README.md
@@ -3805,6 +3891,31 @@
 │   │   │   ├── commonjs
 │   │   │   └── esm
 │   │   └── package.json
+│   ├── path-browserify
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── security.md
+│   │   └── test
+│   │       ├── index.js
+│   │       ├── test-path-basename.js
+│   │       ├── test-path-dirname.js
+│   │       ├── test-path-extname.js
+│   │       ├── test-path-isabsolute.js
+│   │       ├── test-path-join.js
+│   │       ├── test-path-parse-format.js
+│   │       ├── test-path-relative.js
+│   │       ├── test-path-resolve.js
+│   │       ├── test-path-zero-length-strings.js
+│   │       └── test-path.js
+│   ├── path-exists
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── license
+│   │   ├── package.json
+│   │   └── readme.md
 │   ├── path-key
 │   │   ├── index.d.ts
 │   │   ├── index.js
@@ -3822,8 +3933,6 @@
 │   │   ├── dist
 │   │   │   ├── commonjs
 │   │   │   └── esm
-│   │   ├── node_modules
-│   │   │   └── lru-cache
 │   │   └── package.json
 │   ├── picocolors
 │   │   ├── LICENSE
@@ -3857,6 +3966,47 @@
 │   │   ├── lib
 │   │   │   └── index.js
 │   │   └── package.json
+│   ├── pngjs
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── browser.js
+│   │   ├── coverage
+│   │   │   ├── lcov-report
+│   │   │   └── lcov.info
+│   │   ├── lib
+│   │   │   ├── bitmapper.js
+│   │   │   ├── bitpacker.js
+│   │   │   ├── chunkstream.js
+│   │   │   ├── constants.js
+│   │   │   ├── crc.js
+│   │   │   ├── filter-pack.js
+│   │   │   ├── filter-parse-async.js
+│   │   │   ├── filter-parse-sync.js
+│   │   │   ├── filter-parse.js
+│   │   │   ├── format-normaliser.js
+│   │   │   ├── interlace.js
+│   │   │   ├── packer-async.js
+│   │   │   ├── packer-sync.js
+│   │   │   ├── packer.js
+│   │   │   ├── paeth-predictor.js
+│   │   │   ├── parser-async.js
+│   │   │   ├── parser-sync.js
+│   │   │   ├── parser.js
+│   │   │   ├── png-sync.js
+│   │   │   ├── png.js
+│   │   │   ├── sync-inflate.js
+│   │   │   └── sync-reader.js
+│   │   └── package.json
+│   ├── possible-typed-array-names
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
 │   ├── postcss
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -3914,59 +4064,6 @@
 │   │   │   ├── warning.d.ts
 │   │   │   └── warning.js
 │   │   └── package.json
-│   ├── postcss-import
-│   │   ├── LICENSE
-│   │   ├── README.md
-│   │   ├── index.js
-│   │   ├── lib
-│   │   │   ├── apply-conditions.js
-│   │   │   ├── apply-raws.js
-│   │   │   ├── apply-styles.js
-│   │   │   ├── base64-encoded-import.js
-│   │   │   ├── data-url.js
-│   │   │   ├── format-import-prelude.js
-│   │   │   ├── load-content.js
-│   │   │   ├── parse-statements.js
-│   │   │   ├── parse-styles.js
-│   │   │   ├── process-content.js
-│   │   │   └── resolve-id.js
-│   │   └── package.json
-│   ├── postcss-js
-│   │   ├── LICENSE
-│   │   ├── README.md
-│   │   ├── async.js
-│   │   ├── index.js
-│   │   ├── index.mjs
-│   │   ├── objectifier.js
-│   │   ├── package.json
-│   │   ├── parser.js
-│   │   ├── process-result.js
-│   │   └── sync.js
-│   ├── postcss-load-config
-│   │   ├── LICENSE
-│   │   ├── README.md
-│   │   ├── package.json
-│   │   └── src
-│   │       ├── index.d.ts
-│   │       ├── index.js
-│   │       ├── options.js
-│   │       ├── plugins.js
-│   │       └── req.js
-│   ├── postcss-nested
-│   │   ├── LICENSE
-│   │   ├── README.md
-│   │   ├── index.d.ts
-│   │   ├── index.js
-│   │   └── package.json
-│   ├── postcss-nesting
-│   │   ├── CHANGELOG.md
-│   │   ├── LICENSE.md
-│   │   ├── README.md
-│   │   ├── dist
-│   │   │   ├── index.cjs
-│   │   │   ├── index.d.ts
-│   │   │   └── index.mjs
-│   │   └── package.json
 │   ├── postcss-selector-parser
 │   │   ├── API.md
 │   │   ├── CHANGELOG.md
@@ -4001,17 +4098,13 @@
 │   │   ├── index.js
 │   │   ├── index.mjs
 │   │   └── package.json
-│   ├── promise-worker-transferable
+│   ├── process
 │   │   ├── LICENSE
 │   │   ├── README.md
-│   │   ├── dist
-│   │   │   ├── promise-worker.js
-│   │   │   ├── promise-worker.min.js
-│   │   │   ├── promise-worker.register.js
-│   │   │   └── promise-worker.register.min.js
+│   │   ├── browser.js
 │   │   ├── index.js
 │   │   ├── package.json
-│   │   └── register.js
+│   │   └── test.js
 │   ├── prop-types
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -4042,12 +4135,35 @@
 │   │   │   ├── utils.es.js
 │   │   │   └── utils.js
 │   │   └── package.json
+│   ├── qrcode
+│   │   ├── README.md
+│   │   ├── bin
+│   │   │   └── qrcode
+│   │   ├── helper
+│   │   │   ├── to-sjis-browser.js
+│   │   │   └── to-sjis.js
+│   │   ├── lib
+│   │   │   ├── browser.js
+│   │   │   ├── can-promise.js
+│   │   │   ├── core
+│   │   │   ├── index.js
+│   │   │   ├── renderer
+│   │   │   └── server.js
+│   │   ├── license
+│   │   └── package.json
 │   ├── queue-microtask
 │   │   ├── LICENSE
 │   │   ├── README.md
 │   │   ├── index.d.ts
 │   │   ├── index.js
 │   │   └── package.json
+│   ├── randombytes
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── browser.js
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   └── test.js
 │   ├── react
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -4101,6 +4217,8 @@
 │   │   │   └── react-dom.profiling.min.js
 │   │   ├── client.js
 │   │   ├── index.js
+│   │   ├── node_modules
+│   │   │   └── scheduler
 │   │   ├── package.json
 │   │   ├── profiling.js
 │   │   ├── server.browser.js
@@ -4129,6 +4247,32 @@
 │   │   └── umd
 │   │       ├── react-is.development.js
 │   │       └── react-is.production.min.js
+│   ├── react-lifecycles-compat
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE.md
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── react-lifecycles-compat.cjs.js
+│   │   ├── react-lifecycles-compat.es.js
+│   │   ├── react-lifecycles-compat.js
+│   │   └── react-lifecycles-compat.min.js
+│   ├── react-merge-refs
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── dist
+│   │   │   ├── index.d.ts
+│   │   │   ├── index.js
+│   │   │   ├── react-merge-refs.cjs.development.js
+│   │   │   ├── react-merge-refs.cjs.development.js.map
+│   │   │   ├── react-merge-refs.cjs.production.min.js
+│   │   │   ├── react-merge-refs.cjs.production.min.js.map
+│   │   │   ├── react-merge-refs.esm.js
+│   │   │   └── react-merge-refs.esm.js.map
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── index.js
+│   │       └── index.tsx
 │   ├── react-reconciler
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -4142,8 +4286,6 @@
 │   │   │   └── react-reconciler.profiling.min.js
 │   │   ├── constants.js
 │   │   ├── index.js
-│   │   ├── node_modules
-│   │   │   └── scheduler
 │   │   ├── package.json
 │   │   └── reflection.js
 │   ├── react-refresh
@@ -4157,6 +4299,30 @@
 │   │   │   └── react-refresh-runtime.production.min.js
 │   │   ├── package.json
 │   │   └── runtime.js
+│   ├── react-remove-scroll
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── UI
+│   │   │   ├── UI.d.ts
+│   │   │   └── package.json
+│   │   ├── dist
+│   │   │   ├── es2015
+│   │   │   ├── es2019
+│   │   │   ├── es5
+│   │   │   └── index.js
+│   │   ├── package.json
+│   │   └── sidecar
+│   │       ├── package.json
+│   │       └── sidecar.d.ts
+│   ├── react-remove-scroll-bar
+│   │   ├── README.md
+│   │   ├── constants
+│   │   │   └── package.json
+│   │   ├── dist
+│   │   │   ├── es2015
+│   │   │   ├── es2019
+│   │   │   └── es5
+│   │   └── package.json
 │   ├── react-router
 │   │   ├── CHANGELOG.md
 │   │   ├── LICENSE.md
@@ -4233,47 +4399,55 @@
 │   │   └── umd
 │   │       ├── ReactSmooth.js
 │   │       └── ReactSmooth.min.js
-│   ├── react-transition-group
-│   │   ├── CSSTransition
-│   │   │   └── package.json
+│   ├── react-style-singleton
 │   │   ├── LICENSE
 │   │   ├── README.md
-│   │   ├── ReplaceTransition
-│   │   │   └── package.json
-│   │   ├── SwitchTransition
-│   │   │   └── package.json
-│   │   ├── Transition
-│   │   │   └── package.json
-│   │   ├── TransitionGroup
-│   │   │   └── package.json
-│   │   ├── TransitionGroupContext
-│   │   │   └── package.json
-│   │   ├── cjs
-│   │   │   ├── CSSTransition.js
-│   │   │   ├── ReplaceTransition.js
-│   │   │   ├── SwitchTransition.js
-│   │   │   ├── Transition.js
-│   │   │   ├── TransitionGroup.js
-│   │   │   ├── TransitionGroupContext.js
-│   │   │   ├── config.js
-│   │   │   ├── index.js
-│   │   │   └── utils
-│   │   ├── config
-│   │   │   └── package.json
+│   │   ├── dist
+│   │   │   ├── es2015
+│   │   │   ├── es2019
+│   │   │   ├── es5
+│   │   │   └── index.js
+│   │   └── package.json
+│   ├── react-transition-group
+│   │   ├── CHANGELOG.md
+│   │   ├── CSSTransition.js
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── ReplaceTransition.js
+│   │   ├── Transition.js
+│   │   ├── TransitionGroup.js
 │   │   ├── dist
 │   │   │   ├── react-transition-group.js
 │   │   │   └── react-transition-group.min.js
-│   │   ├── esm
-│   │   │   ├── CSSTransition.js
-│   │   │   ├── ReplaceTransition.js
-│   │   │   ├── SwitchTransition.js
-│   │   │   ├── Transition.js
-│   │   │   ├── TransitionGroup.js
-│   │   │   ├── TransitionGroupContext.js
-│   │   │   ├── config.js
-│   │   │   ├── index.js
-│   │   │   └── utils
-│   │   └── package.json
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── umd.js
+│   │   └── utils
+│   │       ├── ChildMapping.js
+│   │       ├── PropTypes.js
+│   │       └── SimpleSet.js
+│   ├── react-use-measure
+│   │   ├── LICENSE
+│   │   ├── dist
+│   │   │   ├── web.cjs.js
+│   │   │   └── web.js
+│   │   ├── karma.conf.js
+│   │   ├── package.json
+│   │   ├── readme.md
+│   │   ├── rollup.config.js
+│   │   ├── src
+│   │   │   └── web
+│   │   ├── ssr-test.js
+│   │   ├── test
+│   │   │   ├── README.md
+│   │   │   ├── package.json
+│   │   │   ├── public
+│   │   │   ├── src
+│   │   │   └── tsconfig.json
+│   │   ├── tsconfig.json
+│   │   └── types
+│   │       ├── index.d.ts
+│   │       └── index.spec.d.ts
 │   ├── read-cache
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -4313,7 +4487,6 @@
 │   │   │   ├── chart
 │   │   │   ├── component
 │   │   │   ├── container
-│   │   │   ├── context
 │   │   │   ├── index.js
 │   │   │   ├── numberAxis
 │   │   │   ├── polar
@@ -4324,21 +4497,17 @@
 │   │   │   ├── chart
 │   │   │   ├── component
 │   │   │   ├── container
-│   │   │   ├── context
 │   │   │   ├── index.js
 │   │   │   ├── numberAxis
 │   │   │   ├── polar
 │   │   │   ├── shape
 │   │   │   └── util
-│   │   ├── node_modules
-│   │   │   └── react-is
 │   │   ├── package.json
 │   │   ├── types
 │   │   │   ├── cartesian
 │   │   │   ├── chart
 │   │   │   ├── component
 │   │   │   ├── container
-│   │   │   ├── context
 │   │   │   ├── index.d.ts
 │   │   │   ├── numberAxis
 │   │   │   ├── polar
@@ -4376,11 +4545,22 @@
 │   │   ├── package.json
 │   │   ├── path.js
 │   │   └── runtime.js
+│   ├── require-directory
+│   │   ├── LICENSE
+│   │   ├── README.markdown
+│   │   ├── index.js
+│   │   └── package.json
 │   ├── require-from-string
 │   │   ├── index.js
 │   │   ├── license
 │   │   ├── package.json
 │   │   └── readme.md
+│   ├── require-main-filename
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE.txt
+│   │   ├── README.md
+│   │   ├── index.js
+│   │   └── package.json
 │   ├── resolve
 │   │   ├── LICENSE
 │   │   ├── SECURITY.md
@@ -4470,6 +4650,16 @@
 │   │   ├── index.d.ts
 │   │   ├── index.js
 │   │   └── package.json
+│   ├── safe-regex-test
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
 │   ├── scheduler
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -4498,6 +4688,22 @@
 │   │   ├── package.json
 │   │   ├── range.bnf
 │   │   └── semver.js
+│   ├── set-blocking
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE.txt
+│   │   ├── README.md
+│   │   ├── index.js
+│   │   └── package.json
+│   ├── set-function-length
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── env.d.ts
+│   │   ├── env.js
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   └── tsconfig.json
 │   ├── shallowequal
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -4579,8 +4785,6 @@
 │   │   ├── lib
 │   │   │   ├── main.ts
 │   │   │   └── panel.ts
-│   │   ├── node_modules
-│   │   │   └── three
 │   │   └── package.json
 │   ├── stats.js
 │   │   ├── LICENSE
@@ -4589,6 +4793,18 @@
 │   │   ├── package.json
 │   │   └── src
 │   │       └── Stats.js
+│   ├── stream-browserify
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── readme.markdown
+│   │   ├── security.md
+│   │   └── test
+│   │       ├── buf.js
+│   │       ├── index.js
+│   │       ├── pipeline.js
+│   │       └── use-stream.js
 │   ├── string-width
 │   │   ├── index.d.ts
 │   │   ├── index.js
@@ -4599,10 +4815,6 @@
 │   │   ├── index.d.ts
 │   │   ├── index.js
 │   │   ├── license
-│   │   ├── node_modules
-│   │   │   ├── ansi-regex
-│   │   │   ├── emoji-regex
-│   │   │   └── strip-ansi
 │   │   ├── package.json
 │   │   └── readme.md
 │   ├── string_decoder
@@ -4621,8 +4833,6 @@
 │   │   ├── index.d.ts
 │   │   ├── index.js
 │   │   ├── license
-│   │   ├── node_modules
-│   │   │   └── ansi-regex
 │   │   ├── package.json
 │   │   └── readme.md
 │   ├── styled-components
@@ -4658,6 +4868,8 @@
 │   │   │   ├── dist
 │   │   │   └── package.json
 │   │   ├── node_modules
+│   │   │   ├── @emotion
+│   │   │   ├── csstype
 │   │   │   ├── postcss
 │   │   │   └── tslib
 │   │   ├── package.json
@@ -4704,8 +4916,6 @@
 │   │   │   ├── transformers
 │   │   │   ├── types
 │   │   │   └── util
-│   │   ├── node_modules
-│   │   │   └── commander
 │   │   ├── package.json
 │   │   ├── register
 │   │   │   ├── index.js
@@ -4733,6 +4943,20 @@
 │   │   ├── index.js
 │   │   ├── package.json
 │   │   └── readme.md
+│   ├── tailwind-merge
+│   │   ├── LICENSE.md
+│   │   ├── README.md
+│   │   ├── dist
+│   │   │   ├── bundle-cjs.js
+│   │   │   ├── bundle-cjs.js.map
+│   │   │   ├── bundle-mjs.mjs
+│   │   │   ├── bundle-mjs.mjs.map
+│   │   │   ├── es5
+│   │   │   └── types.d.ts
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── index.ts
+│   │       └── lib
 │   ├── tailwindcss
 │   │   ├── CHANGELOG.md
 │   │   ├── LICENSE
@@ -4755,6 +4979,7 @@
 │   │   │   ├── featureFlags.js
 │   │   │   ├── index.js
 │   │   │   ├── lib
+│   │   │   ├── oxide
 │   │   │   ├── plugin.js
 │   │   │   ├── postcss-plugins
 │   │   │   ├── processTailwindFeatures.js
@@ -4767,7 +4992,12 @@
 │   │   │   ├── index.d.ts
 │   │   │   └── index.js
 │   │   ├── node_modules
-│   │   │   └── postcss-import
+│   │   │   ├── glob-parent
+│   │   │   ├── postcss
+│   │   │   ├── postcss-import
+│   │   │   ├── postcss-js
+│   │   │   ├── postcss-load-config
+│   │   │   └── postcss-nested
 │   │   ├── package.json
 │   │   ├── peers
 │   │   │   └── index.js
@@ -4782,6 +5012,7 @@
 │   │   │   ├── generate-types.js
 │   │   │   ├── release-channel.js
 │   │   │   ├── release-notes.js
+│   │   │   ├── swap-engines.js
 │   │   │   └── type-utils.js
 │   │   ├── src
 │   │   │   ├── cli
@@ -4793,6 +5024,7 @@
 │   │   │   ├── featureFlags.js
 │   │   │   ├── index.js
 │   │   │   ├── lib
+│   │   │   ├── oxide
 │   │   │   ├── plugin.js
 │   │   │   ├── postcss-plugins
 │   │   │   ├── processTailwindFeatures.js
@@ -6320,16 +6552,12 @@
 │   │   ├── find-google-font-url.js
 │   │   ├── libs
 │   │   │   ├── typr.factory.js
-│   │   │   ├── unicode-font-resolver-client.factory.js
 │   │   │   └── woff2otf.factory.js
 │   │   ├── package.json
 │   │   ├── rollup.config.build-typr.js
-│   │   ├── rollup.config.build-unicode-font-resolver.js
 │   │   ├── rollup.config.build-woff2otf.js
 │   │   └── src
-│   │       ├── BatchedText.js
 │   │       ├── FontParser.js
-│   │       ├── FontResolver.js
 │   │       ├── GlyphsGeometry.js
 │   │       ├── SDFGenerator.js
 │   │       ├── Text.js
@@ -6541,7 +6769,6 @@
 │   │   │   └── zh-tw
 │   │   └── package.json
 │   ├── undici-types
-│   │   ├── LICENSE
 │   │   ├── README.md
 │   │   ├── agent.d.ts
 │   │   ├── api.d.ts
@@ -6553,9 +6780,7 @@
 │   │   ├── cookies.d.ts
 │   │   ├── diagnostics-channel.d.ts
 │   │   ├── dispatcher.d.ts
-│   │   ├── env-http-proxy-agent.d.ts
 │   │   ├── errors.d.ts
-│   │   ├── eventsource.d.ts
 │   │   ├── fetch.d.ts
 │   │   ├── file.d.ts
 │   │   ├── filereader.d.ts
@@ -6577,9 +6802,6 @@
 │   │   ├── pool.d.ts
 │   │   ├── proxy-agent.d.ts
 │   │   ├── readable.d.ts
-│   │   ├── retry-agent.d.ts
-│   │   ├── retry-handler.d.ts
-│   │   ├── util.d.ts
 │   │   ├── webidl.d.ts
 │   │   └── websocket.d.ts
 │   ├── update-browserslist-db
@@ -6591,6 +6813,22 @@
 │   │   ├── index.js
 │   │   ├── package.json
 │   │   └── utils.js
+│   ├── use-callback-ref
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── dist
+│   │   │   ├── es2015
+│   │   │   ├── es2019
+│   │   │   └── es5
+│   │   └── package.json
+│   ├── use-sidecar
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── dist
+│   │   │   ├── es2015
+│   │   │   ├── es2019
+│   │   │   └── es5
+│   │   └── package.json
 │   ├── use-sync-external-store
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -6598,12 +6836,12 @@
 │   │   │   ├── use-sync-external-store-shim
 │   │   │   ├── use-sync-external-store-shim.development.js
 │   │   │   ├── use-sync-external-store-shim.native.development.js
-│   │   │   ├── use-sync-external-store-shim.native.production.min.js
-│   │   │   ├── use-sync-external-store-shim.production.min.js
+│   │   │   ├── use-sync-external-store-shim.native.production.js
+│   │   │   ├── use-sync-external-store-shim.production.js
 │   │   │   ├── use-sync-external-store-with-selector.development.js
-│   │   │   ├── use-sync-external-store-with-selector.production.min.js
+│   │   │   ├── use-sync-external-store-with-selector.production.js
 │   │   │   ├── use-sync-external-store.development.js
-│   │   │   └── use-sync-external-store.production.min.js
+│   │   │   └── use-sync-external-store.production.js
 │   │   ├── index.js
 │   │   ├── package.json
 │   │   ├── shim
@@ -6611,6 +6849,15 @@
 │   │   │   ├── index.native.js
 │   │   │   └── with-selector.js
 │   │   └── with-selector.js
+│   ├── util
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── support
+│   │   │   ├── isBuffer.js
+│   │   │   ├── isBufferBrowser.js
+│   │   │   └── types.js
+│   │   └── util.js
 │   ├── util-deprecate
 │   │   ├── History.md
 │   │   ├── LICENSE
@@ -6747,6 +6994,8 @@
 │   │   │   └── node-cjs
 │   │   ├── index.cjs
 │   │   ├── index.d.cts
+│   │   ├── node_modules
+│   │   │   └── postcss
 │   │   ├── package.json
 │   │   └── types
 │   │       ├── customEvent.d.ts
@@ -6799,8 +7048,22 @@
 │   │   │   └── node-which
 │   │   ├── package.json
 │   │   └── which.js
-│   ├── wrap-ansi
+│   ├── which-module
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.js
+│   │   └── package.json
+│   ├── which-typed-array
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
 │   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── package.json
+│   │   ├── test
+│   │   │   └── index.js
+│   │   └── tsconfig.json
+│   ├── wrap-ansi
 │   │   ├── index.js
 │   │   ├── license
 │   │   ├── package.json
@@ -6808,14 +7071,14 @@
 │   ├── wrap-ansi-cjs
 │   │   ├── index.js
 │   │   ├── license
-│   │   ├── node_modules
-│   │   │   ├── ansi-regex
-│   │   │   ├── ansi-styles
-│   │   │   ├── emoji-regex
-│   │   │   ├── string-width
-│   │   │   └── strip-ansi
 │   │   ├── package.json
 │   │   └── readme.md
+│   ├── y18n
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── index.js
+│   │   └── package.json
 │   ├── yallist
 │   │   ├── LICENSE
 │   │   ├── README.md
@@ -6856,61 +7119,121 @@
 │   │   │   └── visit.js
 │   │   ├── package.json
 │   │   └── util.js
+│   ├── yargs
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── build
+│   │   │   └── lib
+│   │   ├── index.js
+│   │   ├── locales
+│   │   │   ├── be.json
+│   │   │   ├── de.json
+│   │   │   ├── en.json
+│   │   │   ├── es.json
+│   │   │   ├── fi.json
+│   │   │   ├── fr.json
+│   │   │   ├── hi.json
+│   │   │   ├── hu.json
+│   │   │   ├── id.json
+│   │   │   ├── it.json
+│   │   │   ├── ja.json
+│   │   │   ├── ko.json
+│   │   │   ├── nb.json
+│   │   │   ├── nl.json
+│   │   │   ├── nn.json
+│   │   │   ├── pirate.json
+│   │   │   ├── pl.json
+│   │   │   ├── pt.json
+│   │   │   ├── pt_BR.json
+│   │   │   ├── ru.json
+│   │   │   ├── th.json
+│   │   │   ├── tr.json
+│   │   │   ├── zh_CN.json
+│   │   │   └── zh_TW.json
+│   │   ├── package.json
+│   │   └── yargs.js
+│   ├── yargs-parser
+│   │   ├── CHANGELOG.md
+│   │   ├── LICENSE.txt
+│   │   ├── README.md
+│   │   ├── index.js
+│   │   ├── lib
+│   │   │   └── tokenize-arg-string.js
+│   │   └── package.json
 │   └── zustand
 │       ├── LICENSE
+│       ├── context.d.ts
+│       ├── context.js
 │       ├── esm
-│       │   ├── index.d.mts
+│       │   ├── context.d.ts
+│       │   ├── context.js
+│       │   ├── context.mjs
+│       │   ├── index.d.ts
+│       │   ├── index.js
 │       │   ├── index.mjs
 │       │   ├── middleware
-│       │   ├── middleware.d.mts
+│       │   ├── middleware.d.ts
+│       │   ├── middleware.js
 │       │   ├── middleware.mjs
-│       │   ├── react
-│       │   ├── react.d.mts
-│       │   ├── react.mjs
-│       │   ├── shallow.d.mts
+│       │   ├── react.d.ts
+│       │   ├── shallow.d.ts
+│       │   ├── shallow.js
 │       │   ├── shallow.mjs
-│       │   ├── traditional.d.mts
-│       │   ├── traditional.mjs
-│       │   ├── vanilla
-│       │   ├── vanilla.d.mts
+│       │   ├── vanilla.d.ts
+│       │   ├── vanilla.js
 │       │   └── vanilla.mjs
 │       ├── index.d.ts
 │       ├── index.js
 │       ├── middleware
 │       │   ├── combine.d.ts
 │       │   ├── devtools.d.ts
-│       │   ├── immer.d.ts
-│       │   ├── immer.js
 │       │   ├── persist.d.ts
 │       │   ├── redux.d.ts
 │       │   └── subscribeWithSelector.d.ts
 │       ├── middleware.d.ts
 │       ├── middleware.js
 │       ├── package.json
-│       ├── react
-│       │   ├── shallow.d.ts
-│       │   └── shallow.js
 │       ├── react.d.ts
-│       ├── react.js
 │       ├── readme.md
 │       ├── shallow.d.ts
 │       ├── shallow.js
-│       ├── traditional.d.ts
-│       ├── traditional.js
-│       ├── ts_version_4.5_and_above_is_required.d.ts
-│       ├── vanilla
-│       │   ├── shallow.d.ts
-│       │   └── shallow.js
+│       ├── system
+│       │   ├── context.development.js
+│       │   ├── context.production.js
+│       │   ├── index.development.js
+│       │   ├── index.production.js
+│       │   ├── middleware.development.js
+│       │   ├── middleware.production.js
+│       │   ├── shallow.development.js
+│       │   ├── shallow.production.js
+│       │   ├── vanilla.development.js
+│       │   └── vanilla.production.js
+│       ├── umd
+│       │   ├── context.development.js
+│       │   ├── context.production.js
+│       │   ├── index.development.js
+│       │   ├── index.production.js
+│       │   ├── middleware.development.js
+│       │   ├── middleware.production.js
+│       │   ├── shallow.development.js
+│       │   ├── shallow.production.js
+│       │   ├── vanilla.development.js
+│       │   └── vanilla.production.js
 │       ├── vanilla.d.ts
 │       └── vanilla.js
 ├── npm
 ├── output.txt
-├── package-lock.json
 ├── package.json
 ├── postcss.config.cjs
+├── postcss.config.js
 ├── public
 │   └── web.config
+├── quick-deploy.sh
+├── reset-deploy.sh
+├── setup.sh
 ├── src
+│   ├── App.tsx
 │   ├── __tests__
 │   │   ├── components
 │   │   │   └── LandingPage.test.tsx
@@ -6948,6 +7271,7 @@
 │   │   ├── emotional_state.rs
 │   │   ├── mod.rs
 │   │   ├── openai_client.rs
+│   │   ├── promptTemplates.ts
 │   │   ├── prompt_templates.rs
 │   │   └── types.rs
 │   ├── analytics
@@ -6981,6 +7305,12 @@
 │   │       ├── components
 │   │       ├── index.html
 │   │       └── index.jsx
+│   ├── anima_token
+│   │   ├── anima_token.rs
+│   │   ├── rewards
+│   │   │   └── distributor.rs
+│   │   └── staking
+│   │       └── pool.rs
 │   ├── auth
 │   │   ├── AdminAuth.ts
 │   │   ├── AuthProvider.jsx
@@ -7003,11 +7333,11 @@
 │   │   ├── quantum.rs
 │   │   ├── temporal.rs
 │   │   └── temporal_quantum.rs
+│   ├── backup-removed-files.txt
 │   ├── components
 │   │   ├── App.tsx
 │   │   ├── Icons.jsx
 │   │   ├── ImmersiveAnimaUI.jsx
-│   │   ├── RecentlyConnected.jsx
 │   │   ├── RecentlyConnected.tsx
 │   │   ├── admin
 │   │   │   ├── AITestPanel.tsx
@@ -7030,24 +7360,22 @@
 │   │   │   ├── AnimaPreview.jsx
 │   │   │   ├── InitializationFlow.jsx
 │   │   │   ├── InitializationFlow.tsx
-│   │   │   ├── MintAnima.jsx
 │   │   │   ├── NeuralMantra.jsx
 │   │   │   ├── QuantumInterface.jsx
 │   │   │   ├── QuantumInterface.tsx
+│   │   │   ├── TraitVisualizer.tsx
 │   │   │   ├── features
 │   │   │   └── initialization
 │   │   ├── auth
 │   │   │   ├── AdminRoute.tsx
-│   │   │   ├── AuthGuard.jsx
-│   │   │   ├── AuthRedirect.jsx
+│   │   │   ├── AnimaInitializer.tsx
+│   │   │   ├── AuthConsumer.tsx
+│   │   │   ├── AuthGuard.tsx
 │   │   │   ├── AuthRedirect.tsx
-│   │   │   ├── InitializationCheck.jsx
-│   │   │   ├── InitializationManager.tsx
 │   │   │   ├── IntroView.jsx
-│   │   │   ├── LoginPage.jsx
-│   │   │   ├── LoginScreen.jsx
+│   │   │   ├── backup_20250104
 │   │   │   ├── index.js
-│   │   │   └── withAuth.jsx
+│   │   │   └── index.ts
 │   │   ├── avatar
 │   │   ├── backup
 │   │   │   └── cymatic-chamber
@@ -7058,14 +7386,14 @@
 │   │   │   ├── AnimaImmersive.tsx
 │   │   │   ├── EnhancedChat.tsx
 │   │   │   ├── EnhancedImmersiveAnimaUI.tsx
-│   │   │   ├── ImmersiveAnimaUI.jsx
+│   │   │   ├── EnhancedImmersiveInterface.tsx
 │   │   │   ├── ImmersiveAnimaUI.tsx
-│   │   │   ├── ImmersiveChatInterface.tsx
-│   │   │   ├── ImmersiveEnhancedChat.tsx
 │   │   │   ├── RecentlyConnected.jsx
 │   │   │   └── backup
 │   │   ├── dashboard
 │   │   │   └── NexusDashboard.jsx
+│   │   ├── error
+│   │   │   └── ErrorDisplay.tsx
 │   │   ├── error-boundary
 │   │   │   ├── ErrorBoundary.jsx
 │   │   │   ├── ErrorBoundary.tsx
@@ -7081,9 +7409,11 @@
 │   │   │   ├── EnhancedGenesis.tsx
 │   │   │   ├── Genesis.tsx
 │   │   │   ├── Genesis.tsx.backup
+│   │   │   ├── GenesisFlow.tsx
 │   │   │   ├── GenesisRitual.tsx
 │   │   │   ├── InitialDesignation.jsx
-│   │   │   └── index.js
+│   │   │   ├── index.js
+│   │   │   └── index.ts
 │   │   ├── growth
 │   │   │   ├── FrictionlessGrowthPacks.tsx
 │   │   │   ├── GrowthPackPurchase.tsx
@@ -7115,13 +7445,17 @@
 │   │   ├── media
 │   │   │   ├── AnimaMediaInterface.tsx
 │   │   │   ├── EnhancedMediaController.tsx
+│   │   │   ├── MediaController.tsx
 │   │   │   ├── MediaPlayer.tsx
 │   │   │   ├── MediaSources.ts
 │   │   │   ├── SimpleMediaFrame.tsx
 │   │   │   └── VideoControls.tsx
+│   │   ├── neural
 │   │   ├── neural-link
 │   │   │   ├── ImmersiveInterface.tsx
-│   │   │   └── IntegratedNeuralLinkInterface.tsx
+│   │   │   ├── IntegratedNeuralLinkInterface.tsx
+│   │   │   ├── NeuralPatternVisualizer.tsx
+│   │   │   └── index.ts
 │   │   ├── nexus
 │   │   │   ├── Nexus.jsx
 │   │   │   ├── NexusView.jsx
@@ -7129,7 +7463,6 @@
 │   │   ├── pages
 │   │   │   ├── AnimaPage.tsx
 │   │   │   ├── EnhancedNeuralLinkPage.tsx
-│   │   │   ├── GenesisPage.jsx
 │   │   │   ├── GenesisPage.tsx
 │   │   │   ├── LandingPage.tsx
 │   │   │   ├── NeuralLinkPage.tsx
@@ -7142,6 +7475,7 @@
 │   │   │   ├── EnhancedPaymentPanel.tsx
 │   │   │   ├── ICPPaymentPanel.tsx
 │   │   │   ├── PaymentDebugPanel.tsx
+│   │   │   ├── PaymentModal.tsx
 │   │   │   ├── PaymentMonitor.tsx
 │   │   │   ├── PaymentPanel.tsx
 │   │   │   ├── PaymentRecoverySystem.tsx
@@ -7150,6 +7484,7 @@
 │   │   │   ├── ConnectionStatus.tsx
 │   │   │   ├── ConsciousnessMetrics.tsx
 │   │   │   ├── DimensionalMap.tsx
+│   │   │   ├── EmotionVisualizer.tsx
 │   │   │   ├── EmotionalState.tsx
 │   │   │   ├── PersonalityEvolution.jsx
 │   │   │   ├── PersonalityStats.jsx
@@ -7166,26 +7501,35 @@
 │   │   │   ├── EnhancedDimensionalView.tsx
 │   │   │   ├── EnhancedQuantumField.tsx
 │   │   │   ├── EnhancedQuantumStateVisualizer.tsx
+│   │   │   ├── NeuralPatternVisualizer.tsx
 │   │   │   ├── QuantumAnimations.jsx
 │   │   │   ├── QuantumErrorBoundary.tsx
 │   │   │   ├── QuantumField.jsx
 │   │   │   ├── QuantumField.tsx
+│   │   │   ├── QuantumFieldResonance.tsx
 │   │   │   ├── QuantumMetricsPanel.tsx
 │   │   │   ├── QuantumPaymentField.tsx
+│   │   │   ├── QuantumSignature.tsx
 │   │   │   ├── QuantumStateVisualizer.jsx
 │   │   │   ├── QuantumStateVisualizer.tsx
 │   │   │   └── index.js
 │   │   ├── quantum-vault
+│   │   │   ├── ConsciousnessPanel.tsx
 │   │   │   ├── CyberpunkQuantumVault.tsx
 │   │   │   ├── DataStream.tsx
 │   │   │   ├── GrowthPackPanel.tsx
+│   │   │   ├── NetworkStatus.tsx
 │   │   │   ├── QuantumInteractions.tsx
 │   │   │   ├── QuantumStateVisualizer.tsx
-│   │   │   ├── QuantumVault.tsx
 │   │   │   ├── QuantumVaultGrid.tsx
+│   │   │   ├── StakingPanel.tsx
 │   │   │   ├── components
 │   │   │   ├── index.ts
+│   │   │   ├── nft
 │   │   │   ├── quantum-recovery.ts
+│   │   │   ├── rewards
+│   │   │   ├── staking
+│   │   │   ├── swap
 │   │   │   ├── types
 │   │   │   └── types.ts
 │   │   ├── settings
@@ -7195,17 +7539,22 @@
 │   │   ├── sound
 │   │   │   └── SoundManager.jsx
 │   │   ├── transactions
+│   │   │   ├── MintPanel.tsx
+│   │   │   ├── SwapPanel.tsx
 │   │   │   └── TransactionReceipt.tsx
 │   │   ├── ui
 │   │   │   ├── AnimationSafeGuard.tsx
 │   │   │   ├── AnimationWrapper.tsx
 │   │   │   ├── CircuitLines.jsx
+│   │   │   ├── CyberGlowText.tsx
 │   │   │   ├── CyberHUD.tsx
 │   │   │   ├── CyberSignature.jsx
+│   │   │   ├── DataStream.tsx
 │   │   │   ├── EnhancedButton.jsx
 │   │   │   ├── ErrorBoundary.tsx
 │   │   │   ├── FloatingCard.jsx
 │   │   │   ├── FloatingCard.tsx
+│   │   │   ├── GlobalAnnouncement.tsx
 │   │   │   ├── GlowOrb.jsx
 │   │   │   ├── GlowOrb.tsx
 │   │   │   ├── HexGrid.jsx
@@ -7221,6 +7570,8 @@
 │   │   │   ├── NeuralQuote.jsx
 │   │   │   ├── PulsatingLogo.jsx
 │   │   │   ├── PulsatingLogo.tsx
+│   │   │   ├── QRCode.tsx
+│   │   │   ├── QuantumCoherenceGauge.tsx
 │   │   │   ├── QuantumField.jsx
 │   │   │   ├── QuantumField.tsx
 │   │   │   ├── QuantumLoader.tsx
@@ -7234,10 +7585,17 @@
 │   │   │   ├── dialog.tsx
 │   │   │   ├── input.tsx
 │   │   │   ├── loader.tsx
+│   │   │   ├── loading.tsx
 │   │   │   ├── slider.jsx
 │   │   │   ├── switch.jsx
 │   │   │   ├── tabs.jsx
 │   │   │   └── use-toast.ts
+│   │   ├── wallet
+│   │   │   ├── BalanceChecker.tsx
+│   │   │   ├── DepositAddress.tsx
+│   │   │   ├── ICPWallet.tsx
+│   │   │   ├── WalletAddressDisplay.tsx
+│   │   │   └── WalletDeposit.tsx
 │   │   └── wavelength
 │   │       └── CorePatterns.tsx
 │   ├── config
@@ -7252,7 +7610,12 @@
 │   │   └── ledger.ts
 │   ├── consciousness
 │   │   ├── ConsciousnessTracker.ts
-│   │   └── mod.rs
+│   │   ├── emergence_patterns.rs
+│   │   ├── evolution-engine.ts
+│   │   ├── evolution.rs
+│   │   ├── mod.rs
+│   │   ├── types.rs
+│   │   └── types.ts
 │   ├── constants
 │   │   └── systemMessages.js
 │   ├── contexts
@@ -7262,21 +7625,36 @@
 │   │   ├── anima-context.tsx
 │   │   ├── auth-context.tsx
 │   │   ├── backup_20241229
+│   │   ├── consciousness-context.tsx
 │   │   ├── index.js.bak
+│   │   ├── index.ts
 │   │   ├── index.ts.main
-│   │   └── quantum-context.tsx
+│   │   ├── quantum-context.tsx
+│   │   └── web3-context.tsx
 │   ├── core
 │   │   ├── integrations.rs
+│   │   ├── integrations.ts
 │   │   └── mod.rs
 │   ├── declarations
 │   │   ├── anima
-│   │   │   ├── anima.did
 │   │   │   ├── anima.did.d.ts
 │   │   │   ├── anima.did.js
 │   │   │   ├── index.d.ts
 │   │   │   └── index.js
+│   │   ├── anima_assets
+│   │   │   ├── anima_assets.did
+│   │   │   ├── anima_assets.did.d.ts
+│   │   │   ├── anima_assets.did.js
+│   │   │   ├── index.d.ts
+│   │   │   └── index.js
 │   │   ├── index.js
 │   │   ├── index.ts
+│   │   ├── ledger
+│   │   │   ├── index.d.ts
+│   │   │   ├── index.js
+│   │   │   ├── ledger.did
+│   │   │   ├── ledger.did.d.ts
+│   │   │   └── ledger.did.js
 │   │   ├── ledger.did.ts
 │   │   └── types
 │   │       ├── actor.d.ts
@@ -7302,15 +7680,27 @@
 │   │       ├── QuantumVault.tsx
 │   │       └── StateManager.ts
 │   ├── error
+│   │   ├── error-context.ts
+│   │   ├── error-handler.ts
 │   │   ├── mod.rs
-│   │   └── quantum_error.rs
+│   │   ├── quantum-errors.ts
+│   │   ├── quantum_error.rs
+│   │   ├── quantum_error.ts
+│   │   └── quantum_error_tracker.ts
+│   ├── events
+│   │   └── ai-event-bus.ts
+│   ├── example.txt
 │   ├── growth
+│   │   ├── growth_system.ts
 │   │   ├── mod.rs
 │   │   ├── quantum_evolution.rs
-│   │   └── trait_evolution.rs
+│   │   ├── trait_evolution.rs
+│   │   └── types.ts
 │   ├── hooks
 │   │   ├── index.js.bak
+│   │   ├── index.ts
 │   │   ├── index.ts.main
+│   │   ├── useAIAnalysis.ts
 │   │   ├── useActor.ts
 │   │   ├── useAdminMetrics.js
 │   │   ├── useAdminMetrics.ts
@@ -7320,43 +7710,70 @@
 │   │   ├── useAnimaChat.ts
 │   │   ├── useAnimaExperience.ts
 │   │   ├── useAnimaIntegration.ts
+│   │   ├── useAnimaQuantumState.js
 │   │   ├── useAnimaState.ts
 │   │   ├── useAuth.js.bak.old
 │   │   ├── useAuth.ts
+│   │   ├── useConsciousness.ts
 │   │   ├── useDigitalPerception.ts
 │   │   ├── useEmergentPersonality.ts
+│   │   ├── useErrorHandler.ts
 │   │   ├── useErrorLogging.ts
+│   │   ├── useFieldState.ts
+│   │   ├── useGenesisInitialization.ts
 │   │   ├── useGenesisSound.js
 │   │   ├── useGenesisSound.ts
+│   │   ├── useGrowthSystem.ts
 │   │   ├── useHapticFeedback.js
 │   │   ├── useIC.ts
 │   │   ├── useICPLedger.ts
+│   │   ├── useInitialization.ts
 │   │   ├── useLedger.js
 │   │   ├── useLedger.ts
 │   │   ├── useLedgerInit.ts
 │   │   ├── useMediaPatternAnalysis.ts
+│   │   ├── useMemorySystem.ts
+│   │   ├── useNFTMinting.ts
+│   │   ├── useNeuralBridge.ts
 │   │   ├── useNeuralLink.ts
+│   │   ├── useNeuralNetwork.ts
+│   │   ├── usePayment.ts
 │   │   ├── usePaymentInit.ts
 │   │   ├── usePaymentRecovery.ts
+│   │   ├── usePersonalityEngine.ts
 │   │   ├── useQuantum.ts
+│   │   ├── useQuantumConsciousness.ts
 │   │   ├── useQuantumDataStream.js
+│   │   ├── useQuantumEffects.ts
 │   │   ├── useQuantumInit.ts
 │   │   ├── useQuantumMemory.ts
+│   │   ├── useQuantumPayments.ts
 │   │   ├── useQuantumPerception.ts
-│   │   ├── useQuantumState.js
 │   │   ├── useQuantumState.ts
+│   │   ├── useQuantumTransition.ts
+│   │   ├── useQuantumWorker.ts
 │   │   ├── useRealtimePersonality.ts
+│   │   ├── useSecureSwap.ts
 │   │   ├── useSession.js
-│   │   └── useSound.ts
+│   │   ├── useSimpleSwap.ts
+│   │   ├── useSound.ts
+│   │   ├── useStaking.ts
+│   │   ├── useSwap.ts
+│   │   ├── useToast.ts
+│   │   └── useWallet.ts
 │   ├── ic-init.ts
+│   ├── ic-manifest.ts
 │   ├── icrc
+│   │   ├── anima_token.rs
 │   │   ├── ledger.rs
 │   │   └── mod.rs
 │   ├── ii-config.ts
 │   ├── index.css
 │   ├── infrastructure
+│   ├── init.ts
 │   ├── initialization
-│   │   └── EnhancedSystemInitializer.ts
+│   │   ├── EnhancedSystemInitializer.ts
+│   │   └── index.ts
 │   ├── integrations
 │   │   ├── DataStreams.ts
 │   │   ├── canister_bridge.rs
@@ -7367,8 +7784,10 @@
 │   │   ├── mod.rs
 │   │   ├── quantum_ai_bridge.ts
 │   │   ├── quantum_consciousness_bridge.rs
-│   │   ├── quantum_payment_bridge.ts
+│   │   ├── quantum_evolution.rs
 │   │   ├── sync.rs
+│   │   ├── tests
+│   │   │   └── quantum_evolution_tests.rs
 │   │   ├── traits.rs
 │   │   └── types.ts
 │   ├── lib
@@ -7381,20 +7800,25 @@
 │   │   └── mod.rs
 │   ├── memory
 │   │   ├── formation.rs
+│   │   ├── memory.ts
 │   │   ├── mod.rs
 │   │   ├── mod.rs:4:26
 │   │   ├── mod.rs:8:9
-│   │   └── quantum
-│   │       └── mod.rs
+│   │   ├── quantum
+│   │   │   └── mod.rs
+│   │   └── types.ts
 │   ├── neural
 │   │   ├── interaction_patterns.rs
-│   │   └── quantum_bridge.rs
+│   │   ├── mod.rs
+│   │   ├── quantum_bridge.rs
+│   │   └── types.ts
 │   ├── nft
 │   │   ├── collection.rs
 │   │   ├── marketplace.rs
 │   │   ├── minting.rs
 │   │   ├── minting_service.rs
 │   │   ├── mod.rs
+│   │   ├── provenance.rs
 │   │   ├── royalties.rs
 │   │   ├── standards.rs
 │   │   └── types.rs
@@ -7402,8 +7826,10 @@
 │   │   ├── mod.rs
 │   │   ├── pricing_config.rs
 │   │   ├── quantum_payment_processor.rs
+│   │   ├── quantum_verification.ts
 │   │   ├── transaction_processor.rs
 │   │   ├── types.rs
+│   │   ├── validator.ts
 │   │   └── verification_system.ts
 │   ├── personality
 │   │   ├── consciousness.rs
@@ -7416,17 +7842,27 @@
 │   │   ├── mod.rs
 │   │   ├── naming.rs
 │   │   └── quantum.rs
+│   ├── polyfills.ts
 │   ├── providers
 │   │   ├── AnimationProvider.tsx
 │   │   ├── AppProviders.tsx
+│   │   ├── ICProvider.tsx
 │   │   ├── MotionProvider.tsx
+│   │   ├── QuantumTransactionProvider.tsx
 │   │   └── ThemeProvider.tsx
 │   ├── quantum
 │   │   ├── consciousness_bridge.rs
 │   │   ├── dimensional_resonance.rs
 │   │   ├── dimensional_state.rs
+│   │   ├── dimensional_state.ts
+│   │   ├── enhanced-types.ts
+│   │   ├── evolution_integrator.rs
+│   │   ├── index.ts
+│   │   ├── integrated_consciousness.rs
 │   │   ├── mod.rs
-│   │   └── state_memory.rs
+│   │   ├── state_memory.rs
+│   │   ├── types.rs
+│   │   └── types.ts
 │   ├── rarity
 │   │   ├── dragon_traits.rs
 │   │   ├── faction_traits.rs
@@ -7438,7 +7874,6 @@
 │   │   └── rarity_engine.rs
 │   ├── resonance
 │   │   └── quantum_harmonics.rs
-│   ├── router.jsx.backup
 │   ├── router.tsx
 │   ├── services
 │   │   ├── BuildManager.ts
@@ -7447,23 +7882,49 @@
 │   │   ├── RealtimeService.ts
 │   │   ├── analytics
 │   │   │   └── payment-analytics.ts
+│   │   ├── anima-actor.service.ts
 │   │   ├── anima.ts
+│   │   ├── balance-tracker.ts
+│   │   ├── consciousness-manager.service.ts
 │   │   ├── error-tracker.ts
+│   │   ├── escrow.service.ts
 │   │   ├── icp
 │   │   │   ├── actor.ts
 │   │   │   ├── ledger.did.ts
-│   │   │   ├── payment.service.ts
+│   │   │   ├── ledger.ts
+│   │   │   ├── payment-verification.service.ts
+│   │   │   ├── secure-transfer.service.ts
+│   │   │   ├── simple-transfer.service.ts
 │   │   │   ├── wallet.service.ts
 │   │   │   └── wallet.stability.ts
+│   │   ├── icp-account.service.ts
+│   │   ├── icp-ledger.ts
+│   │   ├── initialization-orchestrator.ts
+│   │   ├── keyring.service.ts
+│   │   ├── lnft_minting.rs
 │   │   ├── metrics.ts
+│   │   ├── neural-network.service.ts
 │   │   ├── openai.ts
+│   │   ├── price-oracle.ts
+│   │   ├── prompts
+│   │   │   └── quantum-prompts.ts
+│   │   ├── quantum-effects.service.ts
+│   │   ├── quantum-init.service.ts
+│   │   ├── quantum-state.service.ts
+│   │   ├── quantum-vault-manager.service.ts
 │   │   ├── realtime.ts
+│   │   ├── transaction-history.service.ts
 │   │   ├── transaction-logger.js
 │   │   ├── transaction-logger.ts
+│   │   ├── transaction-monitor.ts
+│   │   ├── transaction_handler.rs
+│   │   ├── treasury.service.ts
 │   │   ├── types.ts
+│   │   ├── wallet.service.ts
 │   │   └── websocket.ts
 │   ├── setup.d.ts
 │   ├── setupTests.ts
+│   ├── shims.js
 │   ├── state
 │   │   ├── mod.rs
 │   │   ├── quantum_state_manager.rs
@@ -7487,6 +7948,7 @@
 │   │   ├── common.rs:3:13
 │   │   ├── index.ts
 │   │   ├── interaction.rs
+│   │   ├── keyring.ts
 │   │   ├── ledger.ts
 │   │   ├── media.ts
 │   │   ├── metrics.ts
@@ -7495,6 +7957,7 @@
 │   │   ├── mod.rs:12:23
 │   │   ├── nft.rs
 │   │   ├── payment-enums.ts
+│   │   ├── payment.ts
 │   │   ├── personality.rs
 │   │   ├── personality.ts
 │   │   ├── quantum.rs
@@ -7503,6 +7966,7 @@
 │   │   ├── realtime.ts
 │   │   ├── security.rs
 │   │   ├── sound.ts
+│   │   ├── staking.ts
 │   │   ├── storage.rs
 │   │   └── wallet.ts
 │   ├── utils
@@ -7529,6 +7993,7 @@
 │   │   ├── deviceDetection.js
 │   │   ├── error-recovery.ts
 │   │   ├── errorReporting.js
+│   │   ├── event-emitter.ts
 │   │   ├── fetch-interceptor.js
 │   │   ├── format.ts
 │   │   ├── haptics.js
@@ -7543,8 +8008,13 @@
 │   │   ├── requestManager.js
 │   │   ├── sound.js
 │   │   ├── soundGenerator.js
+│   │   ├── state-persistence.ts
 │   │   └── webview-bridge.ts
-│   └── vite-env.d.ts
+│   ├── vite-env.d.ts
+│   ├── wallet
+│   │   └── mod.rs
+│   └── workers
+│       └── quantum.worker.ts
 ├── tailwind.config.js
 ├── target
 │   ├── CACHEDIR.TAG
@@ -7888,6 +8358,8 @@
 │   └── wasm32-unknown-unknown
 │       ├── CACHEDIR.TAG
 │       └── release
+│           ├── anima.d
+│           ├── anima.wasm
 │           ├── build
 │           ├── deps
 │           ├── examples
@@ -7896,7 +8368,7 @@
 ├── tsconfig.json
 ├── tsconfig.node.json
 ├── verify-deployment.sh
-├── vite.config.js
-└── vite.config.ts
+├── vite.config.ts
+└── yarn.lock
 
-1218 directories, 6681 files
+1318 directories, 7053 files

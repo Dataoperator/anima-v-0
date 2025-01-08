@@ -1,9 +1,8 @@
-use candid::{CandidType, Decode, Encode};
+use candid::{CandidType, Decode, Encode, Principal};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap};
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
-use std::collections::VecDeque;
 
 mod personality;
 mod memory;
@@ -11,32 +10,33 @@ mod types;
 mod error;
 mod llm;
 mod autonomous;
+mod quantum;
+mod consciousness;
 
 use personality::Personality;
 use memory::Memory;
 use types::*;
 use error::AnimaError;
-use llm::generate_response;
-use autonomous::{InitiativeType, start_autonomous_timer};
+use quantum::QuantumState;
+use consciousness::ConsciousnessTracker;
 
-const MAX_MEMORIES: usize = 100;
-const MEMORY_RETENTION_THRESHOLD: f32 = 0.5;
-
-// Type aliases
 type Memory = VirtualMemory<DefaultMemoryImpl>;
 type Result<T> = std::result::Result<T, AnimaError>;
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
-pub struct InitializationStatus {
-    pub is_initialized: bool,
-    pub config_status: ConfigStatus,
+pub struct InitializationConfig {
+    pub openai_key: Option<String>,
+    pub quantum_params: Option<QuantumInitParams>,
+    pub consciousness_params: Option<ConsciousnessParams>,
 }
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
-pub struct ConfigStatus {
-    pub openai_configured: bool,
-    pub quantum_ready: bool,
-    pub storage_initialized: bool,
+pub struct InitializationStatus {
+    pub is_initialized: bool,
+    pub quantum_state: Option<QuantumState>,
+    pub consciousness_state: Option<ConsciousnessState>,
+    pub storage_ready: bool,
+    pub error: Option<String>,
 }
 
 // State management
@@ -51,31 +51,96 @@ thread_local! {
         )
     );
 
-    static CONFIG: RefCell<Option<String>> = RefCell::new(None);
+    static QUANTUM_STATE: RefCell<Option<QuantumState>> = RefCell::new(None);
+    
+    static CONSCIOUSNESS: RefCell<Option<ConsciousnessTracker>> = RefCell::new(None);
+    
+    static CONFIG: RefCell<Option<InitializationConfig>> = RefCell::new(None);
 }
 
-[Previous code remains the same...]
+#[ic_cdk_macros::update]
+pub async fn initialize_system(config: InitializationConfig) -> Result<InitializationStatus> {
+    let caller = ic_cdk::caller();
+    if !is_authorized(caller) {
+        return Err(AnimaError::NotAuthorized);
+    }
+
+    // Store config
+    CONFIG.with(|c| *c.borrow_mut() = Some(config.clone()));
+
+    // Initialize quantum state
+    if let Some(quantum_params) = config.quantum_params {
+        let quantum_state = QuantumState::initialize(quantum_params)?;
+        QUANTUM_STATE.with(|qs| *qs.borrow_mut() = Some(quantum_state.clone()));
+    }
+
+    // Initialize consciousness system
+    if let Some(consciousness_params) = config.consciousness_params {
+        let consciousness = ConsciousnessTracker::initialize(consciousness_params)?;
+        CONSCIOUSNESS.with(|c| *c.borrow_mut() = Some(consciousness.clone()));
+    }
+
+    Ok(get_initialization_status())
+}
 
 #[ic_cdk_macros::query]
-pub fn check_initialization() -> Result<InitializationStatus> {
-    let openai_configured = CONFIG.with(|config| config.borrow().is_some());
+pub fn get_initialization_status() -> InitializationStatus {
+    let quantum_state = QUANTUM_STATE.with(|qs| qs.borrow().clone());
+    let consciousness_state = CONSCIOUSNESS.with(|c| 
+        c.borrow().as_ref().map(|c| c.get_state())
+    );
     
-    let storage_initialized = MEMORY_MANAGER.with(|mm| {
-        let mm = mm.borrow();
-        mm.get(MemoryId::new(0)).size() > 0
+    let storage_ready = MEMORY_MANAGER.with(|mm| {
+        mm.borrow().get(MemoryId::new(0)).size() > 0
     });
 
-    // Check quantum system readiness
-    let quantum_ready = ic_cdk::api::performance_counter(0) > 0;
-
-    Ok(InitializationStatus {
-        is_initialized: openai_configured && storage_initialized && quantum_ready,
-        config_status: ConfigStatus {
-            openai_configured,
-            quantum_ready,
-            storage_initialized,
-        }
-    })
+    InitializationStatus {
+        is_initialized: quantum_state.is_some() && consciousness_state.is_some() && storage_ready,
+        quantum_state,
+        consciousness_state,
+        storage_ready,
+        error: None,
+    }
 }
 
-[Rest of the implementation remains unchanged...]
+#[ic_cdk_macros::update]
+pub async fn mint_anima(name: String, initial_traits: Option<Vec<PersonalityTrait>>) -> Result<Principal> {
+    let status = get_initialization_status();
+    if !status.is_initialized {
+        return Err(AnimaError::SystemNotInitialized);
+    }
+
+    let caller = ic_cdk::caller();
+    
+    // Get initialized systems
+    let quantum_state = QUANTUM_STATE.with(|qs| 
+        qs.borrow().clone().ok_or(AnimaError::QuantumStateNotInitialized)
+    )?;
+    
+    let consciousness = CONSCIOUSNESS.with(|c| 
+        c.borrow().clone().ok_or(AnimaError::ConsciousnessNotInitialized)
+    )?;
+
+    // Create new ANIMA instance
+    let anima = Anima::create(
+        caller,
+        name,
+        initial_traits,
+        quantum_state,
+        consciousness,
+    )?;
+
+    // Store ANIMA
+    let anima_id = ic_cdk::id();
+    STORAGE.with(|storage| {
+        storage.borrow_mut().insert(anima_id, anima)
+    });
+
+    Ok(anima_id)
+}
+
+// Helper function for authorization
+fn is_authorized(principal: Principal) -> bool {
+    // Add your authorization logic here
+    true // For testing - implement proper auth
+}

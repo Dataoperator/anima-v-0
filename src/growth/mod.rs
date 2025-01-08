@@ -52,7 +52,7 @@ impl GrowthSystem {
             event_type: "growth".to_string(),
             timestamp: time(),
             impact,
-            quantum_resonance: quantum_state.field_strength,
+            quantum_resonance: quantum_state.dimensional_state.quantum_alignment,
         };
         self.recent_growth_events.push(event);
 
@@ -77,8 +77,8 @@ impl GrowthSystem {
     fn calculate_growth_impact(&self, quantum_state: &QuantumState) -> f64 {
         let base_impact = 0.1 * self.growth_rate;
         let quantum_multiplier = 1.0 + 
-            quantum_state.field_strength * 0.5 +
-            quantum_state.coherence * 0.3;
+            quantum_state.dimensional_state.quantum_alignment * 0.5 +
+            quantum_state.coherence_level * 0.3;
 
         base_impact * quantum_multiplier * self.quantum_boost
     }

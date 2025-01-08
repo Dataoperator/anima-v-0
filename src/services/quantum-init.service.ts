@@ -13,6 +13,13 @@ interface InitializationStatus {
   actorInitialized: boolean;
 }
 
+interface ServiceDependencies {
+  actor: boolean;
+  ledger: boolean;
+  wallet: boolean;
+  quantum: boolean;
+}
+
 export class QuantumInitService {
   private static instance: QuantumInitService;
   private status: InitializationStatus = {
@@ -21,9 +28,52 @@ export class QuantumInitService {
     ledgerInitialized: false,
     actorInitialized: false
   };
+  private dependencies: ServiceDependencies = {
+    actor: false,
+    ledger: false,
+    wallet: false,
+    quantum: false
+  };
   private initializationPromise: Promise<void> | null = null;
+  private initializationQueue: Array<() => Promise<void>> = [];
+  private isProcessingQueue = false;
 
-  private constructor() {}
+  private constructor() {
+    this.setupDependencyHandling();
+  }
+
+  private setupDependencyHandling() {
+    // Handle dependency resolution
+    const processDependencyQueue = async () => {
+      if (this.isProcessingQueue) return;
+      this.isProcessingQueue = true;
+
+      try {
+        while (this.initializationQueue.length > 0) {
+          const nextInit = this.initializationQueue[0];
+          await nextInit();
+          this.initializationQueue.shift();
+        }
+      } catch (error) {
+        console.error('Dependency initialization failed:', error);
+      } finally {
+        this.isProcessingQueue = false;
+      }
+    };
+
+    // Watch for dependency changes
+    const dependencyHandler = {
+      set: (target: ServiceDependencies, prop: keyof ServiceDependencies, value: boolean) => {
+        target[prop] = value;
+        if (value) {
+          processDependencyQueue();
+        }
+        return true;
+      }
+    };
+
+    this.dependencies = new Proxy(this.dependencies, dependencyHandler);
+  }
 
   static getInstance(): QuantumInitService {
     if (!QuantumInitService.instance) {
@@ -43,24 +93,44 @@ export class QuantumInitService {
 
   private async performInitialization(identity: Identity): Promise<void> {
     try {
+      // Reset dependencies
+      Object.keys(this.dependencies).forEach(key => {
+        this.dependencies[key as keyof ServiceDependencies] = false;
+      });
+
       // Step 1: Initialize Actor Service
       console.log('🔧 Creating actor with canister:', process.env.ANIMA_CANISTER_ID);
-      const actor = animaActorService.createActor(identity);
+      const actor = await this.initializeWithDependencyCheck(
+        () => animaActorService.createActor(identity),
+        'actor'
+      );
       this.status.actorInitialized = true;
 
-      // Step 2: Initialize ICP Ledger
+      // Step 2: Initialize ICP Ledger (depends on actor)
       console.log('💰 Initializing ICP ledger...');
-      await icpLedgerService.initialize();
+      await this.initializeWithDependencyCheck(
+        () => icpLedgerService.initialize(),
+        'ledger',
+        ['actor']
+      );
       this.status.ledgerInitialized = true;
 
-      // Step 3: Initialize Wallet
+      // Step 3: Initialize Wallet (depends on ledger)
       console.log('👛 Initializing wallet...');
-      await walletService.initialize(identity.getPrincipal());
+      await this.initializeWithDependencyCheck(
+        () => walletService.initialize(identity.getPrincipal()),
+        'wallet',
+        ['ledger']
+      );
       this.status.walletInitialized = true;
 
-      // Step 4: Initialize Quantum State
+      // Step 4: Initialize Quantum State (depends on actor and wallet)
       console.log('🌟 Initializing quantum field...');
-      await this.initializeQuantumState(identity);
+      await this.initializeWithDependencyCheck(
+        () => this.initializeQuantumState(identity),
+        'quantum',
+        ['actor', 'wallet']
+      );
       this.status.quantumInitialized = true;
 
       console.log('✅ System initialization complete!');
@@ -73,6 +143,34 @@ export class QuantumInitService {
     }
   }
 
+  private async initializeWithDependencyCheck<T>(
+    initFn: () => Promise<T>,
+    service: keyof ServiceDependencies,
+    dependencies: Array<keyof ServiceDependencies> = []
+  ): Promise<T> {
+    // Check if dependencies are satisfied
+    const missingDeps = dependencies.filter(dep => !this.dependencies[dep]);
+    if (missingDeps.length > 0) {
+      // Queue initialization for later
+      return new Promise((resolve, reject) => {
+        this.initializationQueue.push(async () => {
+          try {
+            const result = await initFn();
+            this.dependencies[service] = true;
+            resolve(result);
+          } catch (error) {
+            reject(error);
+          }
+        });
+      });
+    }
+
+    // All dependencies satisfied, proceed with initialization
+    const result = await initFn();
+    this.dependencies[service] = true;
+    return result;
+  }
+
   private async initializeQuantumState(identity: Identity): Promise<void> {
     try {
       const actor = animaActorService.getActor();
@@ -80,7 +178,7 @@ export class QuantumInitService {
         throw new Error('Actor not initialized');
       }
 
-      // Create initial stability checkpoint
+      // Create initial stability checkpoint with minimal default values
       const checkpoint: StabilityCheckpoint = {
         phase: BigInt(Date.now()),
         threshold: 0.7,
@@ -103,7 +201,7 @@ export class QuantumInitService {
       checkpoint.quantum_signature = signature;
       checkpoint.coherence = harmony;
 
-      // Update quantum state
+      // Update quantum state with safe defaults
       const quantumState: Partial<QuantumState> = {
         coherence: harmony,
         dimensional_frequency: 1.0,
@@ -130,38 +228,31 @@ export class QuantumInitService {
   }
 
   private async handleInitializationError(error: Error, identity: Identity): Promise<void> {
-    // Log the error
     await quantumErrorTracker.trackQuantumError({
       errorType: 'INITIALIZATION_ERROR',
       severity: 'CRITICAL',
       context: {
         operation: 'system_initialization',
         principal: identity.getPrincipal().toText(),
-        status: this.status
+        status: this.status,
+        dependencies: this.dependencies
       },
       error
     });
 
-    // Reset status
-    this.status = {
-      walletInitialized: false,
-      quantumInitialized: false,
-      ledgerInitialized: false,
-      actorInitialized: false
-    };
+    // Reset status and dependencies
+    this.reset();
 
-    // Attempt recovery based on which stage failed
+    // Attempt recovery for specific services
     if (!this.status.actorInitialized) {
       console.log('🔄 Attempting actor service recovery...');
       animaActorService.resetActor();
     }
-
     if (!this.status.ledgerInitialized) {
       console.log('🔄 Attempting ledger service recovery...');
       await icpLedgerService.initialize();
     }
-
-    if (!this.status.quantumInitialized) {
+    if (!this.status.quantumInitialized && this.status.actorInitialized) {
       console.log('🔄 Attempting quantum state recovery...');
       await quantumStateService.initializeQuantumField(identity);
     }
@@ -169,6 +260,10 @@ export class QuantumInitService {
 
   getInitializationStatus(): InitializationStatus {
     return { ...this.status };
+  }
+
+  getDependencyStatus(): ServiceDependencies {
+    return { ...this.dependencies };
   }
 
   isFullyInitialized(): boolean {
@@ -182,7 +277,12 @@ export class QuantumInitService {
       ledgerInitialized: false,
       actorInitialized: false
     };
+    Object.keys(this.dependencies).forEach(key => {
+      this.dependencies[key as keyof ServiceDependencies] = false;
+    });
     this.initializationPromise = null;
+    this.initializationQueue = [];
+    this.isProcessingQueue = false;
   }
 }
 

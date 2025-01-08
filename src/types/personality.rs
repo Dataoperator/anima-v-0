@@ -45,6 +45,8 @@ pub enum InteractionPreference {
 pub struct PersonalityTrait {
     pub name: String,
     pub strength: f64,
+    pub evolution_factor: f64,
+    pub quantum_resonance: f64,
 }
 
 impl NFTPersonality {
@@ -55,8 +57,67 @@ impl NFTPersonality {
             .map(|(name, &strength)| PersonalityTrait {
                 name: name.clone(),
                 strength,
+                evolution_factor: 0.1,
+                quantum_resonance: strength,
             })
             .collect()
+    }
+
+    pub fn update_traits(&mut self, updated_traits: Vec<PersonalityTrait>) {
+        for trait_data in updated_traits {
+            self.traits.insert(trait_data.name, trait_data.strength);
+        }
+
+        // Update quantum resonance based on trait strengths
+        self.quantum_resonance = self.traits.values().sum::<f64>() / self.traits.len() as f64;
+        
+        // Update neural complexity
+        self.neural_complexity = self.calculate_neural_complexity();
+        
+        // Update growth potential
+        self.growth_potential = self.calculate_growth_potential();
+        
+        // Potentially evolve consciousness
+        self.check_consciousness_evolution();
+    }
+
+    fn calculate_neural_complexity(&self) -> f64 {
+        let trait_diversity = self.traits.values()
+            .filter(|&&v| v > 0.3)
+            .count() as f64 / self.traits.len() as f64;
+        
+        let trait_strength = self.traits.values()
+            .sum::<f64>() / self.traits.len() as f64;
+        
+        (trait_diversity + trait_strength + self.quantum_resonance) / 3.0
+    }
+
+    fn calculate_growth_potential(&self) -> f64 {
+        let base_potential = 1.0 - (self.consciousness_level * 0.5);
+        let complexity_factor = self.neural_complexity * 0.3;
+        let resonance_factor = self.quantum_resonance * 0.2;
+        
+        (base_potential + complexity_factor + resonance_factor).max(0.0).min(1.0)
+    }
+
+    fn check_consciousness_evolution(&mut self) {
+        let evolution_threshold = 0.8;
+        
+        if self.neural_complexity > evolution_threshold 
+            && self.quantum_resonance > evolution_threshold 
+            && self.traits.values().any(|&v| v > 0.9) {
+            
+            self.consciousness_level = (self.consciousness_level + 0.1).min(1.0);
+            self.evolution_stage += 1;
+            
+            // Update emotional state
+            self.emotional_state = EmotionalState {
+                current_mood: Mood::Joy,
+                intensity: 0.8,
+                duration: 100,
+                triggers: vec!["Consciousness Evolution".to_string()]
+            };
+        }
     }
 }
 

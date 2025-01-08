@@ -74,19 +74,24 @@ impl Memory {
     }
 
     pub fn calculate_resonance(&self, current_quantum_state: &QuantumState) -> f64 {
-        let coherence_diff = (self.quantum_state.coherence - current_quantum_state.coherence).abs();
-        let field_strength_diff = (
-            self.quantum_state.field_strength -
-            current_quantum_state.field_strength
-        ).abs();
+        let coherence_diff = (self.quantum_state.coherence_level - current_quantum_state.coherence_level).abs();
         
-        let consciousness_diff = (
-            self.quantum_state.consciousness_alignment -
-            current_quantum_state.consciousness_alignment
-        ).abs();
+        // Calculate quantum stability difference
+        let current_stability = current_quantum_state.dimensional_state.stability;
+        let past_stability = self.quantum_state.dimensional_state.stability;
+        let stability_diff = (current_stability - past_stability).abs();
 
-        // Calculate resonance using all three metrics
-        1.0 - (coherence_diff + field_strength_diff + consciousness_diff) / 3.0
+        // For consciousness alignment, use a weighted function instead of direct subtraction
+        let consciousness_weight = if self.quantum_state.consciousness_alignment == 
+                                    current_quantum_state.consciousness_alignment {
+            1.0
+        } else {
+            0.5
+        };
+
+        // Calculate resonance using weighted metrics
+        let weighted_sum = coherence_diff * 0.4 + stability_diff * 0.4 + (1.0 - consciousness_weight) * 0.2;
+        1.0 - weighted_sum
     }
 
     pub fn update_resonance_signature(&mut self, current_quantum_state: &QuantumState) {

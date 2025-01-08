@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { useWallet } from './useWallet';
+import { useAuth } from '@/contexts/auth-context';
 import { useQuantum } from './useQuantum';
+import { useSecureSwap } from './useSecureSwap';
+import { animaActorService } from '../services/anima-actor.service';
 
 export interface MintParams {
   coherence: number;
@@ -22,44 +24,44 @@ export interface NFTInfo {
 }
 
 export const useNFTMinting = () => {
-  const { wallet, animaActor } = useWallet();
+  const { principal } = useAuth();
   const { quantumState } = useQuantum();
+  const { swapICPForANIMA, state: paymentState } = useSecureSwap();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nftInfo, setNftInfo] = useState<NFTInfo | null>(null);
 
   const mint = async (params: MintParams) => {
-    if (!wallet?.principal || !animaActor) {
-      throw new Error('Wallet not initialized');
+    if (!principal) {
+      throw new Error('Authentication required');
     }
 
     setIsLoading(true);
     setError(null);
 
     try {
-      // Transfer ANIMA tokens to minting contract
-      const transferResult = await animaActor.icrc1_transfer({
-        from: { owner: wallet.principal, subaccount: [] },
-        to: { owner: Principal.fromText(process.env.NFT_MINTING_ADDRESS || ''), subaccount: [] },
-        amount: params.cost,
-        fee: [],
-        memo: [],
-        created_at_time: []
-      });
-
-      if ('Err' in transferResult) {
-        throw new Error('Token transfer failed');
+      // Step 1: Process ICP payment and get ANIMA tokens
+      const swapResult = await swapICPForANIMA(Number(params.cost) / 100_000_000);
+      if (!swapResult.success) {
+        throw new Error(swapResult.error || 'Payment failed');
       }
 
-      // Generate NFT traits based on quantum coherence
+      // Step 2: Get actor interface
+      const actor = await animaActorService.createActor();
+
+      // Step 3: Generate NFT traits based on quantum coherence
       const traits = generateTraits(params.coherence, params.estimatedPower);
 
-      // Mint NFT with quantum properties
-      const result = await animaActor.mint_nft({
-        owner: wallet.principal,
+      // Step 4: Mint NFT with quantum properties and payment verification
+      const result = await actor.mint_nft({
+        owner: principal,
         quantum_coherence: params.coherence,
         power: params.estimatedPower,
-        traits
+        traits,
+        payment_verification: {
+          payment_id: swapResult.paymentId,
+          transaction_hash: swapResult.txId
+        }
       });
 
       if ('Err' in result) {
@@ -76,6 +78,7 @@ export const useNFTMinting = () => {
 
       setNftInfo(newNFT);
       return newNFT;
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Minting failed');
       throw err;
@@ -85,36 +88,39 @@ export const useNFTMinting = () => {
   };
 
   const evolve = async (tokenId: string) => {
-    if (!wallet?.principal || !animaActor || !quantumState) {
-      throw new Error('Wallet or quantum state not initialized');
+    if (!principal || !quantumState) {
+      throw new Error('System not initialized');
     }
 
     setIsLoading(true);
     setError(null);
 
     try {
-      // Calculate evolution cost based on current power
-      const nft = await animaActor.get_nft(tokenId);
+      const actor = await animaActorService.createActor();
+      
+      // Get NFT info
+      const nft = await actor.get_nft(tokenId);
       if ('Err' in nft) {
         throw new Error('NFT not found');
       }
 
+      // Calculate evolution cost
       const evolutionCost = calculateEvolutionCost(nft.Ok.power);
 
-      // Transfer ANIMA tokens
-      await animaActor.icrc1_transfer({
-        from: { owner: wallet.principal, subaccount: [] },
-        to: { owner: Principal.fromText(process.env.NFT_EVOLUTION_ADDRESS || ''), subaccount: [] },
-        amount: evolutionCost,
-        fee: [],
-        memo: [],
-        created_at_time: []
-      });
+      // Process payment
+      const swapResult = await swapICPForANIMA(Number(evolutionCost) / 100_000_000);
+      if (!swapResult.success) {
+        throw new Error(swapResult.error || 'Payment failed');
+      }
 
-      // Evolve NFT with quantum boost
-      const result = await animaActor.evolve_nft({
+      // Evolve NFT with payment verification
+      const result = await actor.evolve_nft({
         token_id: tokenId,
-        quantum_coherence: quantumState.coherence
+        quantum_coherence: quantumState.coherence,
+        payment_verification: {
+          payment_id: swapResult.paymentId,
+          transaction_hash: swapResult.txId
+        }
       });
 
       if ('Err' in result) {
@@ -122,6 +128,7 @@ export const useNFTMinting = () => {
       }
 
       return result.Ok;
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Evolution failed');
       throw err;
@@ -131,8 +138,8 @@ export const useNFTMinting = () => {
   };
 
   const merge = async (tokenIds: string[]) => {
-    if (!wallet?.principal || !animaActor || !quantumState) {
-      throw new Error('Wallet or quantum state not initialized');
+    if (!principal || !quantumState) {
+      throw new Error('System not initialized');
     }
 
     if (tokenIds.length !== 2) {
@@ -144,21 +151,22 @@ export const useNFTMinting = () => {
 
     try {
       const mergeCost = calculateMergeCost();
+      const actor = await animaActorService.createActor();
 
-      // Transfer ANIMA tokens
-      await animaActor.icrc1_transfer({
-        from: { owner: wallet.principal, subaccount: [] },
-        to: { owner: Principal.fromText(process.env.NFT_MERGE_ADDRESS || ''), subaccount: [] },
-        amount: mergeCost,
-        fee: [],
-        memo: [],
-        created_at_time: []
-      });
+      // Process payment
+      const swapResult = await swapICPForANIMA(Number(mergeCost) / 100_000_000);
+      if (!swapResult.success) {
+        throw new Error(swapResult.error || 'Payment failed');
+      }
 
-      // Merge NFTs with quantum enhancement
-      const result = await animaActor.merge_nfts({
+      // Merge NFTs with payment verification
+      const result = await actor.merge_nfts({
         token_ids: tokenIds,
-        quantum_coherence: quantumState.coherence
+        quantum_coherence: quantumState.coherence,
+        payment_verification: {
+          payment_id: swapResult.paymentId,
+          transaction_hash: swapResult.txId
+        }
       });
 
       if ('Err' in result) {
@@ -166,6 +174,7 @@ export const useNFTMinting = () => {
       }
 
       return result.Ok;
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Merge failed');
       throw err;
@@ -175,8 +184,8 @@ export const useNFTMinting = () => {
   };
 
   const split = async (tokenId: string) => {
-    if (!wallet?.principal || !animaActor || !quantumState) {
-      throw new Error('Wallet or quantum state not initialized');
+    if (!principal || !quantumState) {
+      throw new Error('System not initialized');
     }
 
     setIsLoading(true);
@@ -184,21 +193,22 @@ export const useNFTMinting = () => {
 
     try {
       const splitCost = calculateSplitCost();
+      const actor = await animaActorService.createActor();
 
-      // Transfer ANIMA tokens
-      await animaActor.icrc1_transfer({
-        from: { owner: wallet.principal, subaccount: [] },
-        to: { owner: Principal.fromText(process.env.NFT_SPLIT_ADDRESS || ''), subaccount: [] },
-        amount: splitCost,
-        fee: [],
-        memo: [],
-        created_at_time: []
-      });
+      // Process payment
+      const swapResult = await swapICPForANIMA(Number(splitCost) / 100_000_000);
+      if (!swapResult.success) {
+        throw new Error(swapResult.error || 'Payment failed');
+      }
 
-      // Split NFT with quantum-based trait distribution
-      const result = await animaActor.split_nft({
+      // Split NFT with payment verification
+      const result = await actor.split_nft({
         token_id: tokenId,
-        quantum_coherence: quantumState.coherence
+        quantum_coherence: quantumState.coherence,
+        payment_verification: {
+          payment_id: swapResult.paymentId,
+          transaction_hash: swapResult.txId
+        }
       });
 
       if ('Err' in result) {
@@ -206,6 +216,7 @@ export const useNFTMinting = () => {
       }
 
       return result.Ok;
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Split failed');
       throw err;
@@ -214,6 +225,7 @@ export const useNFTMinting = () => {
     }
   };
 
+  // Helper functions remain the same
   const generateTraits = (coherence: number, power: number) => {
     const quantumBoost = Math.max(0, coherence - 0.5) * 2;
     const baseTraitValue = () => Math.random() * (1 + quantumBoost);
@@ -233,11 +245,11 @@ export const useNFTMinting = () => {
   };
 
   const calculateMergeCost = (): bigint => {
-    return 2000n; // Base merge cost
+    return 2000n;
   };
 
   const calculateSplitCost = (): bigint => {
-    return 1500n; // Base split cost
+    return 1500n;
   };
 
   const getTraitName = (value: number): string => {
@@ -265,8 +277,8 @@ export const useNFTMinting = () => {
     getTraitName,
     getTraitColor,
     nftInfo,
-    isLoading,
-    error
+    isLoading: isLoading || paymentState.status !== 'idle',
+    error: error || paymentState.error
   };
 };
 

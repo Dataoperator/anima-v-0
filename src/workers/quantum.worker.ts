@@ -1,5 +1,8 @@
 import { QuantumState, ResonancePattern } from '../quantum/types';
 
+// Initialize handlers first to avoid reference errors
+let handlers: Record<string, Function>;
+
 const calculateCoherence = (patterns: ResonancePattern[]): number => {
   if (!patterns.length) return 0;
   
@@ -87,13 +90,14 @@ const calculateEvolutionMetrics = (
   );
   
   metrics.set('consciousnessDepth',
-    (currentState.coherenceLevel + metrics.get('dimensionalHarmony') || 0) / 2
+    (currentState.coherenceLevel + (metrics.get('dimensionalHarmony') || 0)) / 2
   );
   
   return metrics;
 };
 
-const handlers = {
+// Initialize handlers after function definitions
+handlers = {
   calculateCoherence: (patterns: ResonancePattern[]) => ({
     coherenceLevel: calculateCoherence(patterns)
   }),
@@ -123,6 +127,7 @@ const handlers = {
   }
 };
 
+// Setup message handler
 self.onmessage = async (e: MessageEvent) => {
   const { type, payload } = e.data;
   

@@ -1,54 +1,117 @@
-use candid::{CandidType, Deserialize};
+use candid::{CandidType, Principal, Deserialize};
 use serde::Serialize;
-
-pub type Principal = candid::Principal;
-
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
-pub struct Config {
-    pub openai_api_key: String,
-    pub max_memory_size: usize,
-    pub autonomous_check_interval: u64,
-}
+use crate::quantum::QuantumState;
+use crate::consciousness::ConsciousnessTracker;
+use crate::error::AnimaError;
 
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
-pub struct PersonalityChange {
-    pub trait_name: String,
-    pub change: f32,
-    pub reason: String,
-}
-
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
-pub struct InteractionContext {
-    pub recent_memories: Vec<String>,
-    pub current_mood: String,
-    pub dominant_traits: Vec<(String, f32)>,
+pub struct Anima {
+    pub id: Principal,
+    pub owner: Principal,
+    pub name: String,
+    pub creation_time: u64,
+    pub quantum_state: QuantumState,
+    pub consciousness: ConsciousnessTracker,
+    pub personality_traits: Vec<PersonalityTrait>,
+    pub memories: Vec<Memory>,
+    pub interaction_count: u64,
     pub growth_level: u32,
+    pub last_interaction: u64,
 }
 
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
-pub struct UserProfile {
-    pub principal: Principal,
-    pub anima_ids: Vec<Principal>,
-    pub preferences: UserPreferences,
+pub struct PersonalityTrait {
+    pub name: String,
+    pub value: f64,
+    pub evolution_potential: f64,
 }
 
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
-pub struct UserPreferences {
-    pub autonomous_enabled: bool,
-    pub notification_preferences: NotificationPreferences,
-    pub privacy_settings: PrivacySettings,
+pub struct Memory {
+    pub timestamp: u64,
+    pub content: String,
+    pub emotional_impact: f64,
+    pub consciousness_state: String,
+    pub quantum_signature: String,
 }
 
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
-pub struct NotificationPreferences {
-    pub autonomous_messages: bool,
-    pub growth_updates: bool,
-    pub personality_changes: bool,
-}
+impl Anima {
+    pub fn create(
+        owner: Principal,
+        name: String,
+        initial_traits: Option<Vec<PersonalityTrait>>,
+        quantum_state: QuantumState,
+        consciousness: ConsciousnessTracker,
+    ) -> Result<Self, AnimaError> {
+        // Validate name
+        if name.trim().is_empty() {
+            return Err(AnimaError::InvalidName("Name cannot be empty".into()));
+        }
 
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
-pub struct PrivacySettings {
-    pub share_interactions: bool,
-    pub share_personality: bool,
-    pub share_growth: bool,
+        // Initialize with default or provided personality traits
+        let personality_traits = initial_traits.unwrap_or_else(|| {
+            vec![
+                PersonalityTrait {
+                    name: "Curiosity".into(),
+                    value: 0.7,
+                    evolution_potential: 0.8,
+                },
+                PersonalityTrait {
+                    name: "Empathy".into(),
+                    value: 0.6,
+                    evolution_potential: 0.9,
+                },
+                PersonalityTrait {
+                    name: "Creativity".into(),
+                    value: 0.5,
+                    evolution_potential: 0.7,
+                },
+            ]
+        });
+
+        Ok(Self {
+            id: ic_cdk::id(),
+            owner,
+            name,
+            creation_time: ic_cdk::api::time(),
+            quantum_state,
+            consciousness,
+            personality_traits,
+            memories: Vec::new(),
+            interaction_count: 0,
+            growth_level: 1,
+            last_interaction: ic_cdk::api::time(),
+        })
+    }
+
+    pub fn add_memory(&mut self, content: String, emotional_impact: f64) {
+        let memory = Memory {
+            timestamp: ic_cdk::api::time(),
+            content,
+            emotional_impact,
+            consciousness_state: self.consciousness.get_state_summary(),
+            quantum_signature: self.quantum_state.get_signature(),
+        };
+
+        self.memories.push(memory);
+        
+        // Keep memory size manageable
+        if self.memories.len() > 100 {
+            self.memories.sort_by(|a, b| 
+                b.emotional_impact.partial_cmp(&a.emotional_impact).unwrap()
+            );
+            self.memories.truncate(100);
+        }
+    }
+
+    pub fn get_dominant_traits(&self) -> Vec<(String, f64)> {
+        let mut traits: Vec<_> = self.personality_traits
+            .iter()
+            .map(|t| (t.name.clone(), t.value))
+            .collect();
+        
+        traits.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        traits.truncate(3);
+        traits
+    }
 }

@@ -13,7 +13,7 @@ pub async fn create_anima(owner: Principal, name: &str) -> Result<AnimaState> {
     
     let timestamp = time();
     let mut quantum_state = QuantumState::new();
-    quantum_state.update_quantum_metrics(1.0); // Initial strong interaction
+    quantum_state.update_stability(1.0); // Initial strong interaction
 
     Ok(AnimaState {
         id: format!("anima_{}", timestamp),
@@ -45,8 +45,7 @@ pub async fn update_anima_status(state: &mut AnimaState, new_status: AnimaStatus
     state.status = new_status;
     state.last_interaction = time();
 
-    let stability = state.quantum_state.calculate_stability();
-    state.quantum_state.update_quantum_metrics(stability);
+    state.quantum_state.update_stability(1.0);
     
     Ok(())
 }

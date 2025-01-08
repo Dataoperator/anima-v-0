@@ -1,112 +1,70 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from './useAuth';
-import { walletService, WalletState, SwapParams } from '@/services/wallet.service';
+import { initializationOrchestrator, InitializationMode } from '../services/initialization-orchestrator';
+import { walletService } from '../services/wallet.service';
+import { WalletState } from '@/types/wallet';
 
-export function useWallet() {
-  const { identity, isAuthenticated } = useAuth();
-  const [walletState, setWalletState] = useState<WalletState>(walletService.getState());
-  const [isInitializing, setIsInitializing] = useState(false);
+export const useWallet = () => {
+  const { principal } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [walletState, setWalletState] = useState<WalletState | null>(null);
 
   const initializeWallet = useCallback(async () => {
-    if (!identity || !isAuthenticated) return;
+    if (!principal) return;
+
+    setIsLoading(true);
+    setError(null);
 
     try {
-      setIsInitializing(true);
-      setError(null);
+      // Ensure wallet features are initialized
+      await initializationOrchestrator.ensureFeatureInitialized(InitializationMode.FULL);
       
-      const state = await walletService.initialize(identity);
+      // Initialize wallet
+      const state = await walletService.getState();
       setWalletState(state);
     } catch (err) {
-      console.error('Failed to initialize wallet:', err);
-      setError(err instanceof Error ? err.message : 'Failed to initialize wallet');
-      throw err;
+      const message = err instanceof Error ? err.message : 'Failed to initialize wallet';
+      setError(message);
+      console.error('Wallet initialization failed:', err);
     } finally {
-      setIsInitializing(false);
+      setIsLoading(false);
     }
-  }, [identity, isAuthenticated]);
+  }, [principal]);
 
   const refreshBalance = useCallback(async () => {
-    if (!identity || !isAuthenticated) return;
+    if (!principal || !walletState?.isInitialized) return;
 
     try {
-      setError(null);
-      await walletService.refreshBalance(identity);
+      await walletService.refreshBalance(principal);
       setWalletState(walletService.getState());
     } catch (err) {
-      console.error('Failed to refresh balance:', err);
-      setError(err instanceof Error ? err.message : 'Failed to refresh balance');
-      throw err;
+      console.error('Balance refresh failed:', err);
     }
-  }, [identity, isAuthenticated]);
+  }, [principal, walletState?.isInitialized]);
 
-  const getSwapRate = useCallback(async (direction: 'icpToAnima' | 'animaToIcp') => {
-    try {
-      return await walletService.getSwapRate(direction);
-    } catch (err) {
-      console.error('Failed to get swap rate:', err);
-      throw err;
-    }
-  }, []);
-
-  const swapTokens = useCallback(async (params: SwapParams) => {
-    if (!identity || !isAuthenticated) {
-      throw new Error('Not authenticated');
-    }
-
-    try {
-      const result = await walletService.swapTokens(params);
-      if (result.success) {
-        await refreshBalance();
-      }
-      return result;
-    } catch (err) {
-      console.error('Failed to swap tokens:', err);
-      throw err;
-    }
-  }, [identity, isAuthenticated, refreshBalance]);
-
-  const mintAnima = useCallback(async (amount: number) => {
-    if (!identity || !isAuthenticated) {
-      throw new Error('Not authenticated');
-    }
-
-    try {
-      const result = await walletService.mintAnima(amount);
-      if (result.success) {
-        await refreshBalance();
-      }
-      return result;
-    } catch (err) {
-      console.error('Failed to mint ANIMA:', err);
-      throw err;
-    }
-  }, [identity, isAuthenticated, refreshBalance]);
-
+  // Only initialize when component that needs wallet mounts
   useEffect(() => {
-    if (isAuthenticated && identity && !walletState.isInitialized) {
-      initializeWallet().catch(console.error);
+    if (principal && !walletState) {
+      initializeWallet();
     }
-  }, [isAuthenticated, identity, walletState.isInitialized, initializeWallet]);
+  }, [principal, walletState, initializeWallet]);
 
-  // Periodic balance refresh
+  // Set up periodic balance refresh
   useEffect(() => {
-    if (!isAuthenticated || !identity) return;
+    if (!walletState?.isInitialized) return;
 
-    const intervalId = setInterval(() => {
-      refreshBalance().catch(console.error);
-    }, 30000); // Every 30 seconds
-
-    return () => clearInterval(intervalId);
-  }, [isAuthenticated, identity, refreshBalance]);
+    const interval = setInterval(refreshBalance, 30000); // Every 30 seconds
+    return () => clearInterval(interval);
+  }, [refreshBalance, walletState?.isInitialized]);
 
   return {
-    ...walletState,
-    isInitializing,
+    wallet: walletState,
+    isLoading,
     error,
     refreshBalance,
-    getSwapRate,
-    swapTokens,
-    mintAnima
+    initialize: initializeWallet
   };
-}
+};
+
+export default useWallet;

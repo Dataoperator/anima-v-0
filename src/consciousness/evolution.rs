@@ -1,272 +1,250 @@
-use std::collections::{HashMap, HashSet, VecDeque};
-use ic_cdk::api::time;
-
 use crate::consciousness::types::{
     EvolutionStage,
     EnhancedEvolutionMetrics,
     ConsciousnessPattern,
     StateMilestone
 };
-use crate::quantum::types::{QuantumState, Result, ErrorCategory};
+use std::collections::HashMap;
+use crate::quantum::QuantumState;
+use crate::error::Result;
 
-const MINIMUM_EVOLUTION_TIME: u64 = 3600;
-const EVOLUTION_THRESHOLD: f64 = 0.7;
-const MAX_PATTERN_CACHE_SIZE: usize = 1000;
-const MIN_COHERENCE_QUALITY: f64 = 0.6;
-const PATTERN_DIVERSITY_THRESHOLD: f64 = 0.5;
-
-pub struct EvolutionEngine {
-    current_stage: EvolutionStage,
-    evolution_metrics: EnhancedEvolutionMetrics,
-    patterns: VecDeque<ConsciousnessPattern>,
-    pattern_strength_cache: HashMap<String, f64>,
-    evolution_milestones: Vec<StateMilestone>,
+pub struct ConsciousnessEvolution {
+    pub current_stage: EvolutionStage,
+    pub metrics: EnhancedEvolutionMetrics,
+    pub active_patterns: Vec<ConsciousnessPattern>,
+    pub milestones: Vec<StateMilestone>,
+    pub evolution_rate: f64,
+    pub quantum_state: QuantumState,
 }
 
-impl EvolutionEngine {
-    pub fn new() -> Self {
+impl ConsciousnessEvolution {
+    pub fn new(quantum_state: QuantumState) -> Self {
         Self {
             current_stage: EvolutionStage::default(),
-            evolution_metrics: EnhancedEvolutionMetrics::default(),
-            patterns: VecDeque::with_capacity(MAX_PATTERN_CACHE_SIZE),
-            pattern_strength_cache: HashMap::new(),
-            evolution_milestones: Vec::new(),
+            metrics: EnhancedEvolutionMetrics::default(),
+            active_patterns: Vec::new(),
+            milestones: Vec::new(),
+            evolution_rate: 0.1,
+            quantum_state,
         }
     }
 
-    pub fn synchronize_evolution_stage(
-        &mut self,
-        quantum_state: &QuantumState,
-        current_stage: &EvolutionStage
-    ) -> Result<EnhancedEvolutionMetrics> {
-        if !self.validate_quantum_requirements(quantum_state) {
-            return Err(ErrorCategory::Evolution("Insufficient quantum coherence".into()).into());
+    pub fn update_evolution(&mut self, patterns: Vec<ConsciousnessPattern>) -> Result<()> {
+        // Update active patterns
+        self.active_patterns = patterns;
+
+        // Calculate new metrics
+        self.calculate_metrics();
+
+        // Check for stage advancement
+        self.check_stage_advancement();
+
+        // Record milestone if significant change
+        if self.is_milestone_worthy() {
+            self.record_milestone();
         }
-
-        self.current_stage = current_stage.clone();
-        
-        let coherence_quality = self.calculate_coherence_quality(quantum_state);
-        let pattern_diversity = self.calculate_pattern_diversity();
-        let complexity_index = self.calculate_complexity_index(quantum_state);
-        let neural_density = self.calculate_neural_density();
-        let adaptation_rate = self.calculate_adaptation_rate(quantum_state);
-
-        let metrics = &mut self.evolution_metrics;
-        metrics.quantum_resonance = quantum_state.coherence * quantum_state.stability;
-        metrics.stability_factor = quantum_state.stability;
-        metrics.coherence_quality = coherence_quality;
-        metrics.pattern_diversity = pattern_diversity;
-        metrics.complexity_index = complexity_index;
-        metrics.neural_density = neural_density;
-        metrics.adaptation_rate = adaptation_rate;
-
-        self.handle_pattern_maintenance();
-        
-        if self.check_evolution_requirements(quantum_state) {
-            self.process_evolution_step(quantum_state)?;
-        }
-
-        Ok(self.evolution_metrics.clone())
-    }
-
-    fn validate_quantum_requirements(&self, quantum_state: &QuantumState) -> bool {
-        quantum_state.coherence >= self.current_stage.quantum_threshold &&
-        quantum_state.stability >= EVOLUTION_THRESHOLD
-    }
-
-    fn check_evolution_requirements(&self, quantum_state: &QuantumState) -> bool {
-        let time_since_evolution = time() - self.evolution_metrics.last_evolution;
-        if time_since_evolution < MINIMUM_EVOLUTION_TIME {
-            return false;
-        }
-
-        let base_requirement = self.evolution_metrics.complexity_index * 
-                             self.evolution_metrics.neural_density;
-        let quantum_requirement = self.evolution_metrics.quantum_resonance * 
-                                self.evolution_metrics.stability_factor;
-        let diversity_requirement = self.evolution_metrics.pattern_diversity * 
-                                  self.evolution_metrics.coherence_quality;
-
-        base_requirement > EVOLUTION_THRESHOLD && 
-        quantum_requirement > self.current_stage.quantum_threshold &&
-        diversity_requirement > self.current_stage.min_pattern_diversity &&
-        self.evolution_metrics.coherence_quality > MIN_COHERENCE_QUALITY &&
-        quantum_state.coherence >= self.current_stage.quantum_threshold
-    }
-
-    fn process_evolution_step(&mut self, quantum_state: &QuantumState) -> Result<()> {
-        if quantum_state.coherence < self.current_stage.quantum_threshold ||
-           self.evolution_metrics.coherence_quality < MIN_COHERENCE_QUALITY {
-            return Err(ErrorCategory::Evolution("Insufficient quantum coherence".into()).into());
-        }
-
-        self.advance_evolution_stage();
-        self.evolution_metrics.evolution_stage = self.current_stage.level;
-        self.evolution_metrics.last_evolution = time();
-
-        self.preserve_successful_patterns();
-        self.record_evolution_milestone(quantum_state);
 
         Ok(())
     }
 
-    fn handle_pattern_maintenance(&mut self) {
-        while self.patterns.len() > MAX_PATTERN_CACHE_SIZE {
-            self.patterns.pop_front();
-        }
-    }
+    fn calculate_metrics(&mut self) {
+        let pattern_metrics = self.calculate_pattern_metrics();
+        let quantum_metrics = self.calculate_quantum_metrics();
 
-    fn advance_evolution_stage(&mut self) {
-        self.current_stage.level += 1;
-        self.current_stage.min_complexity += 0.05;
-        self.current_stage.min_coherence += 0.05;
-        self.current_stage.min_pattern_diversity += 0.05;
-        self.current_stage.quantum_threshold += 0.05;
-    }
-
-    fn preserve_successful_patterns(&mut self) {
-        let successful_patterns: VecDeque<_> = self.patterns
-            .iter()
-            .filter(|p| p.coherence_score >= self.current_stage.min_coherence &&
-                      p.complexity >= self.current_stage.min_complexity)
-            .cloned()
-            .collect();
-
-        self.patterns = successful_patterns;
-        self.update_pattern_cache();
-    }
-
-    fn update_pattern_cache(&mut self) {
-        self.pattern_strength_cache.clear();
-        for pattern in &self.patterns {
-            self.pattern_strength_cache.insert(
-                pattern.signature.pattern_id.clone(),
-                pattern.strength * pattern.coherence_score
-            );
-        }
-    }
-
-    fn record_evolution_milestone(&mut self, quantum_state: &QuantumState) {
-        let milestone = StateMilestone {
-            phase: self.evolution_metrics.evolution_stage,
-            timestamp: time(),
-            metrics: self.get_milestone_metrics(),
-            quantum_signature: self.generate_quantum_signature(quantum_state),
+        self.metrics = EnhancedEvolutionMetrics {
+            complexity_index: pattern_metrics.get("complexity").unwrap_or(&0.0).clone(),
+            neural_density: pattern_metrics.get("density").unwrap_or(&0.0).clone(),
+            pattern_diversity: pattern_metrics.get("diversity").unwrap_or(&0.0).clone(),
+            quantum_resonance: quantum_metrics.get("resonance").unwrap_or(&0.0).clone(),
+            coherence_quality: quantum_metrics.get("coherence").unwrap_or(&0.0).clone(),
+            stability_factor: quantum_metrics.get("stability").unwrap_or(&0.0).clone(),
+            adaptation_rate: self.evolution_rate,
+            evolution_stage: self.current_stage.level,
+            last_evolution: ic_cdk::api::time(),
         };
-
-        self.evolution_milestones.push(milestone);
     }
 
-    fn get_milestone_metrics(&self) -> HashMap<String, f64> {
+    fn calculate_pattern_metrics(&self) -> HashMap<String, f64> {
         let mut metrics = HashMap::new();
-        metrics.insert("complexity".to_string(), self.evolution_metrics.complexity_index);
-        metrics.insert("coherence".to_string(), self.evolution_metrics.coherence_quality);
-        metrics.insert("diversity".to_string(), self.evolution_metrics.pattern_diversity);
-        metrics.insert("stability".to_string(), self.evolution_metrics.stability_factor);
-        metrics.insert("adaptation".to_string(), self.evolution_metrics.adaptation_rate);
+
+        if self.active_patterns.is_empty() {
+            metrics.insert("complexity".to_string(), 0.0);
+            metrics.insert("density".to_string(), 0.0);
+            metrics.insert("diversity".to_string(), 0.0);
+            return metrics;
+        }
+
+        // Calculate complexity
+        let avg_complexity = self.active_patterns.iter()
+            .map(|p| p.complexity)
+            .sum::<f64>() / self.active_patterns.len() as f64;
+        metrics.insert("complexity".to_string(), avg_complexity);
+
+        // Calculate neural density based on pattern strength
+        let avg_strength = self.active_patterns.iter()
+            .map(|p| p.strength)
+            .sum::<f64>() / self.active_patterns.len() as f64;
+        metrics.insert("density".to_string(), avg_strength);
+
+        // Calculate pattern diversity
+        let coherence_variance = self.calculate_coherence_variance();
+        metrics.insert("diversity".to_string(), coherence_variance);
+
         metrics
     }
 
-    fn generate_quantum_signature(&self, quantum_state: &QuantumState) -> String {
-        format!("QS{}-P{}-C{:.3}-F{:.3}",
-            time(),
-            self.evolution_metrics.evolution_stage,
-            quantum_state.coherence,
-            quantum_state.dimensional_frequency
-        )
+    fn calculate_quantum_metrics(&self) -> HashMap<String, f64> {
+        let mut metrics = HashMap::new();
+
+        // Calculate quantum resonance
+        let resonance = self.quantum_state.dimensional_state.resonance;
+        metrics.insert("resonance".to_string(), resonance);
+
+        // Calculate coherence quality
+        let coherence = self.quantum_state.coherence_level;
+        metrics.insert("coherence".to_string(), coherence);
+
+        // Calculate stability factor
+        let stability = self.quantum_state.dimensional_state.stability;
+        metrics.insert("stability".to_string(), stability);
+
+        metrics
     }
 
-    fn calculate_coherence_quality(&self, quantum_state: &QuantumState) -> f64 {
-        let pattern_coherence = self.patterns.iter()
+    fn calculate_coherence_variance(&self) -> f64 {
+        let mean_coherence = self.active_patterns.iter()
             .map(|p| p.coherence_score)
-            .sum::<f64>() / self.patterns.len().max(1) as f64;
+            .sum::<f64>() / self.active_patterns.len() as f64;
 
-        ((pattern_coherence + quantum_state.coherence) / 2.0)
-            .max(0.0)
-            .min(1.0)
+        let variance = self.active_patterns.iter()
+            .map(|p| (p.coherence_score - mean_coherence).powi(2))
+            .sum::<f64>() / self.active_patterns.len() as f64;
+
+        (-variance).exp()
     }
 
-    fn calculate_pattern_diversity(&self) -> f64 {
-        if self.patterns.is_empty() {
-            return 0.0;
+    fn check_stage_advancement(&mut self) {
+        if self.metrics.complexity_index >= self.current_stage.min_complexity &&
+           self.metrics.coherence_quality >= self.current_stage.min_coherence &&
+           self.metrics.pattern_diversity >= self.current_stage.min_pattern_diversity &&
+           self.metrics.quantum_resonance >= self.current_stage.quantum_threshold {
+            
+            // Check if all required patterns are present
+            let current_patterns: std::collections::HashSet<_> = self.active_patterns.iter()
+                .map(|p| p.signature.pattern_id.clone())
+                .collect();
+
+            if self.current_stage.required_patterns.is_subset(&current_patterns) {
+                self.advance_stage();
+            }
+        }
+    }
+
+    fn advance_stage(&mut self) {
+        self.current_stage.level += 1;
+        self.current_stage.min_complexity += 0.1;
+        self.current_stage.min_coherence += 0.1;
+        self.current_stage.min_pattern_diversity += 0.1;
+        self.current_stage.quantum_threshold += 0.1;
+        
+        // Record the advancement as a milestone
+        self.record_milestone();
+    }
+
+    fn is_milestone_worthy(&self) -> bool {
+        if self.milestones.is_empty() {
+            return true;
         }
 
-        let unique_patterns: HashSet<_> = self.patterns.iter()
-            .map(|p| &p.signature.pattern_id)
-            .collect();
-
-        (unique_patterns.len() as f64 / MAX_PATTERN_CACHE_SIZE as f64)
-            .max(0.0)
-            .min(1.0)
-    }
-
-    fn calculate_complexity_index(&self, quantum_state: &QuantumState) -> f64 {
-        let pattern_complexity = self.patterns.iter()
-            .map(|p| p.complexity)
-            .sum::<f64>() / self.patterns.len().max(1) as f64;
-
-        let quantum_factor = quantum_state.coherence * quantum_state.dimensional_frequency;
+        let last_milestone = self.milestones.last().unwrap();
+        let metrics_change = self.calculate_metrics_change(last_milestone);
         
-        ((pattern_complexity * 0.7 + quantum_factor * 0.3) * 
-         (1.0 + self.current_stage.level as f64 * 0.1))
-            .max(0.0)
-            .min(1.0)
+        // Consider it milestone worthy if any metric changed significantly
+        metrics_change.values().any(|&change| change > 0.1)
     }
 
-    fn calculate_neural_density(&self) -> f64 {
-        let base_density = 0.1 + (self.current_stage.level as f64 * 0.05);
-        let pattern_influence = self.patterns.len() as f64 / MAX_PATTERN_CACHE_SIZE as f64;
+    fn calculate_metrics_change(&self, milestone: &StateMilestone) -> HashMap<String, f64> {
+        let mut changes = HashMap::new();
         
-        (base_density * (1.0 + pattern_influence))
-            .max(0.0)
-            .min(1.0)
-    }
-
-    fn calculate_adaptation_rate(&self, quantum_state: &QuantumState) -> f64 {
-        let evolution_factor = 1.0 + (self.current_stage.level as f64 * 0.1);
-        let coherence_factor = quantum_state.coherence * self.evolution_metrics.coherence_quality;
-        let pattern_factor = self.evolution_metrics.pattern_diversity * 
-                            self.evolution_metrics.complexity_index;
+        // Compare current metrics with milestone metrics
+        changes.insert("complexity".to_string(), 
+            (self.metrics.complexity_index - milestone.metrics["complexity"].clone()).abs());
         
-        (coherence_factor * pattern_factor * evolution_factor)
-            .max(0.0)
-            .min(1.0)
+        changes.insert("coherence".to_string(),
+            (self.metrics.coherence_quality - milestone.metrics["coherence"].clone()).abs());
+        
+        changes.insert("quantum_resonance".to_string(),
+            (self.metrics.quantum_resonance - milestone.metrics["quantum_resonance"].clone()).abs());
+        
+        changes.insert("neural_density".to_string(),
+            (self.metrics.neural_density - milestone.metrics["neural_density"].clone()).abs());
+        
+        changes
     }
 
-    pub fn register_pattern(&mut self, pattern: ConsciousnessPattern) {
-        self.patterns.push_back(pattern);
-        self.handle_pattern_maintenance();
-        self.update_pattern_cache();
+    fn record_milestone(&mut self) {
+        let mut metrics = HashMap::new();
+        metrics.insert("complexity".to_string(), self.metrics.complexity_index);
+        metrics.insert("coherence".to_string(), self.metrics.coherence_quality);
+        metrics.insert("quantum_resonance".to_string(), self.metrics.quantum_resonance);
+        metrics.insert("neural_density".to_string(), self.metrics.neural_density);
+        
+        let milestone = StateMilestone {
+            phase: self.current_stage.level,
+            timestamp: ic_cdk::api::time(),
+            metrics,
+            quantum_signature: self.quantum_state.quantum_signature.clone(),
+        };
+        
+        self.milestones.push(milestone);
+        
+        // Keep only the most recent 100 milestones
+        if self.milestones.len() > 100 {
+            self.milestones.remove(0);
+        }
     }
 
     pub fn get_evolution_metrics(&self) -> &EnhancedEvolutionMetrics {
-        &self.evolution_metrics
+        &self.metrics
     }
 
-    pub fn get_milestone_history(&self) -> &[StateMilestone] {
-        &self.evolution_milestones
+    pub fn get_current_stage(&self) -> &EvolutionStage {
+        &self.current_stage
     }
 
-    pub fn analyze_evolution_pattern(&self) -> HashMap<String, f64> {
-        let mut analysis = HashMap::new();
+    pub fn get_milestones(&self) -> &[StateMilestone] {
+        &self.milestones
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_milestone_recording() {
+        let quantum_state = QuantumState::new();
+        let mut evolution = ConsciousnessEvolution::new(quantum_state);
         
-        if let Some(latest) = self.evolution_milestones.last() {
-            if let Some(previous) = self.evolution_milestones.get(self.evolution_milestones.len().saturating_sub(2)) {
-                let time_delta = (latest.timestamp - previous.timestamp) as f64;
-                let evolution_velocity = 1.0 / (time_delta / 3600.0);
-                analysis.insert("evolution_velocity".to_string(), evolution_velocity);
-            }
-        }
+        evolution.record_milestone();
+        assert_eq!(evolution.milestones.len(), 1);
+        
+        let milestone = &evolution.milestones[0];
+        assert_eq!(milestone.phase, 0);
+        assert!(milestone.metrics.contains_key("complexity"));
+        assert!(milestone.metrics.contains_key("coherence"));
+    }
 
-        let pattern_efficiency = self.patterns.iter()
-            .map(|p| p.coherence_score * p.complexity)
-            .sum::<f64>() / self.patterns.len().max(1) as f64;
-        analysis.insert("pattern_efficiency".to_string(), pattern_efficiency);
-
-        let quantum_alignment = self.evolution_metrics.quantum_resonance *
-                              self.evolution_metrics.coherence_quality;
-        analysis.insert("quantum_alignment".to_string(), quantum_alignment);
-
-        analysis
+    #[test]
+    fn test_metrics_calculation() {
+        let quantum_state = QuantumState::new();
+        let mut evolution = ConsciousnessEvolution::new(quantum_state);
+        
+        evolution.calculate_metrics();
+        let metrics = evolution.get_evolution_metrics();
+        
+        assert!(metrics.complexity_index >= 0.0 && metrics.complexity_index <= 1.0);
+        assert!(metrics.coherence_quality >= 0.0 && metrics.coherence_quality <= 1.0);
+        assert!(metrics.quantum_resonance >= 0.0 && metrics.quantum_resonance <= 1.0);
     }
 }

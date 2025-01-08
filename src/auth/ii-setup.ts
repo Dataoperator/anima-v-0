@@ -3,6 +3,16 @@ import { II_CONFIG, II_ERRORS, validateIIResponse } from '../ii-config';
 
 export async function initializeII() {
   try {
+    // Attempt to recover existing session first
+    const existingClient = await AuthClient.create();
+    if (await existingClient.isAuthenticated()) {
+      return {
+        authClient: existingClient,
+        isAuthenticated: true
+      };
+    }
+
+    // If no valid session, create new client
     const authClient = await AuthClient.create({
       ...II_CONFIG.createOptions,
       idleOptions: II_CONFIG.idleOptions
@@ -24,6 +34,8 @@ export async function handleIILogin(authClient) {
       ...II_CONFIG.loginOptions,
       onSuccess: () => {
         const identity = authClient.getIdentity();
+        // Store session data for recovery
+        localStorage.setItem('lastLoginTime', Date.now().toString());
         return {
           identity,
           principal: identity.getPrincipal()
@@ -47,6 +59,7 @@ export async function handleIILogin(authClient) {
 export async function handleIILogout(authClient) {
   try {
     await authClient.logout();
+    localStorage.removeItem('lastLoginTime');
     return true;
   } catch (error) {
     console.error('II Logout error:', error);

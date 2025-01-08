@@ -1,0 +1,56 @@
+Files to Clean:
+
+1. src/quantum/consciousness_bridge.rs
+   - Remove unused imports: StabilityStatus, Result, ErrorCategory
+   - Remove unused constants: MAX_HISTORY_SIZE, etc.
+   - Consider implementing or removing ConsciousnessBridge
+
+2. src/consciousness/evolution.rs
+   - Remove unused imports: HashMap, HashSet, VecDeque, time
+   - Remove unused types: ConsciousnessPattern, etc.
+   - Clean up unused imports in quantum and error modules
+
+3. src/quantum/dimensional_state.rs
+   - Implement or remove unused methods: update_stability, etc.
+
+4. src/quantum/types.rs
+   - Implement or remove unused methods: new, update_quantum_metrics
+
+5. src/actions/ directory
+   - Remove unused traits: ActionHandler, StateModifier
+   - Clean up unused constants in user.rs
+   - Remove or implement unused functions
+
+6. src/personality/ directory
+   - Remove or implement PersonalityEngine
+   - Clean up unused methods
+
+7. src/analytics/mod.rs
+   - Remove unused trait AnalyticsProcessor
+
+8. src/ai/ directory
+   - Clean up unused functions: analyze_interaction, get_response
+   - Remove unused template functions
+
+9. src/growth/mod.rs
+   - Clean up unused methods in GrowthSystem
+
+10. src/payments/quantum_payment_processor.rs
+    - Remove or implement QuantumPaymentProcessor
+
+11. src/memory/mod.rs
+    - Clean up unused Memory implementation methods
+
+12. src/neural/ directory
+    - Clean up unused NeuralSignature methods
+    - Implement or remove QuantumBridge trait methods
+
+13. src/lib.rs
+    - Fix snake_case naming convention issue: lastUpdate -> last_update
+
+Action Items:
+1. Run cargo fix to apply automatic fixes:
+   cargo fix --lib -p anima
+
+2. Create bat script to clean up unused code:
+   find . -type f -name "*.rs" -exec sed -i '/^use.*unused/d' {} \;

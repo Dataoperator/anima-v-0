@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -7,15 +7,28 @@ import {
   RefreshCw,
   Lightbulb,
   Heart,
-  Dna
+  Dna,
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react';
+import { useTransactionMonitor } from '@/hooks/useTransactionMonitor';
+import { useQuantumState } from '@/hooks/useQuantumState';
 import TraitPreview from './TraitPreview';
+
+const RECOVERY_ATTEMPTS = 3;
+const RECOVERY_DELAY = 5000;
 
 const AnimaCreationForm = ({ onSuccess }) => {
   const { actor, identity } = useAuth();
+  const { monitorTransaction } = useTransactionMonitor();
+  const { initializeQuantumState, getQuantumMetrics } = useQuantumState();
+  
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [recoveryAttempt, setRecoveryAttempt] = useState(0);
+  const [mintingPhase, setMintingPhase] = useState('idle');
+  const [transactionId, setTransactionId] = useState(null);
   const [traits, setTraits] = useState({
     curiosity: 0.7,
     emotional_stability: 0.5,
@@ -32,7 +45,7 @@ const AnimaCreationForm = ({ onSuccess }) => {
     empathy: "Capability to understand and share feelings"
   };
 
-  const regenerateTraits = () => {
+  const regenerateTraits = useCallback(() => {
     setTraits({
       curiosity: 0.5 + Math.random() * 0.4,
       emotional_stability: 0.5 + Math.random() * 0.4,
@@ -40,7 +53,46 @@ const AnimaCreationForm = ({ onSuccess }) => {
       creativity: 0.5 + Math.random() * 0.4,
       empathy: 0.5 + Math.random() * 0.4
     });
-  };
+  }, []);
+
+  const handleRecovery = useCallback(async () => {
+    if (recoveryAttempt >= RECOVERY_ATTEMPTS) {
+      setError('Maximum recovery attempts reached. Please try again.');
+      setIsLoading(false);
+      return false;
+    }
+
+    setRecoveryAttempt(prev => prev + 1);
+    setMintingPhase('recovering');
+
+    // Wait before retry
+    await new Promise(resolve => setTimeout(resolve, RECOVERY_DELAY));
+
+    try {
+      // Check if transaction was actually successful
+      if (transactionId) {
+        const status = await actor.check_transaction_status(transactionId);
+        if (status === 'completed') {
+          setMintingPhase('completed');
+          onSuccess?.();
+          return true;
+        }
+      }
+
+      // Re-initialize quantum state
+      await initializeQuantumState();
+      const metrics = await getQuantumMetrics();
+      
+      if (metrics.coherenceLevel < 0.7) {
+        throw new Error('Quantum coherence too low for minting');
+      }
+
+      return false; // Continue with new attempt
+    } catch (error) {
+      console.error('Recovery attempt failed:', error);
+      return false;
+    }
+  }, [recoveryAttempt, transactionId, actor, initializeQuantumState, getQuantumMetrics, onSuccess]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,17 +100,86 @@ const AnimaCreationForm = ({ onSuccess }) => {
 
     setIsLoading(true);
     setError(null);
+    setMintingPhase('initializing');
 
     try {
-      const result = await actor.create_anima(name.trim());
+      // Initialize quantum state
+      await initializeQuantumState();
+      const metrics = await getQuantumMetrics();
+      
+      if (metrics.coherenceLevel < 0.7) {
+        throw new Error('Quantum coherence too low. Please try again.');
+      }
+
+      setMintingPhase('minting');
+      const result = await actor.create_anima({
+        name: name.trim(),
+        traits,
+        quantum_signature: metrics.signature
+      });
+
       if ('Err' in result) {
         throw new Error(result.Err);
       }
+
+      // Monitor transaction
+      setTransactionId(result.Ok.transaction_id);
+      const success = await monitorTransaction(result.Ok.transaction_id);
+
+      if (!success) {
+        throw new Error('Transaction failed');
+      }
+
+      setMintingPhase('completed');
       onSuccess?.();
+
     } catch (err) {
+      console.error('Minting error:', err);
       setError(err.message || 'Failed to create your Anima');
+      
+      // Attempt recovery
+      const recovered = await handleRecovery();
+      if (!recovered) {
+        setMintingPhase('failed');
+      }
     } finally {
-      setIsLoading(false);
+      if (mintingPhase !== 'completed') {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const getStatusMessage = () => {
+    switch (mintingPhase) {
+      case 'initializing':
+        return 'Initializing quantum state...';
+      case 'minting':
+        return 'Creating your Living NFT...';
+      case 'recovering':
+        return `Recovery attempt ${recoveryAttempt}/${RECOVERY_ATTEMPTS}...`;
+      case 'completed':
+        return 'Successfully created!';
+      case 'failed':
+        return 'Creation failed';
+      default:
+        return '';
+    }
+  };
+
+  const getStatusIcon = () => {
+    switch (mintingPhase) {
+      case 'completed':
+        return <CheckCircle2 className="w-5 h-5 text-green-400" />;
+      case 'failed':
+        return <AlertCircle className="w-5 h-5 text-red-400" />;
+      default:
+        return (
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-5 h-5 border-2 border-current border-t-transparent rounded-full"
+          />
+        );
     }
   };
 
@@ -97,6 +218,7 @@ const AnimaCreationForm = ({ onSuccess }) => {
         </motion.div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Name Input */}
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-indigo-300 mb-2">
               Name your Anima
@@ -106,12 +228,14 @@ const AnimaCreationForm = ({ onSuccess }) => {
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white/5 text-white rounded-lg px-4 py-2 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent backdrop-blur"
+              className="w-full bg-white/5 text-white rounded-lg px-4 py-2 border border-white/10 
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent backdrop-blur"
               placeholder="Enter a name..."
               disabled={isLoading}
             />
           </div>
 
+          {/* Traits Section */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="text-sm font-medium text-indigo-300">Initial Traits</h3>
@@ -120,7 +244,9 @@ const AnimaCreationForm = ({ onSuccess }) => {
                 onClick={regenerateTraits}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="text-indigo-400 hover:text-indigo-300 text-sm flex items-center space-x-1 bg-indigo-500/10 px-3 py-1 rounded-lg"
+                disabled={isLoading}
+                className="text-indigo-400 hover:text-indigo-300 text-sm flex items-center space-x-1 
+                         bg-indigo-500/10 px-3 py-1 rounded-lg disabled:opacity-50"
               >
                 <RefreshCw className="w-4 h-4" />
                 <span>Regenerate</span>
@@ -161,6 +287,7 @@ const AnimaCreationForm = ({ onSuccess }) => {
             </div>
           </div>
 
+          {/* Status & Error Messages */}
           <AnimatePresence mode="wait">
             {error && (
               <motion.div
@@ -172,26 +299,38 @@ const AnimaCreationForm = ({ onSuccess }) => {
                 {error}
               </motion.div>
             )}
+            {mintingPhase !== 'idle' && !error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className={`p-4 rounded-lg ${
+                  mintingPhase === 'completed' 
+                    ? 'bg-green-900/30 border-green-500/50 text-green-200'
+                    : 'bg-indigo-900/30 border-indigo-500/50 text-indigo-200'
+                } border text-sm flex items-center space-x-2`}
+              >
+                {getStatusIcon()}
+                <span>{getStatusMessage()}</span>
+              </motion.div>
+            )}
           </AnimatePresence>
 
+          {/* Submit Button */}
           <motion.button
             type="submit"
             disabled={!name.trim() || isLoading || !actor}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium
-                     hover:from-indigo-700 hover:to-purple-700 transition-all duration-200
+            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg 
+                     font-medium hover:from-indigo-700 hover:to-purple-700 transition-all duration-200
                      disabled:opacity-50 disabled:cursor-not-allowed
                      flex items-center justify-center space-x-2"
           >
             {isLoading ? (
               <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                />
-                <span>Creating your Living NFT...</span>
+                {getStatusIcon()}
+                <span>{getStatusMessage()}</span>
               </>
             ) : (
               <>

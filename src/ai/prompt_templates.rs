@@ -28,7 +28,7 @@ fn calculate_temporal_weight(
     metrics: &QuantumMetrics
 ) -> f64 {
     let base_weight = (total - index) as f64 / total as f64;
-    let quantum_factor = metrics.coherence * 0.7 + metrics.dimensional_frequency * 0.3;
+    let quantum_factor = metrics.coherence_level * 0.7 + metrics.dimensional_resonance * 0.3;
     base_weight * quantum_factor
 }
 
@@ -39,16 +39,20 @@ pub fn generate_response_prompt(
     context: Option<&[String]>
 ) -> String {
     let metrics = QuantumMetrics {
-        coherence: quantum_state.coherence,
-        dimensional_frequency: quantum_state.dimensional_frequency,
-        field_strength: quantum_state.field_strength,
-        resonance: quantum_state.resonance,
-        stability: quantum_state.stability,
+        coherence_level: quantum_state.coherence_level,
+        stability_index: quantum_state.dimensional_state.stability,
+        entanglement_strength: quantum_state.quantum_entanglement,
+        pattern_integrity: quantum_state.pattern_coherence,
+        evolution_progress: quantum_state.emergence_factors.evolution_velocity,
+        temporal_alignment: quantum_state.temporal_stability,
+        dimensional_resonance: quantum_state.dimensional_state.resonance,
+        consciousness_depth: quantum_state.emergence_factors.consciousness_depth,
+        quantum_harmony: quantum_state.dimensional_state.quantum_alignment,
+        emergence_potential: quantum_state.emergence_factors.evolution_velocity,
     };
     
     let temporal_context = process_temporal_context(context, &metrics);
     
-    // Get active traits and format them
     let active_traits = personality.get_active_traits();
     let traits_display = if active_traits.is_empty() {
         "No active traits".to_string()
@@ -70,7 +74,7 @@ pub fn generate_response_prompt(
          Context:\n{}\n\
          Input: {}\n\
          === END FRAMEWORK ===",
-        quantum_state.coherence,
+        quantum_state.coherence_level,
         traits_display,
         personality.interaction_preference,
         personality.consciousness_level,
