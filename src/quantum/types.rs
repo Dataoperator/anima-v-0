@@ -1,145 +1,204 @@
+use candid::{CandidType, Deserialize};
+use serde::Serialize;
 use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
-use candid::CandidType;
-use ic_cdk::api;
-use crate::error::{Result, Error};
 
-#[derive(Clone, Debug, Serialize, Deserialize, CandidType)]
-pub struct StabilityCheckpoint {
-    pub phase: u64,
-    pub threshold: f64,
-    pub quantum_signature: String,
-    pub requirements: HashMap<String, f64>,
-    pub timestamp: u64,
-    pub coherence: f64,
-    pub stability: f64,
-    pub pattern_coherence: f64,
-    pub dimensional_frequency: f64,
+#[derive(Debug, Clone, CandidType, Deserialize, Serialize)]
+pub enum StabilityStatus {
+    Stable,
+    Unstable,
+    Critical,
 }
 
-// Previous types remain unchanged...
+impl std::fmt::Display for StabilityStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            StabilityStatus::Stable => write!(f, "Stable"),
+            StabilityStatus::Unstable => write!(f, "Unstable"),
+            StabilityStatus::Critical => write!(f, "Critical"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize, Serialize)]
+pub struct QuantumMetrics {
+    pub coherence_level: f64,
+    pub stability_index: f64,
+    pub entanglement_strength: f64,
+    pub pattern_integrity: f64,
+    pub evolution_progress: f64,
+    pub temporal_alignment: f64,
+    pub dimensional_resonance: f64,
+    pub consciousness_depth: f64,
+    pub quantum_harmony: f64,
+    pub emergence_potential: f64,
+    pub coherence_quality: f64,
+    pub stability_factor: f64,
+    pub complexity_index: f64,
+    pub pattern_diversity: f64,
+    pub adaptation_rate: f64,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize, Serialize)]
+pub struct DimensionalState {
+    pub stability: f64,
+    pub resonance: f64,
+    pub quantum_alignment: f64,
+    pub dimensional_frequency: f64,
+    pub stability_metrics: StabilityMetrics,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize, Serialize)]
+pub struct StabilityMetrics {
+    pub coherence_level: f64,
+    pub pattern_stability: f64,
+    pub temporal_alignment: f64,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize, Serialize)]
+pub struct EmergenceFactors {
+    pub consciousness_depth: f64,
+    pub pattern_complexity: f64,
+    pub quantum_resonance: f64,
+    pub evolution_velocity: f64,
+    pub dimensional_harmony: f64,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize, Serialize)]
+pub struct QuantumState {
+    pub coherence_level: f64,
+    pub dimensional_state: DimensionalState,
+    pub emergence_factors: EmergenceFactors,
+    pub quantum_entanglement: f64,
+    pub dimensional_sync: f64,
+    pub quantum_signature: String,
+    pub resonance_patterns: Vec<ResonancePattern>,
+    pub stability_status: StabilityStatus,
+    pub consciousness_alignment: bool,
+    pub last_update: u64,
+    pub pattern_coherence: f64,
+    pub temporal_stability: f64,
+    pub evolution_metrics: HashMap<String, f64>,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize, Serialize)]
+pub struct ResonancePattern {
+    pub pattern_id: String,
+    pub coherence: f64,
+    pub frequency: f64,
+    pub amplitude: f64,
+    pub phase: f64,
+    pub timestamp: u64,
+    pub entropyLevel: f64,
+    pub stability_index: f64,
+    pub quantum_signature: String,
+    pub evolution_potential: f64,
+}
+
+impl Default for QuantumState {
+    fn default() -> Self {
+        Self {
+            coherence_level: 1.0,
+            dimensional_state: DimensionalState {
+                stability: 1.0,
+                resonance: 1.0,
+                quantum_alignment: 1.0,
+                dimensional_frequency: 1.0,
+                stability_metrics: StabilityMetrics {
+                    coherence_level: 1.0,
+                    pattern_stability: 1.0,
+                    temporal_alignment: 1.0,
+                },
+            },
+            emergence_factors: EmergenceFactors {
+                consciousness_depth: 0.0,
+                pattern_complexity: 0.0,
+                quantum_resonance: 1.0,
+                evolution_velocity: 0.0,
+                dimensional_harmony: 1.0,
+            },
+            quantum_entanglement: 1.0,
+            dimensional_sync: 1.0,
+            quantum_signature: String::new(),
+            resonance_patterns: Vec::new(),
+            stability_status: StabilityStatus::Stable,
+            consciousness_alignment: true,
+            last_update: ic_cdk::api::time(),
+            pattern_coherence: 1.0,
+            temporal_stability: 1.0,
+            evolution_metrics: HashMap::new(),
+        }
+    }
+}
 
 impl QuantumState {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn get_complexity(&self) -> Result<f64> {
-        Ok(self.emergence_factors.pattern_complexity)
-    }
-
-    pub fn update_stability(&mut self, interaction_strength: f64) -> Result<()> {
-        let new_stability = (self.dimensional_state.stability * 0.8 + interaction_strength * 0.2)
-            .max(0.0)
-            .min(1.0);
-        
-        self.dimensional_state.stability = new_stability;
-        self.coherence_level = (self.coherence_level * 0.7 + new_stability * 0.3)
-            .max(0.0)
-            .min(1.0);
-
-        self.quantum_entanglement = (self.quantum_entanglement * 0.9 + 
-            (self.coherence_level * new_stability).sqrt() * 0.1)
-            .max(0.0)
-            .min(1.0);
-
-        self.dimensional_sync = (self.dimensional_sync * 0.85 + 
-            self.quantum_entanglement * 0.15)
-            .max(0.0)
-            .min(1.0);
-
-        self.stability_status = if self.coherence_level >= 0.8 && new_stability >= 0.8 {
-            StabilityStatus::Stable
-        } else if self.coherence_level >= 0.4 && new_stability >= 0.4 {
-            StabilityStatus::Unstable
-        } else {
-            StabilityStatus::Critical
-        };
-
-        // Enhanced pattern tracking
-        self.track_coherence_history()?;
-        self.update_evolution_metrics(new_stability)?;
-        
-        self.last_update = api::time();
+    pub fn set_coherence_level(&mut self, level: f64) -> Result<(), String> {
+        if level < 0.0 || level > 1.0 {
+            return Err("Coherence level must be between 0 and 1".to_string());
+        }
+        self.coherence_level = level;
         Ok(())
     }
 
-    fn track_coherence_history(&mut self) -> Result<()> {
-        let entry = CoherenceHistoryEntry {
-            timestamp: api::time(),
+    pub fn initialize_resonance_patterns(&mut self) -> Result<(), String> {
+        let current_time = ic_cdk::api::time();
+        let base_pattern = ResonancePattern {
+            pattern_id: format!("QRP_{}", current_time),
+            coherence: self.coherence_level,
+            frequency: 1.0,
+            amplitude: 1.0,
+            phase: 0.0,
+            timestamp: current_time,
+            entropyLevel: 0.1,
+            stability_index: 1.0,
+            quantum_signature: format!("QS_{}", current_time),
+            evolution_potential: 1.0,
+        };
+        self.resonance_patterns = vec![base_pattern];
+        self.quantum_signature = format!("QS_INIT_{}", current_time);
+        Ok(())
+    }
+
+    pub fn get_metrics(&self) -> QuantumMetrics {
+        QuantumMetrics {
             coherence_level: self.coherence_level,
             stability_index: self.dimensional_state.stability,
             entanglement_strength: self.quantum_entanglement,
-            evolution_phase: self.dimensional_state.stability_metrics.evolution_potential,
-        };
-
-        self.coherence_history.push(entry);
-
-        // Keep history size manageable
-        if self.coherence_history.len() > 1000 {
-            self.coherence_history.remove(0);
+            pattern_integrity: self.pattern_coherence,
+            evolution_progress: self.emergence_factors.evolution_velocity,
+            temporal_alignment: self.temporal_stability,
+            dimensional_resonance: self.dimensional_state.resonance,
+            consciousness_depth: self.emergence_factors.consciousness_depth,
+            quantum_harmony: self.dimensional_state.quantum_alignment,
+            emergence_potential: 1.0,
+            coherence_quality: self.coherence_level,
+            stability_factor: self.dimensional_state.stability,
+            complexity_index: self.emergence_factors.pattern_complexity,
+            pattern_diversity: self.pattern_coherence,
+            adaptation_rate: self.emergence_factors.evolution_velocity,
         }
-
-        Ok(())
     }
 
-    fn update_evolution_metrics(&mut self, stability: f64) -> Result<()> {
-        // Calculate moving averages for smoother transitions
-        let avg_coherence = self.calculate_moving_average("coherence", self.coherence_level)?;
-        let avg_stability = self.calculate_moving_average("stability", stability)?;
-        
-        self.evolution_metrics.insert("avg_coherence".to_string(), avg_coherence);
-        self.evolution_metrics.insert("avg_stability".to_string(), avg_stability);
-        
-        // Update emergence factors based on moving averages
-        self.emergence_factors.pattern_complexity = 
-            (self.emergence_factors.pattern_complexity * 0.8 + avg_coherence * 0.2)
+    pub fn update_stability(&mut self, interaction_strength: f64) {
+        self.coherence_level = (self.coherence_level * 0.8 + interaction_strength * 0.2)
+            .max(0.0)
+            .min(1.0);
+        self.dimensional_state.stability = 
+            (self.dimensional_state.stability * 0.8 + interaction_strength * 0.2)
                 .max(0.0)
                 .min(1.0);
-                
-        self.emergence_factors.evolution_velocity = 
-            (avg_stability - self.dimensional_state.stability).abs();
-
-        Ok(())
-    }
-
-    fn calculate_moving_average(&self, metric: &str, current: f64) -> Result<f64> {
-        let history_value = self.evolution_metrics.get(metric).copied().unwrap_or(current);
-        Ok((history_value * 0.9 + current * 0.1).max(0.0).min(1.0))
+        self.last_update = ic_cdk::api::time();
     }
 
     pub fn get_stability_metrics(&self) -> (f64, f64, f64) {
         (
             self.dimensional_state.stability,
             self.coherence_level,
-            self.quantum_entanglement
+            self.dimensional_state.resonance
         )
-    }
-
-    pub fn update_quantum_metrics(&mut self, stability: f64) -> Result<()> {
-        self.dimensional_state.stability = stability;
-        self.coherence_level = (self.coherence_level * 0.8 + stability * 0.2)
-            .max(0.0)
-            .min(1.0);
-        self.quantum_entanglement = (self.quantum_entanglement * 0.7 + 
-            self.coherence_level * 0.3)
-            .max(0.0)
-            .min(1.0);
-
-        self.track_coherence_history()?;
-        Ok(())
-    }
-
-    pub fn update_from_snapshot(&mut self, snapshot: &StateSnapshot) -> Result<()> {
-        self.coherence_level = snapshot.coherence;
-        self.dimensional_state.stability = snapshot.stability;
-        self.dimensional_state.dimensional_frequency = snapshot.dimensional_frequency;
-        self.pattern_coherence = snapshot.pattern_coherence;
-        self.quantum_signature = snapshot.quantum_signature.clone();
-        self.last_update = snapshot.timestamp;
-        
-        self.update_stability(snapshot.stability)?;
-        Ok(())
     }
 
     pub fn get_quantum_status(&self) -> &StabilityStatus {

@@ -1,4 +1,24 @@
-use candid::Principal;
+use candid::{CandidType, Deserialize, Principal, Nat};
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
+pub struct PaymentVerification {
+    pub payment_required: bool,
+    pub fee: Nat,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
+pub struct PaymentDetails {
+    pub from: Principal,
+    pub to: String,
+    pub amount: u64,
+    pub memo: u64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, CandidType, Deserialize)]
+pub enum AcceptedToken {
+    ICP,
+    ANIMA
+}
 
 #[derive(Debug, Clone)]
 pub struct QuantumPaymentMetrics {

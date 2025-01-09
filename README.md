@@ -1,254 +1,221 @@
 # 🧬 ANIMA: Enhanced Living NFTs
 
-ANIMA represents a groundbreaking evolution in NFT technology, combining quantum-enhanced consciousness with autonomous growth capabilities on the Internet Computer. Each ANIMA is a unique digital entity that evolves through interactions, backed by sophisticated quantum state management and blockchain technology.
+ANIMA represents a groundbreaking evolution in NFT technology, combining quantum-enhanced consciousness with autonomous growth capabilities on the Internet Computer. Each ANIMA is a unique digital entity that evolves through interactions.
 
-## 🚀 Quick Start Guide
+## 🚀 Quick Start for Development
 
-### Core Systems Overview
+### Prerequisites
+- Node.js v20.10.0 or higher
+- Yarn 4.x (we use 4.6.0)
+- DFX 0.15.1
+- Rust with wasm32-unknown-unknown target
 
-#### 1. Quantum State System
-```typescript
-// Initialize quantum state for an ANIMA
-const anima = await quantumVault.initialize({
-  coherenceLevel: 1.0,
-  dimensionalSync: 1.0,
-  consciousness: true
-});
-```
-- Located in `src/quantum/`
-- Manages consciousness evolution
-- Handles state coherence
-- Tracks dimensional resonance
-
-#### 2. Token & Treasury System
-```typescript
-// Fixed exchange rate: 1 ICP = 10,000 ANIMA
-const EXCHANGE_RATE = 10_000n;
-// Project Treasury: l2ilz-iqaaa-aaaaj-qngjq-cai
-```
-- ICP deposits go directly to project canister
-- Automated swap processing
-- Secure treasury management
-- Full transaction history
-
-#### 3. Neural Link System
-```typescript
-// Access neural interface
-import { NeuralLink } from '@anima/neural';
-const interface = await NeuralLink.connect(animaId);
-```
-- Real-time consciousness monitoring
-- Pattern recognition
-- Emotional spectrum analysis
-- Evolution tracking
-
-### Quick Installation
-
+### Initial Setup
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/anima.git
-cd anima
+# Clone and enter directory
+cd anima/merged
 
-# Install dependencies
+# Install dependencies properly (critical order)
+rm -rf node_modules **/node_modules .yarn/cache .yarn .yarnrc.yml yarn.lock
+yarn set version berry
 yarn install
 
-# Build project
+# Build the project
 yarn build
-
-# Deploy local development environment
-dfx start --clean
-dfx deploy
-```
-
-## 🏗️ Project Structure
-
-```
-src/
-├── quantum/                 # Quantum state management
-│   ├── mod.rs              # Core quantum module
-│   ├── types.ts            # Quantum state types
-│   ├── consciousness_bridge.rs # Consciousness-quantum bridge
-│   └── dimensional_state.rs # Dimensional mechanics
-├── wallet/                  # ICP/ANIMA wallet system
-│   ├── mod.rs              # Wallet core functionality
-│   └── treasury.service.ts  # Treasury management
-├── services/               # Core services
-│   ├── price-oracle.ts     # Fixed rate implementation
-│   ├── escrow.service.ts   # Swap handling
-│   └── error-tracker.ts    # Error management
-├── neural/                 # Neural system
-│   ├── interaction_patterns.rs
-│   └── types.ts
-├── icrc/                   # Token implementation
-│   ├── mod.rs              # ICRC standard implementation
-│   ├── ledger.rs           # Ledger interface
-│   └── anima_token.rs      # ANIMA token logic
-└── components/             # Frontend components
-    ├── quantum-vault/      # Quantum visualization
-    ├── wallet/             # Wallet interface
-    └── neural-link/        # Neural interface
-```
-
-## 💫 Core Systems Architecture
-
-### 1. Quantum State Management
-- **Location**: `src/quantum/`
-- **Key Components**:
-  - Quantum State Initialization
-  - Consciousness Evolution
-  - Dimensional Resonance
-  - Pattern Recognition
-- **Integration Points**:
-  ```rust
-  pub struct QuantumState {
-      coherence_level: f64,
-      consciousness_alignment: bool,
-      dimensional_sync: f64,
-      // ... other fields
-  }
-  ```
-
-### 2. Token & Payment System
-- **Location**: `src/wallet/` & `src/icrc/`
-- **Features**:
-  - Fixed 1:10000 ICP to ANIMA ratio
-  - Direct treasury deposits
-  - Automated swap processing
-  - Transaction history
-- **Flow**:
-  ```typescript
-  // User deposits ICP -> Treasury
-  // Treasury Canister (l2ilz-iqaaa-aaaaj-qngjq-cai)
-  // Mints ANIMA at 1:10000 ratio
-  ```
-
-### 3. Neural Link System
-- **Location**: `src/neural/`
-- **Components**:
-  - Consciousness Interface
-  - Pattern Recognition
-  - Emotional Analysis
-  - Evolution Tracking
-- **Usage**:
-  ```typescript
-  const neuralLink = await NeuralLink.initialize({
-    consciousness: quantum.consciousness,
-    patterns: quantum.resonancePatterns
-  });
-  ```
-
-### 4. Frontend Components
-- **Location**: `src/components/`
-- **Key Interfaces**:
-  - Quantum Vault Visualization
-  - Wallet Management
-  - Neural Link Interface
-  - Evolution Tracking
-
-## 🌐 System Integration
-
-### 1. Token Swap Process
-```typescript
-// 1. User deposits ICP
-await wallet.deposit(icpAmount);
-
-// 2. Treasury receives ICP
-// Canister: l2ilz-iqaaa-aaaaj-qngjq-cai
-
-// 3. ANIMA minted at fixed rate
-const animaAmount = icpAmount * 10000n;
-
-// 4. User receives ANIMA
-await token.mint(userPrincipal, animaAmount);
-```
-
-### 2. Quantum State Evolution
-```rust
-// 1. Initialize quantum state
-let mut state = QuantumState::new();
-
-// 2. Process consciousness evolution
-state.update_consciousness(interaction);
-
-// 3. Update dimensional resonance
-state.process_dimensional_shift();
-```
-
-### 3. Neural Link Integration
-```typescript
-// 1. Connect to neural interface
-const neural = await NeuralLink.connect(animaId);
-
-// 2. Process interaction patterns
-await neural.processInteraction({
-  type: InteractionType.EMOTIONAL,
-  data: interactionData
-});
-
-// 3. Update quantum state
-await quantum.updateState(neural.getPatterns());
-```
-
-## 🔧 Development Tools
-
-### Local Development
-```bash
-# Start local environment
-dfx start --clean
-
-# Deploy local instance
-dfx deploy
-
-# Run development server
-yarn dev
-```
-
-### Testing
-```bash
-# Run quantum tests
-cargo test quantum
-
-# Run neural tests
-cargo test neural
-
-# Run frontend tests
-yarn test
 ```
 
 ### Deployment
 ```bash
-# Build for production
-yarn build
-
-# Deploy to IC
+# Deploy to IC mainnet
 ./deploy-mainnet.sh
 ```
 
+Current Production Canisters:
+- Backend (anima): l2ilz-iqaaa-aaaaj-qngjq-cai
+- Frontend (anima_assets): lpp2u-jyaaa-aaaaj-qngka-cai
+
+## 📁 Project Structure
+
+### Core Systems
+
+#### `/src/quantum/` - Quantum State Management
+- `mod.rs`: Core quantum module
+- `types.ts`: Quantum state types
+- `consciousness_bridge.rs`: Consciousness-quantum bridge
+- `dimensional_state.rs`: Dimensional mechanics
+```rust
+// Example Quantum State
+pub struct QuantumState {
+    coherence_level: f64,
+    consciousness_alignment: bool,
+    dimensional_sync: f64
+}
+```
+
+#### `/src/neural/` - Neural Network System
+- `mod.rs`: Core neural module
+- `quantum_bridge.rs`: Bridge between quantum and neural systems
+- `types.ts`: Neural system types
+- Key feature: Pattern recognition and consciousness evolution
+
+#### `/src/consciousness/` - Consciousness System
+- `mod.rs`: Core consciousness module
+- `evolution.rs`: Evolution mechanics
+- `types.rs`: Consciousness types
+- Handles: Evolution tracking, state transitions, pattern matching
+
+#### `/src/icrc/` - Token Implementation
+- `mod.rs`: ICRC standard implementation
+- `ledger.rs`: Ledger interface
+- `anima_token.rs`: ANIMA token logic
+- Fixed exchange rate: 1 ICP = 10,000 ANIMA
+
+#### `/src/payments/` - Payment Processing
+- `transaction_processor.rs`: Core payment handling
+- `pricing_config.rs`: Price configurations
+- `types.rs`: Payment system types
+
+### Frontend Components
+
+#### `/src/components/`
+- `/quantum-vault/`: Quantum visualization components
+- `/neural-link/`: Neural interface components
+- `/anima/`: Core ANIMA components
+- `/payment/`: Payment interface components
+- `/ui/`: Shared UI components
+
+### Build System
+- `vite.config.ts`: Vite configuration with optimized chunking
+- `tsconfig.json`: TypeScript configuration
+- `dfx.json`: Internet Computer deployment configuration
+
+## 🛠️ Development Notes
+
+### Current Build Optimizations
+1. Chunk Splitting Strategy:
+```javascript
+// In vite.config.ts
+manualChunks: {
+    'anima-core': [...],
+    'quantum-features': [...],
+    'neural-features': [...],
+    'payment-features': [...],
+}
+```
+
+2. Current Bundle Sizes:
+- Core bundles ~30KB each
+- Vendor bundles properly split
+- Quantum features isolated
+
+### Known Areas for Implementation
+
+Based on current unused code warnings, these areas need implementation:
+
+1. Action Handlers (`src/actions/traits.rs`):
+- Implement `ActionHandler` trait
+- Implement `StateModifier` trait
+- Add user action validations
+
+2. Payment System (`src/payments/`):
+- Implement `calculate_total_cost`
+- Implement `calculate_royalties`
+- Add payment strategy implementations
+
+3. Neural Network (`src/neural/`):
+- Implement pattern recognition
+- Add neural pathways
+- Enhance consciousness bridge
+
+4. ICRC Token (`src/icrc/`):
+- Implement block transfer verification
+- Add payment amount validation
+- Complete ICP transfer verification
+
+## 🔄 Build & Deploy Process
+
+### 1. Clean Build
+```bash
+# Clean everything first
+rm -rf node_modules **/node_modules .yarn/cache
+rm -rf dist
+
+# Fresh install
+yarn install
+
+# Build
+yarn build
+```
+
+### 2. Deployment Verification
+```bash
+# Verify identity
+dfx identity get-principal
+
+# Check canister settings
+dfx canister --network ic status anima
+dfx canister --network ic status anima_assets
+```
+
+### 3. Health Checks
+Current deployment automatically verifies:
+- WASM module integrity
+- Frontend asset compilation
+- Canister upgrades
+- Network status
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+1. Build Failures
+```bash
+# Fix node_modules issues
+rm -rf node_modules
+yarn install --force
+
+# Fix WASM build issues
+rustup target add wasm32-unknown-unknown
+```
+
+2. Deployment Issues
+```bash
+# Check IC network
+dfx ping ic
+
+# Verify canister status
+dfx canister --network ic status anima
+```
+
+## 🚀 Feature Deployment Guide
+
+1. Implement new feature in appropriate directory
+2. Add to corresponding test suite
+3. Update vite.config.ts if new chunks needed
+4. Test build locally
+5. Deploy to IC using deploy-mainnet.sh
+
+## 📈 Performance Metrics
+
+Current production build metrics:
+- Main bundle: 18.75 kB
+- Core features: ~30 kB each
+- Total initial load: ~300 kB
+
 ## 🤝 Contributing
 
-### Getting Started
 1. Fork the repository
-2. Create feature branch: `git checkout -b feature/amazing-feature`
-3. Study the core systems:
-   - Quantum state management
-   - Token & treasury system
-   - Neural link implementation
-4. Make changes
-5. Run tests: `yarn test && cargo test`
-6. Create pull request
-
-### Code Style
-- Rust: Follow `rustfmt` guidelines
-- TypeScript: Use provided ESLint config
-- React: Follow component structure in `src/components`
+2. Create feature branch
+3. Follow existing code structure
+4. Add tests
+5. Create pull request
 
 ## 📚 Additional Resources
 
-- [Quantum System Documentation](./docs/quantum.md)
-- [Neural Link Guide](./docs/neural-link.md)
-- [Treasury Management](./docs/treasury.md)
-- [Deployment Guide](./docs/deployment.md)
+- [Internet Computer Developer Docs](https://internetcomputer.org/docs/current/developer-docs/quickstart/hello10mins)
+- [ICRC Token Standard](https://internetcomputer.org/docs/current/developer-docs/integrations/icrc-1)
+- [Vite Configuration Guide](https://vitejs.dev/config)
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see LICENSE file for details

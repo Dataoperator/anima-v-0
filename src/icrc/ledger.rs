@@ -1,41 +1,11 @@
-use candid::{CandidType, Nat, Principal};
-use serde::{Deserialize, Serialize};
-use ic_cdk::api::{call, time};
+use candid::{Nat, Principal};
+use ic_cdk::api::call::CallResult;
+use crate::error::{Result, AnimaError};
+use crate::icrc::types::TransactionDetails;
 
-#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
-pub struct Account {
-    pub owner: Principal,
-    pub subaccount: Option<[u8; 32]>,
-}
+pub const LEDGER_CANISTER_ID: &str = "ryjl3-tyaaa-aaaaa-aaaba-cai";
 
-#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
-pub struct TransferArg {
-    pub from_subaccount: Option<[u8; 32]>,
-    pub to: Account,
-    pub amount: Nat,
-    pub fee: Option<Nat>,
-    pub memo: Option<[u8; 32]>,
-    pub created_at_time: Option<u64>,
-}
-
-#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
-pub struct TransferError {
-    pub kind: TransferErrorKind,
-}
-
-#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
-pub enum TransferErrorKind {
-    BadFee { expected_fee: Nat },
-    BadBurn { min_burn_amount: Nat },
-    InsufficientFunds { balance: Nat },
-    TooOld,
-    CreatedInFuture { ledger_time: u64 },
-    TemporarilyUnavailable,
-    Duplicate { duplicate_of: Nat },
-    GenericError { error_code: Nat, message: String },
-}
-
-#[derive(CandidType, Debug)]
+#[derive(Debug)]
 pub enum PaymentVerificationError {
     InsufficientFunds,
     TransferFailed(String),
@@ -43,62 +13,87 @@ pub enum PaymentVerificationError {
     Timeout,
 }
 
-pub const LEDGER_CANISTER_ID: &str = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+impl From<PaymentVerificationError> for AnimaError {
+    fn from(e: PaymentVerificationError) -> Self {
+        match e {
+            PaymentVerificationError::InsufficientFunds => AnimaError::InsufficientBalance,
+            PaymentVerificationError::TransferFailed(msg) => AnimaError::PaymentFailed(msg),
+            PaymentVerificationError::InvalidAmount => AnimaError::InvalidAmount("Invalid payment amount".to_string()),
+            PaymentVerificationError::Timeout => AnimaError::PaymentTimeout,
+        }
+    }
+}
 
 pub async fn verify_icp_transfer(
     from: Principal,
-    amount: Nat,
-    block_height: Nat,
-    timeout_secs: u64,
-) -> Result<bool, PaymentVerificationError> {
-    let start_time = time();
-    let timeout = start_time + (timeout_secs * 1_000_000_000);
+    amount: &Nat,
+    block_height: Option<u64>,
+) -> Result<bool> {
+    validate_payment_amount(amount, &get_required_amount())?;
 
-    while time() < timeout {
-        let args = TransferArg {
-            from_subaccount: None,
-            to: Account {
-                owner: from,
-                subaccount: None,
-            },
-            amount,
-            fee: None,
-            memo: None,
-            created_at_time: Some(time()),
-        };
+    let block = match block_height {
+        Some(h) => h,
+        None => {
+            let ledger = Principal::from_text(LEDGER_CANISTER_ID)
+                .map_err(|_| AnimaError::InvalidCanister)?;
 
-        match call(Principal::from_text(LEDGER_CANISTER_ID).unwrap(), "icrc1_transfer", (args,)).await {
-            Ok(result) => {
-                match result {
-                    Ok(_) => return Ok(true),
-                    Err(e) => {
-                        match e.kind {
-                            TransferErrorKind::InsufficientFunds { .. } => {
-                                return Err(PaymentVerificationError::InsufficientFunds)
-                            }
-                            _ => continue,
-                        }
-                    }
-                }
-            }
-            Err(e) => {
-                if time() >= timeout {
-                    return Err(PaymentVerificationError::Timeout);
-                }
-                // Wait briefly before retrying
-                std::thread::sleep(std::time::Duration::from_secs(1));
-                continue;
+            let result: CallResult<(Nat,)> = ic_cdk::api::call::call(
+                ledger,
+                "icrc1_total_supply",
+                (),
+            ).await;
+
+            match result {
+                Ok((height,)) => {
+                    let height_str = height.to_string();
+                    height_str.parse::<u64>()
+                        .map_err(|_| AnimaError::PaymentFailed("Invalid block height".to_string()))?
+                },
+                Err((_, msg)) => return Err(AnimaError::PaymentFailed(msg))
             }
         }
+    };
+
+    let transfer_valid = verify_block_transfer(block, from, amount).await?;
+
+    if !transfer_valid {
+        return Err(AnimaError::PaymentValidationFailed);
     }
 
-    Err(PaymentVerificationError::Timeout)
+    Ok(true)
 }
 
-pub fn validate_payment_amount(amount: Nat, required_amount: Nat) -> Result<(), PaymentVerificationError> {
+async fn verify_block_transfer(block: u64, from: Principal, expected_amount: &Nat) -> Result<bool> {
+    let ledger = Principal::from_text(LEDGER_CANISTER_ID)
+        .map_err(|_| AnimaError::InvalidCanister)?;
+
+    let args = (block,);
+    let result: CallResult<(TransactionDetails,)> = ic_cdk::api::call::call(
+        ledger, 
+        "get_transaction",
+        args,
+    ).await;
+
+    match result {
+        Ok((tx,)) => {
+            if tx.from == from && tx.amount == *expected_amount {
+                Ok(true)
+            } else {
+                Ok(false)
+            }
+        },
+        Err((_, msg)) => Err(AnimaError::PaymentFailed(msg))
+    }
+}
+
+pub fn validate_payment_amount(amount: &Nat, required_amount: &Nat) -> Result<()> {
     if amount < required_amount {
-        Err(PaymentVerificationError::InvalidAmount)
+        Err(PaymentVerificationError::InsufficientFunds.into())
     } else {
         Ok(())
     }
+}
+
+fn get_required_amount() -> Nat {
+    Nat::from(100_000_000u64) // 1 ICP in e8s
 }

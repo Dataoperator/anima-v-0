@@ -1,15 +1,9 @@
 import React, { Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { ErrorBoundary } from '../error-boundary/ErrorBoundary';
 import { AuthProvider } from '@/contexts/auth-context';
 import { PaymentProvider } from '@/contexts/PaymentContext';
 import { Motion, quantum } from '@/providers/MotionProvider';
-
-// Lazy-loaded components
-const LandingPage = React.lazy(() => import('@/components/pages/LandingPage'));
-const GenesisPage = React.lazy(() => import('@/components/pages/GenesisPage'));
-const AnimaPage = React.lazy(() => import('@/components/pages/AnimaPage'));
-const AdminPage = React.lazy(() => import('@/components/admin/AdminManagement'));
 
 const LoadingFallback = () => (
   <Motion.div
@@ -25,7 +19,7 @@ const LoadingFallback = () => (
   </Motion.div>
 );
 
-const RootLayout: React.FC = () => {
+export const RootLayout: React.FC = () => {
   return (
     <ErrorBoundary>
       <AuthProvider>
@@ -38,13 +32,7 @@ const RootLayout: React.FC = () => {
               exit="exit"
               variants={quantum}
             >
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/genesis" element={<GenesisPage />} />
-                <Route path="/anima/:id" element={<AnimaPage />} />
-                <Route path="/admin" element={<AdminPage />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+              <Outlet />
             </Motion.div>
           </Suspense>
         </PaymentProvider>

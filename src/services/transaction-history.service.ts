@@ -1,6 +1,11 @@
 import { Identity } from "@dfinity/agent";
 import { animaActorService } from "./anima-actor.service";
 import { Principal } from "@dfinity/principal";
+import { icpLedgerService } from "./icp-ledger";
+import type { ActorMethod } from '@dfinity/agent';
+
+// Define our own Result type since it's not exported from candid
+type Result<T, E> = { Ok: T } | { Err: E };
 
 export interface Transaction {
   id: string;
@@ -15,11 +20,36 @@ export interface Transaction {
   error?: string;
 }
 
+interface LedgerTransaction {
+  id: bigint;
+  amount: {
+    e8s: bigint;
+  };
+  timestamp: bigint;
+  status: string;
+  from?: Principal;
+  to?: Principal;
+  quantum_signature?: string;
+  memo?: string;
+}
+
+interface LedgerTransactionsResponse {
+  transactions: LedgerTransaction[];
+  balance: {
+    e8s: bigint;
+  };
+}
+
+type GetTransactionsResult = Result<
+  LedgerTransactionsResponse,
+  string
+>;
+
 export class TransactionHistoryService {
   private static instance: TransactionHistoryService;
   private transactions: Transaction[] = [];
   private listeners: Set<(transactions: Transaction[]) => void> = new Set();
-  private pollingInterval: NodeJS.Timer | null = null;
+  private pollingInterval: number | null = null;
 
   private constructor() {}
 
@@ -45,54 +75,49 @@ export class TransactionHistoryService {
 
   async startPolling(identity: Identity) {
     if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
+      window.clearInterval(this.pollingInterval);
     }
 
     // Initial fetch
     await this.fetchTransactions(identity);
 
     // Poll every 5 seconds
-    this.pollingInterval = setInterval(() => {
+    this.pollingInterval = window.setInterval(() => {
       this.fetchTransactions(identity).catch(console.error);
     }, 5000);
   }
 
   stopPolling() {
     if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
+      window.clearInterval(this.pollingInterval);
       this.pollingInterval = null;
     }
   }
 
   private async fetchTransactions(identity: Identity) {
     try {
-      const actor = animaActorService.createActor(identity);
-      const principal = identity.getPrincipal();
+      const actor = await icpLedgerService.getActor();
+      if (!actor) {
+        throw new Error('ICP Ledger service not initialized');
+      }
 
-      // Get account identifier for the principal
+      const principal = identity.getPrincipal();
       const accountId = this.principalToAccountIdentifier(principal);
 
-      // Fetch transactions from the ledger canister
-      // Note: This is a simplified example. You'll need to implement the actual ledger canister calls
-      const result = await actor.get_transactions({
+      // Get account transactions from the actor
+      const result = await (actor.get_account_balance_and_transactions as ActorMethod<[{
+        account: string;
+        start: bigint;
+        length: bigint;
+      }], GetTransactionsResult>)({
         account: accountId,
-        offset: 0n,
-        limit: 50n
+        start: 0n,
+        length: 50n
       });
 
       if ('Ok' in result) {
-        this.transactions = result.Ok.transactions.map(tx => ({
-          id: tx.id.toString(),
-          type: this.determineTransactionType(tx),
-          amount: tx.amount,
-          timestamp: tx.timestamp,
-          status: tx.status,
-          from: tx.from?.toString(),
-          to: tx.to?.toString(),
-          quantum_signature: tx.quantum_signature,
-          memo: tx.memo?.toString()
-        }));
-
+        this.transactions = this.transformTransactions(result.Ok.transactions);
+        await this.enrichTransactionsWithQuantumData(identity);
         this.notifyListeners();
       }
     } catch (error) {
@@ -100,14 +125,51 @@ export class TransactionHistoryService {
     }
   }
 
-  private determineTransactionType(tx: any): Transaction['type'] {
-    // Implement logic to determine transaction type based on your canister's transaction data
+  private transformTransactions(rawTransactions: LedgerTransaction[]): Transaction[] {
+    return rawTransactions.map(tx => ({
+      id: tx.id.toString(),
+      type: this.determineTransactionType({
+        from: tx.from ? Principal.fromText(tx.from.toString()) : undefined,
+        to: tx.to ? Principal.fromText(tx.to.toString()) : undefined
+      }),
+      amount: tx.amount.e8s,
+      timestamp: tx.timestamp || BigInt(Date.now()),
+      status: tx.status as Transaction['status'] || 'completed',
+      from: tx.from?.toString(),
+      to: tx.to?.toString(),
+      memo: tx.memo?.toString(),
+    }));
+  }
+
+  private async enrichTransactionsWithQuantumData(identity: Identity) {
+    try {
+      const animaActor = animaActorService.createActor(identity);
+      const quantumStatus = await animaActor.get_quantum_status();
+      
+      if ('Ok' in quantumStatus) {
+        // Update quantum signatures for relevant transactions
+        this.transactions = this.transactions.map(tx => {
+          if (tx.type === 'mint') {
+            return {
+              ...tx,
+              quantum_signature: quantumStatus.Ok
+            };
+          }
+          return tx;
+        });
+      }
+    } catch (error) {
+      console.error('Failed to enrich transactions with quantum data:', error);
+    }
+  }
+
+  private determineTransactionType(tx: { from?: Principal; to?: Principal }): Transaction['type'] {
+    if (!tx.from) return 'mint';
+    if (!tx.to) return 'burn';
     return 'transfer';
   }
 
   private principalToAccountIdentifier(principal: Principal): string {
-    // Implement the conversion from principal to account identifier
-    // This is a placeholder. You'll need to implement the actual conversion logic
     return principal.toText();
   }
 

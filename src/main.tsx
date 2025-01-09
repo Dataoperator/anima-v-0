@@ -1,10 +1,7 @@
 import './polyfills';  // Must be first import
 import React, { Suspense } from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import './index.css';
-
-// Ensure React is initialized globally for context creation
-window.React = React;
 
 // Import components directly to avoid lazy loading issues
 import App from './App';
@@ -42,7 +39,7 @@ async function initializeApp() {
       throw new Error('Root element not found');
     }
 
-    const root = ReactDOM.createRoot(rootElement);
+    const root = createRoot(rootElement);
 
     root.render(
       <React.StrictMode>

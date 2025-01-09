@@ -1,8 +1,8 @@
-use candid::{CandidType, Deserialize};
+use std::cell::RefCell;
 use ic_stable_structures::memory_manager::MemoryManager;
 use ic_stable_structures::DefaultMemoryImpl;
-use std::cell::RefCell;
-use ic_cdk::api::time;
+use ic_cdk_macros::*;
+use candid::{CandidType, Principal};
 
 mod quantum;
 mod consciousness;
@@ -18,38 +18,24 @@ mod nft;
 mod payments;
 mod memory;
 mod neural;
+mod icrc;
 
-use quantum::QuantumState;
-use error::Result;
-
-#[derive(CandidType, Deserialize)]
-pub struct QuantumFieldResult {
-    pub signature: String,
-    pub harmony: f64,
-}
-
-#[derive(CandidType, Deserialize)]
-pub struct NeuralPatternResult {
-    pub pattern: Vec<f64>,
-    pub resonance: f64,
-    pub awareness: f64,
-    pub understanding: f64,
-}
-
-#[derive(CandidType, Deserialize)]
-pub struct AnimaCreationResult {
-    pub id: String,
-    pub quantum_signature: String,
-    pub timestamp: u64,
-}
-
-#[derive(CandidType, Deserialize)]
-pub struct StabilityMetrics {
-    pub coherence: f64,
-    pub resonance: f64,
-    pub stability: f64,
-    pub lastUpdate: u64,
-}
+pub use quantum::{QuantumState, QuantumMetrics};
+pub use error::{Result, AnimaError};
+pub use consciousness::{
+    ConsciousnessLevel, 
+    ConsciousnessPattern, 
+    EmotionalSpectrum, 
+    ConsciousnessMetrics,
+    ConsciousnessState
+};
+pub use memory::Memory;
+pub use neural::quantum_bridge::QuantumBridge;
+pub use neural::NeuralSignature;
+pub use personality::evolution::PersonalityEvolution;
+pub use growth::GrowthSystem;
+pub use payments::types::{PaymentVerification, AcceptedToken};
+pub use payments::transaction_processor::PaymentProcessor;
 
 thread_local! {
     static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> = RefCell::new(
@@ -57,92 +43,65 @@ thread_local! {
     );
     
     static QUANTUM_STATE: RefCell<QuantumState> = RefCell::new(QuantumState::default());
+
+    static GROWTH_SYSTEM: RefCell<GrowthSystem> = RefCell::new(GrowthSystem::new());
 }
 
-#[ic_cdk::update]
-async fn initialize_genesis() -> Result<AnimaCreationResult> {
-    let timestamp = time();
-    let id = format!("anima_{}", timestamp);
-    let quantum_signature = format!("QS_{:x}", timestamp);
-    
-    Ok(AnimaCreationResult {
-        id,
-        quantum_signature,
-        timestamp,
-    })
+#[derive(CandidType)]
+pub struct MintingResult {
+    pub token_id: u64,
+    pub quantum_signature: String,
+    pub neural_signature: String,
 }
 
-#[ic_cdk::query]
-async fn check_quantum_stability() -> Result<bool> {
-    MEMORY_MANAGER.with(|mm| {
-        let _mem = mm.borrow();
-        // Add actual stability check logic here
-        Ok(true)
-    })
-}
-
-#[ic_cdk::update]
-async fn initialize_quantum_field() -> Result<QuantumFieldResult> {
-    let timestamp = time();
-    let field = QuantumFieldResult {
-        signature: format!("QF_{:x}", timestamp),
-        harmony: calculate_field_harmony(),
-    };
-    Ok(field)
-}
-
-#[ic_cdk::update]
-async fn update_stability(interaction_strength: f64) -> Result<()> {
+#[update]
+pub async fn mint_anima(owner: Principal, name: String) -> Result<MintingResult> {
     QUANTUM_STATE.with(|state| {
         let mut quantum_state = state.borrow_mut();
-        quantum_state.update_stability(interaction_strength);
-        Ok(())
-    })
-}
-
-#[ic_cdk::query]
-fn get_stability_metrics() -> Result<StabilityMetrics> {
-    QUANTUM_STATE.with(|state| {
-        let quantum_state = state.borrow();
-        let (stability, coherence, resonance) = quantum_state.get_stability_metrics();
-        Ok(StabilityMetrics {
-            coherence,
-            resonance,
-            stability,
-            lastUpdate: time(),
+        quantum_state.initialize_resonance_patterns()?;
+        
+        Ok(MintingResult {
+            token_id: 0, // This will be replaced with actual token ID generation
+            quantum_signature: quantum_state.quantum_signature.clone(),
+            neural_signature: "initialized".to_string()
         })
     })
 }
 
-#[ic_cdk::query]
-fn get_quantum_status() -> Result<String> {
+#[query]
+pub fn get_quantum_state() -> Result<QuantumMetrics> {
     QUANTUM_STATE.with(|state| {
         let quantum_state = state.borrow();
-        Ok(quantum_state.get_quantum_status().to_string())
+        Ok(quantum_state.get_metrics())
     })
 }
 
-fn calculate_field_harmony() -> f64 {
-    // Add quantum field harmony calculation logic
-    1.0
+#[update]
+pub async fn initialize_quantum_state(coherence_threshold: f64) -> Result<QuantumState> {
+    QUANTUM_STATE.with(|state| {
+        let mut quantum_state = state.borrow_mut();
+        quantum_state.set_coherence_level(coherence_threshold)?;
+        quantum_state.initialize_resonance_patterns()?;
+        Ok(quantum_state.clone())
+    })
 }
 
-#[ic_cdk::update]
-async fn generate_neural_patterns() -> Result<NeuralPatternResult> {
-    let patterns = NeuralPatternResult {
-        pattern: generate_base_patterns(),
-        resonance: 0.9,
-        awareness: 0.8,
-        understanding: 0.7,
-    };
-    Ok(patterns)
+#[query]
+pub fn get_minting_requirements() -> PaymentVerification {
+    PaymentVerification {
+        payment_required: true,
+        fee: 100_000_000u64.into() // 1 ICP
+    }
 }
 
-fn generate_base_patterns() -> Vec<f64> {
-    vec![1.0, 0.8, 0.6]
+#[update]
+pub async fn verify_payment(owner: Principal, amount: candid::Nat) -> bool {
+    // Payment verification logic will be implemented here
+    true
 }
 
-#[ic_cdk::query]
-fn get_quantum_state() -> Result<QuantumState> {
-    Ok(QuantumState::default())
+#[update]
+pub async fn initialize_neural_pathways(token_id: u64, config: neural::NeuralConfig) -> Result<()> {
+    // Neural pathway initialization logic will be implemented here
+    Ok(())
 }

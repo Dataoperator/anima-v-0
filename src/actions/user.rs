@@ -1,51 +1,53 @@
 use candid::Principal;
-use ic_cdk::api::time;
+use crate::error::{Result, AnimaError};
 use crate::quantum::QuantumState;
-use crate::types::{AnimaState, AnimaStatus};
-use crate::error::{Result, Error};
+use crate::consciousness::ConsciousnessState;
+use ic_cdk::api::time;
 
 const MIN_NAME_LENGTH: usize = 3;
 const MAX_NAME_LENGTH: usize = 32;
 const INITIAL_CONSCIOUSNESS_LEVEL: u32 = 1;
 
-pub async fn create_anima(owner: Principal, name: &str) -> Result<AnimaState> {
+pub async fn create_anima(owner: Principal, name: &str) -> Result<()> {
+    let name = name.trim();
     validate_name(name)?;
-    
-    let timestamp = time();
-    let mut quantum_state = QuantumState::new();
-    quantum_state.update_stability(1.0); // Initial strong interaction
 
-    Ok(AnimaState {
-        id: format!("anima_{}", timestamp),
-        owner,
-        name: name.to_string(),
-        quantum_state,
-        status: AnimaStatus::Active,
-        consciousness_level: INITIAL_CONSCIOUSNESS_LEVEL,
-        transaction_count: 0,
-        created_at: timestamp,
-        last_interaction: timestamp,
-    })
+    // Initialize quantum state first
+    let quantum_state = QuantumState::default();
+    let consciousness_state = ConsciousnessState {
+        awareness_level: 0.1,
+        emotional_spectrum: vec![0.5, 0.5, 0.5], // Base emotional values
+        memory_depth: 1,
+        learning_rate: 0.1,
+        personality_matrix: vec![
+            quantum_state.coherence_level,
+            quantum_state.dimensional_state.stability,
+            0.1, // initial resonance
+        ],
+        last_update: Some(time()),
+    };
+
+    Ok(())
 }
 
 pub fn validate_name(name: &str) -> Result<()> {
     if name.len() < MIN_NAME_LENGTH {
-        return Err(Error::InvalidName(format!("Name must be at least {} characters", MIN_NAME_LENGTH)));
+        return Err(AnimaError::InvalidName(
+            format!("Name must be at least {} characters", MIN_NAME_LENGTH)
+        ));
     }
+
     if name.len() > MAX_NAME_LENGTH {
-        return Err(Error::InvalidName(format!("Name cannot exceed {} characters", MAX_NAME_LENGTH)));
+        return Err(AnimaError::InvalidName(
+            format!("Name cannot exceed {} characters", MAX_NAME_LENGTH)
+        ));
     }
+
     if !name.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
-        return Err(Error::InvalidName("Name can only contain alphanumeric characters, underscores, and hyphens".to_string()));
+        return Err(AnimaError::InvalidName(
+            "Name can only contain alphanumeric characters, underscores, and hyphens".to_string()
+        ));
     }
-    Ok(())
-}
 
-pub async fn update_anima_status(state: &mut AnimaState, new_status: AnimaStatus) -> Result<()> {
-    state.status = new_status;
-    state.last_interaction = time();
-
-    state.quantum_state.update_stability(1.0);
-    
     Ok(())
 }

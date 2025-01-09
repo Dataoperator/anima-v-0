@@ -3,63 +3,80 @@ set -e
 
 echo "🔄 Deploying ANIMA to Internet Computer mainnet..."
 
-# Run pre-deployment checks
-echo "🔍 Running pre-deployment verification..."
-./verify-deployment.sh
-
 # Set environment variables
 export DFX_NETWORK=ic
 export CANISTER_ENV=production
 
-# Update Cargo.lock first
-echo "📦 Updating Cargo.lock..."
-cargo update
-cargo build --target wasm32-unknown-unknown --release -p anima
+# Make scripts executable
+chmod +x ./build-wasm.sh
+chmod +x ./verify-deployment.sh
+
+# Build WASM
+./build-wasm.sh
+
+# Run pre-deployment checks after WASM build
+echo "🔍 Running pre-deployment verification..."
+./verify-deployment.sh
+
+# Install frontend dependencies
+echo "📦 Installing frontend dependencies..."
+yarn install
 
 # Build frontend
 echo "🏗️ Building frontend..."
-dfx generate
 yarn build
 
 # Ensure all necessary files exist
 if [ ! -d "dist" ]; then
-    echo "❌ Build failed - dist directory not found"
+    echo "❌ Frontend build failed - dist directory not found"
     exit 1
 fi
 
-# Check wasm build
-WASM_PATH="target/wasm32-unknown-unknown/release/anima.wasm"
-if [ ! -f "$WASM_PATH" ]; then
-    echo "❌ WASM build failed - $WASM_PATH not found"
-    exit 1
-fi
+# Generate declarations
+echo "📝 Generating canister declarations..."
+dfx generate
 
-# Deploy canisters
-echo "🚀 Deploying canisters..."
-dfx deploy --network ic anima
-dfx deploy --network ic anima_assets
+# Deploy backend canister first
+echo "🚀 Deploying backend canister..."
+dfx deploy --network ic anima --no-wallet
+
+# Deploy frontend assets
+echo "🎨 Deploying frontend assets..."
+dfx deploy --network ic anima_assets --no-wallet
 
 # Store canister IDs
 ANIMA_CANISTER_ID=$(dfx canister --network ic id anima)
-export ANIMA_CANISTER_ID
+ASSETS_CANISTER_ID=$(dfx canister --network ic id anima_assets)
+
+echo "🔍 Canister IDs:"
+echo "Backend (anima): $ANIMA_CANISTER_ID"
+echo "Frontend (anima_assets): $ASSETS_CANISTER_ID"
 
 # Run health check
 echo "🏥 Running post-deployment health check..."
-yarn ts-node healthcheck.ts
-
-if [ $? -eq 0 ]; then
-    echo "✅ Deployment successful! Canister ID: $ANIMA_CANISTER_ID"
-    
-    # Save deployment info
-    echo "{\"timestamp\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\", \"canisterId\": \"$ANIMA_CANISTER_ID\"}" > deployment-info.json
-    
-    echo "📝 Deployment info saved to deployment-info.json"
-    
-    # Verify canister settings
-    echo "🔍 Verifying canister settings..."
-    dfx canister --network ic status anima
-    dfx canister --network ic status anima_assets
+if [ -f "healthcheck.ts" ]; then
+    yarn ts-node healthcheck.ts
 else
-    echo "❌ Post-deployment health check failed!"
-    exit 1
+    echo "⚠️ Skipping health check - healthcheck.ts not found"
 fi
+
+# Save deployment info
+echo "{
+  \"timestamp\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\",
+  \"canisters\": {
+    \"anima\": \"$ANIMA_CANISTER_ID\",
+    \"anima_assets\": \"$ASSETS_CANISTER_ID\"
+  }
+}" > deployment-info.json
+
+echo "📝 Deployment info saved to deployment-info.json"
+
+# Print canister URLs
+echo "🌐 Canister URLs:"
+echo "Frontend: https://$ASSETS_CANISTER_ID.ic0.app"
+echo "Backend: https://$ANIMA_CANISTER_ID.ic0.app"
+
+# Verify canister settings
+echo "🔍 Verifying canister settings..."
+dfx canister --network ic status anima
+dfx canister --network ic status anima_assets

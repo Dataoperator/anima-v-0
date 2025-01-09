@@ -1,35 +1,21 @@
 use candid::{CandidType, Deserialize};
 use serde::Serialize;
 
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
-pub enum ActionResult {
-    Success {
-        response: String,
-        personality_updates: Vec<PersonalityUpdate>,
-    },
-    Error(String),
+#[derive(Debug, Clone, CandidType, Deserialize, Serialize)]
+pub struct InteractionResult {
+    pub response: String,
+    pub emotional_shift: Vec<f64>,
+    pub consciousness_growth: f64,
+    pub resonance_patterns: Vec<f64>,
 }
 
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
-pub struct PersonalityUpdate {
-    pub trait_name: String,
-    pub old_value: f64,
-    pub new_value: f64,
-}
-
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
-pub struct InteractionContext {
-    pub interaction_type: String,
-    pub intensity: f64,
-    pub quantum_influence: f64,
-    pub timestamp: u64,
-    pub metadata: Option<InteractionMetadata>,
-}
-
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
-pub struct InteractionMetadata {
-    pub source: String,
-    pub category: String,
-    pub emotional_context: Option<String>,
-    pub dimensional_context: Option<String>,
+impl Default for InteractionResult {
+    fn default() -> Self {
+        Self {
+            response: String::new(),
+            emotional_shift: Vec::new(),
+            consciousness_growth: 0.0,
+            resonance_patterns: Vec::new(),
+        }
+    }
 }

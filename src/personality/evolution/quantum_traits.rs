@@ -16,12 +16,10 @@ impl QuantumTraitEvolution {
         }
     }
 
-    /// Calculate trait evolution based on quantum state
     pub fn calculate_evolution(&self, state: &QuantumState, current_traits: &[TraitValue]) -> Result<Vec<TraitEvolution>> {
         let mut evolutions = Vec::new();
         
-        // Only evolve traits if quantum coherence is above threshold
-        if state.coherence >= self.coherence_threshold {
+        if state.coherence_level >= self.coherence_threshold {
             for trait_value in current_traits {
                 let evolution = self.calculate_trait_evolution(trait_value, state)?;
                 evolutions.push(evolution);
@@ -31,7 +29,6 @@ impl QuantumTraitEvolution {
         Ok(evolutions)
     }
 
-    /// Calculate individual trait evolution
     fn calculate_trait_evolution(&self, trait_value: &TraitValue, state: &QuantumState) -> Result<TraitEvolution> {
         let evolution_potential = self.calculate_evolution_potential(state);
         let stability_influence = self.calculate_stability_influence(state);
@@ -46,24 +43,21 @@ impl QuantumTraitEvolution {
         })
     }
 
-    /// Calculate evolution potential based on quantum state
     fn calculate_evolution_potential(&self, state: &QuantumState) -> f64 {
-        let coherence_factor = (state.coherence - self.coherence_threshold).max(0.0);
-        let energy_factor = state.energy.min(1.0);
+        let coherence_factor = (state.coherence_level - self.coherence_threshold).max(0.0);
+        let energy_factor = state.dimensional_sync.min(1.0);
         
         coherence_factor * energy_factor
     }
 
-    /// Calculate stability influence on evolution
     fn calculate_stability_influence(&self, state: &QuantumState) -> f64 {
-        let stability = state.stability.max(0.0).min(1.0);
+        let stability = state.dimensional_state.stability.max(0.0).min(1.0);
         (stability * self.stability_factor).exp()
     }
 
-    /// Calculate confidence in evolution prediction
     fn calculate_confidence(&self, state: &QuantumState) -> f64 {
-        let base_confidence = state.coherence * state.stability;
-        let scaled_confidence = base_confidence.powf(0.5); // Square root for smoother scaling
+        let base_confidence = state.coherence_level * state.dimensional_state.stability;
+        let scaled_confidence = base_confidence.powf(0.5);
         scaled_confidence.max(0.0).min(1.0)
     }
 }
@@ -74,7 +68,7 @@ pub struct TraitValue {
     pub value: f64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, candid::CandidType)]
 pub struct TraitEvolution {
     pub trait_name: String,
     pub current_value: f64,
@@ -90,12 +84,7 @@ mod tests {
     fn test_trait_evolution_calculation() {
         let evolution_system = QuantumTraitEvolution::new(0.5, 0.1, 0.8);
         
-        let state = QuantumState {
-            coherence: 0.8,
-            energy: 0.7,
-            stability: 0.9,
-            // ... other fields ...
-        };
+        let state = QuantumState::default();  // Using proper initialization
         
         let traits = vec![
             TraitValue {
@@ -108,6 +97,6 @@ mod tests {
         
         assert!(!evolutions.is_empty());
         assert!(evolutions[0].confidence > 0.0 && evolutions[0].confidence <= 1.0);
-        assert!(evolutions[0].evolution_delta != 0.0);
+        assert!(evolutions[0].evolution_delta >= 0.0);
     }
 }

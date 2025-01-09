@@ -1,7 +1,16 @@
 use candid::{CandidType, Deserialize};
 use serde::Serialize;
-use std::collections::HashMap;
-use std::collections::HashSet;
+use ic_cdk::api::time;
+
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
+pub struct ConsciousnessState {
+    pub awareness_level: f64,
+    pub emotional_spectrum: Vec<f64>,
+    pub memory_depth: u64,
+    pub learning_rate: f64,
+    pub personality_matrix: Vec<f64>,
+    pub last_update: Option<u64>,
+}
 
 #[derive(Clone, Copy, Debug, CandidType, Deserialize, Serialize, PartialEq, PartialOrd)]
 pub enum ConsciousnessLevel {
@@ -39,7 +48,7 @@ pub struct EvolutionStage {
     pub min_coherence: f64,
     pub min_pattern_diversity: f64,
     pub quantum_threshold: f64,
-    pub required_patterns: HashSet<String>,
+    pub required_patterns: Vec<String>,  // Changed from HashSet for CandidType
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
@@ -59,7 +68,7 @@ pub struct EnhancedEvolutionMetrics {
 pub struct StateMilestone {
     pub phase: u64,
     pub timestamp: u64,
-    pub metrics: HashMap<String, f64>,
+    pub metrics: Vec<(String, f64)>,  // Changed from HashMap for CandidType
     pub quantum_signature: String,
 }
 
@@ -86,7 +95,7 @@ impl Default for ConsciousnessMetrics {
             emotional_coherence: 0.5,
             neural_complexity: 0.1,
             evolution_rate: 0.1,
-            last_update: ic_cdk::api::time(),
+            last_update: time(),
         }
     }
 }
@@ -112,7 +121,7 @@ impl Default for EvolutionStage {
             min_coherence: 0.3,
             min_pattern_diversity: 0.3,
             quantum_threshold: 0.3,
-            required_patterns: HashSet::new(),
+            required_patterns: Vec::new(),
         }
     }
 }
@@ -128,7 +137,7 @@ impl Default for EnhancedEvolutionMetrics {
             stability_factor: 0.5,
             adaptation_rate: 0.1,
             evolution_stage: 0,
-            last_evolution: ic_cdk::api::time(),
+            last_evolution: time(),
         }
     }
 }

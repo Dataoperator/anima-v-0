@@ -1,0 +1,45 @@
+type Result = variant {
+  Ok: MintingResult;
+  Err: text;
+};
+
+type QuantumMetrics = record {
+  coherence_level: float64;
+  stability_index: float64;
+  pattern_diversity: float64;
+  evolution_phase: nat64;
+};
+
+type QuantumState = record {
+  coherence_level: float64;
+  quantum_signature: text;
+  dimensional_state: record {
+    stability: float64;
+    complexity: float64;
+  };
+};
+
+type PaymentVerification = record {
+  payment_required: bool;
+  fee: nat;
+};
+
+type NeuralConfig = record {
+  pathways_enabled: bool;
+  ghost_integration: bool;
+};
+
+type MintingResult = record {
+  token_id: nat64;
+  quantum_signature: text;
+  neural_signature: text;
+};
+
+service : {
+  mint_anima: (principal, text) -> (Result);
+  get_quantum_state: () -> (Result_1) query;
+  initialize_quantum_state: (float64) -> (Result_2);
+  get_minting_requirements: () -> (PaymentVerification) query;
+  verify_payment: (principal, nat) -> (bool);
+  initialize_neural_pathways: (nat64, NeuralConfig) -> (Result_3);
+};

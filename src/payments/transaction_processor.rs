@@ -1,150 +1,79 @@
-use std::collections::HashMap;
-use candid::{CandidType, Principal};
-use serde::{Deserialize, Serialize};
-use crate::Result;
-use crate::payments::icrc::types::{TransferArgs, Memo, BlockIndex, Token};
-use crate::payments::pricing_config::AcceptedToken;
-use crate::quantum::QuantumState;
-use anyhow::Context;
+use candid::{Principal, Nat};
+use ic_cdk::api::call::CallResult;
+use crate::error::{Result, AnimaError};
+use crate::icrc::types::{TransferArgs, AcceptedToken};
 
-pub struct TransactionProcessor {
-    quantum_state: QuantumState,
-    token_configs: HashMap<String, Token>,
+pub struct PaymentProcessor {
+    owner: Principal,
+    accepted_tokens: Vec<(AcceptedToken, u64)>,
 }
 
-impl TransactionProcessor {
-    pub fn new(quantum_state: QuantumState, token_configs: HashMap<String, Token>) -> Self {
+impl PaymentProcessor {
+    pub fn new(owner: Principal) -> Self {
+        let accepted_tokens = vec![
+            (AcceptedToken::ICP, 100_000_000),   // 1 ICP in e8s
+            (AcceptedToken::ANIMA, 1_000_000),   // 1 ANIMA token
+        ];
+
         Self {
-            quantum_state,
-            token_configs,
+            owner,
+            accepted_tokens,
         }
     }
 
-    pub async fn process_payment(
+    pub async fn transfer(
         &self,
-        from: Principal,
-        token_symbol: &str,
-        amount: u64
-    ) -> Result<BlockIndex> {
-        // Calculate fee distribution
-        let fees = self.calculate_fees(
-            amount,
-            &self.quantum_state.get_complexity()?,
-            token_symbol
-        )?;
-
-        // Process transfers based on token type
-        match token_symbol.to_lowercase().as_str() {
-            "icp" => {
-                self.process_icp_transfers(
-                    from,
-                    fees.rd_amount,
-                    fees.platform_amount,
-                    fees.compute_amount,
-                ).await
-            }
-            "icrc1" => {
-                self.process_icrc1_transfers(
-                    from,
-                    fees.rd_amount,
-                    fees.platform_amount,
-                    fees.compute_amount,
-                ).await
-            }
-            _ => Err(anyhow::anyhow!(format!(
-                "Unsupported token type: {}",
-                token_symbol
-            )).into())
+        to: Principal,
+        amount: u128,
+        token_type: AcceptedToken,
+        memo: Option<Vec<u8>>,
+    ) -> Result<u64> {
+        // Validate amount meets minimum
+        if amount < self.get_minimum_amount(&token_type) {
+            return Err(AnimaError::InvalidAmount("Amount below minimum".to_string()));
         }
-    }
 
-    async fn process_icp_transfers(
-        &self,
-        from: Principal,
-        rd_amount: u64,
-        platform_amount: u64,
-        compute_amount: u64,
-    ) -> Result<BlockIndex> {
-        let token_config = self.get_token_config("icp")?;
+        // Create transfer arguments
+        let args = TransferArgs {
+            to,
+            amount: Nat::from(amount),
+            fee: None,
+            memo: memo.map(|m| m.to_vec()),
+            created_at_time: Some(ic_cdk::api::time()),
+        };
 
-        // Transfer to R&D wallet
-        let rd_transfer = ic_cdk::call(
-            token_config.canister_id,
-            "transfer",
-            (TransferArgs {
-                memo: Memo(0),
-                amount: rd_amount,
-                fee: None,
-                from,
-                created_at_time: None,
-                to: token_config.rd_wallet,
-            },),
-        ).await
-        .map_err(|e| anyhow::anyhow!("Transfer failed: {:?}", e))?;
+        // Get token canister ID
+        let token_canister = self.get_token_canister(&token_type)?;
 
-        // Return block index from R&D transfer as confirmation
-        Ok(rd_transfer.0)
-    }
-
-    async fn process_icrc1_transfers(
-        &self,
-        from: Principal,
-        rd_amount: u64,
-        platform_amount: u64,
-        compute_amount: u64,
-    ) -> Result<BlockIndex> {
-        let token_config = self.get_token_config("icrc1")?;
-
-        // Transfer to R&D wallet
-        let rd_transfer = ic_cdk::call(
-            token_config.canister_id,
+        // Execute transfer
+        let result: CallResult<(u64,)> = ic_cdk::api::call::call(
+            token_canister,
             "icrc1_transfer",
-            (ICRCTransferArgs {
-                memo: None,
-                amount: rd_amount,
-                fee: None,
-                from_subaccount: None,
-                created_at_time: None,
-                to: token_config.rd_wallet,
-            },),
-        ).await?;
+            (args,),
+        ).await;
 
-        Ok(rd_transfer.0)
+        match result {
+            Ok((block_index,)) => Ok(block_index),
+            Err((code, msg)) => Err(AnimaError::TransactionFailed(
+                format!("{:?}: {}", code, msg)
+            )),
+        }
     }
 
-    fn calculate_fees(
-        &self,
-        amount: u64,
-        complexity: f64,
-        token_symbol: &str
-    ) -> Result<FeeDistribution> {
-        let token_config = self.get_token_config(token_symbol)?;
-
-        let rd_percentage = 0.7;
-        let platform_percentage = 0.2;
-        let compute_percentage = 0.1;
-
-        let rd_amount = (amount as f64 * rd_percentage) as u64;
-        let platform_amount = (amount as f64 * platform_percentage) as u64;
-        let compute_amount = (amount as f64 * compute_percentage) as u64;
-
-        Ok(FeeDistribution {
-            rd_amount,
-            platform_amount,
-            compute_amount,
-        })
+    fn get_minimum_amount(&self, token_type: &AcceptedToken) -> u128 {
+        self.accepted_tokens
+            .iter()
+            .find(|(t, _)| t == token_type)
+            .map(|(_, min)| *min as u128)
+            .unwrap_or(0)
     }
 
-    fn get_token_config(&self, symbol: &str) -> Result<&AcceptedToken> {
-        self.token_configs.get(symbol)
-            .ok_or_else(|| anyhow::anyhow!("Token type not available: {}", symbol))
-            .map(|config| config)
+    fn get_token_canister(&self, token_type: &AcceptedToken) -> Result<Principal> {
+        match token_type {
+            AcceptedToken::ICP => Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai")
+                .map_err(|_| AnimaError::InvalidInput("Invalid ICP ledger canister ID".to_string())),
+            AcceptedToken::ANIMA => Principal::from_text("aanaa-xaaaa-aaaaa-aaa")
+                .map_err(|_| AnimaError::InvalidInput("Invalid ANIMA token canister ID".to_string())),
+        }
     }
-}
-
-#[derive(Debug)]
-struct FeeDistribution {
-    rd_amount: u64,
-    platform_amount: u64,
-    compute_amount: u64,
 }

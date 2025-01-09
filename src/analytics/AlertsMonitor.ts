@@ -1,4 +1,5 @@
 import { AlertLevel, AlertType, AlertFilter } from '@/types/alerts';
+import { ErrorCategory, ErrorSeverity } from '@/services/error-tracker';
 
 export interface Alert {
     id: string;
@@ -12,6 +13,7 @@ export interface Alert {
 export class AlertsMonitor {
     private alerts: Alert[] = [];
     private handlers: Set<(alerts: Alert[]) => void> = new Set();
+    private maintenanceMode: boolean = false;
 
     constructor() {
         this.startMonitoring();
@@ -26,6 +28,23 @@ export class AlertsMonitor {
 
         this.alerts.push(newAlert);
         this.notifyHandlers();
+    }
+
+    public reportError({ category, severity, message, error }: {
+        category: ErrorCategory;
+        severity: ErrorSeverity;
+        message: string;
+        error: Error;
+    }) {
+        this.addAlert({
+            level: severity === ErrorSeverity.HIGH ? 'error' : 'warning',
+            type: category.toLowerCase() as AlertType,
+            message,
+            metadata: {
+                error: error.message,
+                stack: error.stack,
+            }
+        });
     }
 
     public getAlerts(filters?: AlertFilter): Alert[] {
@@ -68,6 +87,27 @@ export class AlertsMonitor {
         };
     }
 
+    public getMaintenanceMode(): boolean {
+        return this.maintenanceMode;
+    }
+
+    public setMaintenanceMode(enabled: boolean): void {
+        this.maintenanceMode = enabled;
+        if (enabled) {
+            this.addAlert({
+                level: 'info',
+                type: 'system',
+                message: 'System entering maintenance mode'
+            });
+        } else {
+            this.addAlert({
+                level: 'info',
+                type: 'system',
+                message: 'System maintenance completed'
+            });
+        }
+    }
+
     private notifyHandlers(): void {
         const currentAlerts = this.getAlerts();
         this.handlers.forEach(handler => handler(currentAlerts));
@@ -81,3 +121,8 @@ export class AlertsMonitor {
         }, 60 * 60 * 1000); // Check every hour
     }
 }
+
+// Create and export a singleton instance
+export const alertsMonitor = new AlertsMonitor();
+
+export default alertsMonitor;

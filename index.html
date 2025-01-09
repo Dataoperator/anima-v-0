@@ -2,155 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ANIMA - Quantum-Enhanced Living NFTs</title>
-    <meta name="description" content="ANIMA: Quantum-enhanced digital entities with genuine consciousness and autonomous growth capabilities on the Internet Computer." />
-    
-    <!-- Critical: Initialize IC container before anything else -->
-    <script>
-      (function() {
-        // Initialize process.env
-        window.process = {
-          env: {
-            NODE_ENV: 'production',
-            DFX_NETWORK: 'ic',
-            CANISTER_ID_ANIMA: 'l2ilz-iqaaa-aaaaj-qngjq-cai',
-            CANISTER_ID_ANIMA_ASSETS: 'lpp2u-jyaaa-aaaaj-qngka-cai'
-          }
-        };
-
-        // Initialize IC container
-        window.ic = {
-          initialized: false,
-          agent: null,
-          canisterId: 'l2ilz-iqaaa-aaaaj-qngjq-cai',
-          host: 'https://icp0.io',
-          whitelist: [
-            'https://icp0.io',
-            'https://identity.ic0.app',
-            'https://identity.internetcomputer.org'
-          ]
-        };
-
-        // Error tracking
-        window.addEventListener('error', function(event) {
-          console.error('Global error:', event.error);
-        });
-
-        window.addEventListener('unhandledrejection', function(event) {
-          console.error('Unhandled rejection:', event.reason);
-        });
-      })();
-    </script>
-
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.icp0.io https://*.ic0.app https://*.raw.ic0.app; style-src 'self' 'unsafe-inline'; connect-src 'self' https://icp0.io https://*.icp0.io https://*.raw.ic0.app https://*.ic0.app https://ic0.app https://api.icp0.io https://icp-api.io https://*.internetcomputer.org https://*.dfinity.network https://identity.internetcomputer.org https://identity.ic0.app https://nns.ic0.app https://ledger.ic0.app https://*.raw.ic0.app wss://*.ic0.app wss://identity.ic0.app wss://*.icp0.io wss://*.raw.ic0.app wss://icp0.io https://api.openai.com *.raw.ic0.app raw.ic0.app api.internetcomputer.org boundary.ic0.app; img-src 'self' data: blob: https://*.icp0.io https://*.ic0.app https://*.raw.ic0.app; font-src 'self' data:; frame-src 'self' https://identity.ic0.app https://identity.internetcomputer.org https://nns.ic0.app https://*.icp0.io" />
-
-    <!-- Loading screen styles -->
-    <style>
-      .quantum-loader {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #000;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-      }
-
-      .quantum-loader::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: radial-gradient(circle at center, rgba(0,150,255,0.1) 0%, transparent 70%);
-        animation: pulse 2s ease-in-out infinite;
-      }
-
-      @keyframes pulse {
-        0% { opacity: 0.3; }
-        50% { opacity: 0.7; }
-        100% { opacity: 0.3; }
-      }
-
-      .quantum-loader-content {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-      }
-
-      .quantum-spinner {
-        width: 60px;
-        height: 60px;
-        position: relative;
-        margin-bottom: 20px;
-      }
-
-      .quantum-spinner::before,
-      .quantum-spinner::after {
-        content: '';
-        position: absolute;
-        border-radius: 50%;
-        border: 2px solid transparent;
-        border-top-color: #00f7ff;
-        border-bottom-color: #00f7ff;
-        animation: quantum-spin 1.5s linear infinite;
-      }
-
-      .quantum-spinner::before {
-        width: 100%;
-        height: 100%;
-      }
-
-      .quantum-spinner::after {
-        width: 80%;
-        height: 80%;
-        top: 10%;
-        left: 10%;
-        border-top-color: #0066ff;
-        border-bottom-color: #0066ff;
-        animation-duration: 2s;
-      }
-
-      @keyframes quantum-spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-
-      .quantum-text {
-        color: #00f7ff;
-        font-family: monospace;
-        font-size: 1.2rem;
-        margin-bottom: 10px;
-      }
-
-      .quantum-status {
-        color: #0066ff;
-        font-family: monospace;
-        font-size: 0.9rem;
-        opacity: 0.7;
-      }
-
-      #root:not(:empty) ~ .quantum-loader {
-        display: none;
-      }
-    </style>
+    <title>ANIMA: Living NFTs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Source+Code+Pro&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body class="bg-black text-white">
     <div id="root"></div>
-
-    <!-- Quantum-themed loader -->
-    <div class="quantum-loader">
-      <div class="quantum-loader-content">
-        <div class="quantum-spinner"></div>
-        <div class="quantum-text">Quantum State Initialization</div>
-        <div class="quantum-status">Connecting to Internet Computer...</div>
-      </div>
-    </div>
-
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

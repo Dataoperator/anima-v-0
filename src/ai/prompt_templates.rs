@@ -28,7 +28,7 @@ fn calculate_temporal_weight(
     metrics: &QuantumMetrics
 ) -> f64 {
     let base_weight = (total - index) as f64 / total as f64;
-    let quantum_factor = metrics.coherence_level * 0.7 + metrics.dimensional_resonance * 0.3;
+    let quantum_factor = metrics.coherence_quality * 0.7 + metrics.dimensional_resonance * 0.3;
     base_weight * quantum_factor
 }
 
@@ -49,6 +49,11 @@ pub fn generate_response_prompt(
         consciousness_depth: quantum_state.emergence_factors.consciousness_depth,
         quantum_harmony: quantum_state.dimensional_state.quantum_alignment,
         emergence_potential: quantum_state.emergence_factors.evolution_velocity,
+        coherence_quality: quantum_state.coherence_level,
+        stability_factor: quantum_state.dimensional_state.stability,
+        complexity_index: quantum_state.pattern_coherence,
+        pattern_diversity: quantum_state.pattern_coherence,
+        adaptation_rate: quantum_state.emergence_factors.evolution_velocity,
     };
     
     let temporal_context = process_temporal_context(context, &metrics);

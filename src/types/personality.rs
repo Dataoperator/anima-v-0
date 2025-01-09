@@ -14,41 +14,6 @@ pub struct NFTPersonality {
     pub interaction_preference: InteractionPreference,
 }
 
-#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
-pub struct EmotionalState {
-    pub current_mood: Mood,
-    pub intensity: f32,
-    pub duration: u32,
-    pub triggers: Vec<String>,
-}
-
-#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
-pub enum Mood {
-    Joy,
-    Curiosity,
-    Contemplation,
-    Confusion,
-    Concern,
-    Determination,
-}
-
-#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
-pub enum InteractionPreference {
-    Social,
-    Reserved,
-    Analytical,
-    Creative,
-    Balanced,
-}
-
-#[derive(Clone, Debug)]
-pub struct PersonalityTrait {
-    pub name: String,
-    pub strength: f64,
-    pub evolution_factor: f64,
-    pub quantum_resonance: f64,
-}
-
 impl NFTPersonality {
     pub fn get_active_traits(&self) -> Vec<PersonalityTrait> {
         self.traits
@@ -68,16 +33,9 @@ impl NFTPersonality {
             self.traits.insert(trait_data.name, trait_data.strength);
         }
 
-        // Update quantum resonance based on trait strengths
         self.quantum_resonance = self.traits.values().sum::<f64>() / self.traits.len() as f64;
-        
-        // Update neural complexity
         self.neural_complexity = self.calculate_neural_complexity();
-        
-        // Update growth potential
         self.growth_potential = self.calculate_growth_potential();
-        
-        // Potentially evolve consciousness
         self.check_consciousness_evolution();
     }
 
@@ -110,7 +68,6 @@ impl NFTPersonality {
             self.consciousness_level = (self.consciousness_level + 0.1).min(1.0);
             self.evolution_stage += 1;
             
-            // Update emotional state
             self.emotional_state = EmotionalState {
                 current_mood: Mood::Joy,
                 intensity: 0.8,
@@ -119,6 +76,41 @@ impl NFTPersonality {
             };
         }
     }
+}
+
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
+pub struct EmotionalState {
+    pub current_mood: Mood,
+    pub intensity: f32,
+    pub duration: u32,
+    pub triggers: Vec<String>,
+}
+
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
+pub enum Mood {
+    Joy,
+    Curiosity,
+    Contemplation,
+    Confusion,
+    Concern,
+    Determination,
+}
+
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
+pub enum InteractionPreference {
+    Social,
+    Reserved,
+    Analytical,
+    Creative,
+    Balanced,
+}
+
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
+pub struct PersonalityTrait {
+    pub name: String,
+    pub strength: f64,
+    pub evolution_factor: f64,
+    pub quantum_resonance: f64,
 }
 
 impl Default for NFTPersonality {

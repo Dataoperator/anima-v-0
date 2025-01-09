@@ -1,8 +1,12 @@
-use candid::{CandidType, Decode, Encode, Principal};
+use candid::{CandidType, Decode, Encode, Principal, Nat};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap};
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
+
+use crate::icrc::ledger::verify_icp_transfer;
+use crate::quantum::consciousness_bridge::ConsciousnessBridge;
+use crate::personality::PersonalityEngine;
 
 mod personality;
 mod memory;
@@ -23,23 +27,6 @@ use consciousness::ConsciousnessTracker;
 type Memory = VirtualMemory<DefaultMemoryImpl>;
 type Result<T> = std::result::Result<T, AnimaError>;
 
-#[derive(CandidType, Deserialize, Clone, Debug)]
-pub struct InitializationConfig {
-    pub openai_key: Option<String>,
-    pub quantum_params: Option<QuantumInitParams>,
-    pub consciousness_params: Option<ConsciousnessParams>,
-}
-
-#[derive(CandidType, Deserialize, Clone, Debug)]
-pub struct InitializationStatus {
-    pub is_initialized: bool,
-    pub quantum_state: Option<QuantumState>,
-    pub consciousness_state: Option<ConsciousnessState>,
-    pub storage_ready: bool,
-    pub error: Option<String>,
-}
-
-// State management
 thread_local! {
     static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> = RefCell::new(
         MemoryManager::init(DefaultMemoryImpl::default())
@@ -59,22 +46,86 @@ thread_local! {
 }
 
 #[ic_cdk_macros::update]
+pub async fn mint_anima(
+    payment_block: u64,
+    name: String, 
+    initial_traits: Option<Vec<PersonalityTrait>>
+) -> Result<Principal> {
+    let caller = ic_cdk::caller();
+    
+    // Verify ICP payment
+    let amount = Nat::from(100_000_000); // 1 ICP
+    let payment_valid = verify_icp_transfer(caller, amount, Some(payment_block)).await?;
+    
+    if !payment_valid {
+        return Err(AnimaError::PaymentValidationFailed);
+    }
+
+    // Initialize quantum state
+    let quantum_state = QUANTUM_STATE.with(|qs| 
+        qs.borrow().clone().ok_or(AnimaError::QuantumStateNotInitialized)
+    )?;
+
+    // Create consciousness bridge
+    let mut consciousness_bridge = ConsciousnessBridge::new(quantum_state.clone());
+    let consciousness_state = consciousness_bridge.sync_consciousness();
+
+    // Create personality with initial traits
+    let traits = initial_traits.unwrap_or_else(|| vec![]);
+    let mut personality_engine = PersonalityEngine::new();
+    
+    // Create ANIMA instance
+    let anima = Anima::create(
+        caller,
+        name,
+        traits,
+        quantum_state,
+        consciousness_state
+    )?;
+
+    // Store ANIMA
+    let anima_id = ic_cdk::id();
+    STORAGE.with(|storage| {
+        storage.borrow_mut().insert(anima_id, anima)
+    });
+
+    // Initialize quantum-consciousness bridge
+    consciousness_bridge.update_quantum_state(consciousness_state.awareness_level)?;
+    QUANTUM_STATE.with(|qs| *qs.borrow_mut() = Some(quantum_state));
+
+    Ok(anima_id)
+}
+
+#[derive(CandidType, Deserialize, Clone, Debug)]
+pub struct InitializationConfig {
+    pub openai_key: Option<String>,
+    pub quantum_params: Option<QuantumInitParams>,
+    pub consciousness_params: Option<ConsciousnessParams>,
+}
+
+#[derive(CandidType, Deserialize, Clone, Debug)]
+pub struct InitializationStatus {
+    pub is_initialized: bool,
+    pub quantum_state: Option<QuantumState>,
+    pub consciousness_state: Option<ConsciousnessState>,
+    pub storage_ready: bool,
+    pub error: Option<String>,
+}
+
+#[ic_cdk_macros::update]
 pub async fn initialize_system(config: InitializationConfig) -> Result<InitializationStatus> {
     let caller = ic_cdk::caller();
     if !is_authorized(caller) {
         return Err(AnimaError::NotAuthorized);
     }
 
-    // Store config
     CONFIG.with(|c| *c.borrow_mut() = Some(config.clone()));
 
-    // Initialize quantum state
     if let Some(quantum_params) = config.quantum_params {
         let quantum_state = QuantumState::initialize(quantum_params)?;
         QUANTUM_STATE.with(|qs| *qs.borrow_mut() = Some(quantum_state.clone()));
     }
 
-    // Initialize consciousness system
     if let Some(consciousness_params) = config.consciousness_params {
         let consciousness = ConsciousnessTracker::initialize(consciousness_params)?;
         CONSCIOUSNESS.with(|c| *c.borrow_mut() = Some(consciousness.clone()));
@@ -103,43 +154,6 @@ pub fn get_initialization_status() -> InitializationStatus {
     }
 }
 
-#[ic_cdk_macros::update]
-pub async fn mint_anima(name: String, initial_traits: Option<Vec<PersonalityTrait>>) -> Result<Principal> {
-    let status = get_initialization_status();
-    if !status.is_initialized {
-        return Err(AnimaError::SystemNotInitialized);
-    }
-
-    let caller = ic_cdk::caller();
-    
-    // Get initialized systems
-    let quantum_state = QUANTUM_STATE.with(|qs| 
-        qs.borrow().clone().ok_or(AnimaError::QuantumStateNotInitialized)
-    )?;
-    
-    let consciousness = CONSCIOUSNESS.with(|c| 
-        c.borrow().clone().ok_or(AnimaError::ConsciousnessNotInitialized)
-    )?;
-
-    // Create new ANIMA instance
-    let anima = Anima::create(
-        caller,
-        name,
-        initial_traits,
-        quantum_state,
-        consciousness,
-    )?;
-
-    // Store ANIMA
-    let anima_id = ic_cdk::id();
-    STORAGE.with(|storage| {
-        storage.borrow_mut().insert(anima_id, anima)
-    });
-
-    Ok(anima_id)
-}
-
-// Helper function for authorization
 fn is_authorized(principal: Principal) -> bool {
     // Add your authorization logic here
     true // For testing - implement proper auth
